@@ -1,0 +1,18 @@
+<a href="/">Back to Home</a>
+
+<h1><%- title%></h1>
+
+
+<form method='POST' action='/<%=title.toLowerCase()%>'>
+	<p><label>Email</label></p>
+	<p><input type="email" name="email"></p>
+
+	<br>
+
+	<p><label>Password</label></p>
+	<p><input type="password" name="password"></p>
+
+	<br>
+
+	<button>Submit</button>
+</form>
