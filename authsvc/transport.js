@@ -14,9 +14,9 @@ route.use(async(ctx, next) => {
   await next()
 })
 
-route.get('/login', Endpoint.loginGet)
-route.post('/login', Endpoint.loginPost)
-route.get('/register', Endpoint.registerGet)
-route.post('/register', Endpoint.registerPost)
+route.get('/login', Endpoint.getLogin)
+route.post('/login', Endpoint.postLogin)
+route.get('/register', Endpoint.getRegister)
+route.post('/register', Endpoint.postRegister)
 
 export default route
