@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "PORT=3000 MONGO_URI=mongodb://localhost/koa-auth mocha --compilers babel-core/register",
-    "start": "nodemon server.js --exec babel-node --presets es2015,stage-3"
+    "start": "nodemon server.js --exec babel-node",
+    "build": "babel . -d dist",
+    "serve": "node dist/index.js"
   },
   "author": "",
   "license": "ISC",
