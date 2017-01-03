@@ -18,8 +18,8 @@ const ErrorIncorrectPassword = new Error('The password is incorrect')
 const ErrorInvalidEmail = new Error('The email format is incorrect')
 const ErrorEmailNotProvided = new Error('Email is required')
 const ErrorPasswordNotProvided = new Error('Password is required')
-const ErrorUserIdNotProvided = new Error('User id is required')
-const ErrorUserAgentNotProvided = new Error('User agent is required')
+// const ErrorUserIdNotProvided = new Error('User id is required')
+// const ErrorUserAgentNotProvided = new Error('User agent is required')
 
 class AuthService extends AuthInterface {
   constructor (props) {
@@ -62,30 +62,7 @@ class AuthService extends AuthInterface {
   logout () {
     // TODO: Clears the user's token/device from the database
   }
-  async createDevice (user_id, user_agent) {
-    if (!user_id) throw ErrorUserIdNotProvided
-    if (!user_agent) throw ErrorUserAgentNotProvided
 
-    // const user = await this.db.findOne({
-    //   _id: user_id,
-    //   'devices.user_agent': { $ne: user_agent }
-    // })
-    // // if exist
-    // if (user) {
-    //   const response = await user.update({
-    //     _id: user_id
-    //   }, {
-    //     $addToSet: {
-    //       devices: {
-    //         access_token: await user.createAccessToken({ user_id, user_agent }),
-    //         refresh_token: await user.createRefreshToken(32),
-    //         user_agent: user_agent
-    //       }
-    //     }
-    //   })
-    // }
-    // return response
-  }
 }
 
 // Export a new auth service

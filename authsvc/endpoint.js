@@ -12,7 +12,13 @@ const postLogin = async(ctx, next) => {
     const request = postLoginRequest(ctx.request.body)
     const user = await ctx.service.login(request.email, request.password)
     const response = postLoginResponse(user)
-    ctx.redirect('/profile')
+    // Upon success, redirect the user to an empty page
+    // first to create a new device and store the access
+    // and refresh token locally
+    ctx.redirect('/profile/USER_ID_JWT')
+    // ...or not
+    // For mobile, it is best to just return the access and
+    // refresh token directly
   } catch (err) {
     ctx.redirect('/login?error=' + err.message)
   }
