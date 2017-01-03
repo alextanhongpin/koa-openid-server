@@ -3,7 +3,7 @@ import validator from 'email-validator'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt-nodejs'
 import crypto from 'crypto'
- 
+
 const JWT_SECRET = process.env.JWT_SECRET
 
 const ErrorEmailRequired = 'Please provide an email address'
@@ -17,7 +17,7 @@ const UserSchema = new Schema({
     type: String,
     required: [true, ErrorEmailRequired],
     validate: {
-      validator(v) {
+      validator (v) {
         return validator.validate(v)
       },
       message: ErrorInvalidEmail
@@ -25,7 +25,7 @@ const UserSchema = new Schema({
   },
   password: {
     type: String,
-    required: true.
+    required: true,
     minLength: [6, ErrorInvalidPassword]
   },
   created_at: {
@@ -33,8 +33,8 @@ const UserSchema = new Schema({
     default: Date.now
   },
   modified_at: {
-   type: Date,
-   default: Date.now
+    type: Date,
+    default: Date.now
   },
   role: {
     type: String,
@@ -58,7 +58,7 @@ UserSchema.methods.hashPassword = (password) => {
 
 UserSchema.methods.comparePassword = (password) => {
   return new Promise((resolve, reject) => {
-    bcrypt.compare("bacon", hash, function(err, res) {
+    bcrypt.compare('bacon', hash, function (err, res) {
       if (err) {
         reject(err)
       } else {
@@ -74,9 +74,9 @@ UserSchema.methods.createRefreshToken = (payload) => {
 UserSchema.methods.createAccessToken = (payload) => {
   return new Promise((resolve, reject) => {
     jwt.sign(payload, JWT_SECRET, {
-      algorithm: 'HS256'
+      algorithm: 'HS256',
       expiresIn: '2m',
-      // notBefore: 
+      // notBefore:
       // audience
       issuer: 'koa-oauth'
       // jwtid

@@ -6,7 +6,7 @@ import parser from 'koa-bodyparser'
 import path from 'path'
 import co from 'co'
 import authsvc from './authsvc/transport.js'
-import mongoose from './database/mongoose.js'
+import mongoose from './common/database.js'
 import errors from './modules/errors.js'
 
 const PORT = process.env.PORT
@@ -38,3 +38,5 @@ app.use(async (ctx, next) => {
 app.listen(PORT, () => {
   console.log(`listening to port *:${PORT}.\npress ctrl + c to cancel.`)
 })
+
+export default app
