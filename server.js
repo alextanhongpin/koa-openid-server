@@ -5,7 +5,7 @@ import logger from 'koa-logger'
 import parser from 'koa-bodyparser'
 import path from 'path'
 import co from 'co'
-import authsvc from './authsvc/transport.js'
+import authService from './authService/transport.js'
 import mongoose from './common/database.js'
 import errors from './modules/errors.js'
 
@@ -25,8 +25,8 @@ app
 .use(errors())
 .use(logger())
 .use(parser())
-.use(authsvc.routes())
-.use(authsvc.allowedMethods())
+.use(authService.routes())
+.use(authService.allowedMethods())
 
 // Catch-All Route
 app.use(async (ctx, next) => {
