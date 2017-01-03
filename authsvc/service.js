@@ -5,6 +5,9 @@ class AuthInterface {
   login () {
     throw new Error('AuthInterfaceError: login is not implemented')
   }
+  logout () {
+    throw new Error('AuthInterfaceError: logout is not implemented')
+  }
   register () {
     throw new Error('AuthInterfaceError: login is not implemented')
   }
@@ -33,19 +36,18 @@ class AuthService extends AuthInterface {
   register (email, password) {
     const User = this.db
     return this.db.findOne({ email }).then((user) => {
-      console.log('regidter user')
       if (user) {
         return user
       } else {
         const user = new User()
         user.email = email
-        user.password = password
+        user.password = user.hashPassword(password)
         return user.save()
       }
     })
   }
-  getUsers () {
-    return this.db.find()
+  logout () {
+    // TODO: Clears the user's token/device from the database 
   }
 }
 
