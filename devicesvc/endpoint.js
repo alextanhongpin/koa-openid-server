@@ -30,6 +30,15 @@ const getDevicesResponse = (res) => {
   return res
 }
 
+const getDeviceRequest = (req) => {
+  return req
+}
+
+const getDeviceResponse = (res) => {
+  return res
+}
+
 export default {
- getDevices 
+  getDevices,
+  getDevice
 }
