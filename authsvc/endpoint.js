@@ -9,9 +9,9 @@ const getLogin = async(ctx, next) => {
 
 const postLogin = async(ctx, next) => {
   try {
-    const request = loginPostRequest(ctx.request.body)
+    const request = postLoginRequest(ctx.request.body)
     const user = await ctx.service.login(request.email, request.password)
-    const response = loginPostResponse(user)
+    const response = postLoginResponse(user)
     ctx.redirect('/profile')
   } catch (err) {
     ctx.redirect('/login?error=' + err.message)
@@ -26,25 +26,23 @@ const getRegister = async(ctx, next) => {
 }
 
 const postRegister = async(ctx, next) => {
-  console.log('regiter user')
   try {
-    const request = registerPostRequest(ctx.request.body)
-    console.log(request)
+    const request = postRegisterRequest(ctx.request.body)
     const user = await ctx.service.register(request.email, request.password)
-    const response = registerPostResponse(user)
+    const response = postRegisterResponse(user)
+
+    // Store the user's id in the context's state
+    ctx.state.user_id = response._id
+    const deviceRequest = createDeviceRequest(ctx)
+    const device = await ctx.service.createDevice(deviceRequest.user_id, deviceRequest.user_agent)
+    const deviceResponse = createDeviceResponse(device)
+    console.log(deviceResponse)
     ctx.redirect('/profile')
   } catch (err) {
+    console.log(err)
     ctx.redirect('/login?error=' + err.message)
   }
 }
-
-// Users endpoints
-// const getUsers = async(ctx, next) => {
-//   const request = null
-//   const users = await ctx.service.getUsers()
-//   const response = users
-//   successResponse(ctx, response, 200)
-// }
 
 // Requests/Responses
 
@@ -68,9 +66,20 @@ const postRegisterRequest = (req) => {
   }
 }
 const postRegisterResponse = (res) => {
+  return res
+}
+
+const createDeviceRequest = (req) => {
   return {
-    _id: res._id,
-    username: res.username
+    user_agent: req.headers['user-agent'],
+    user_id: req.state.user_id
+  }
+}
+
+const createDeviceResponse = (res) => {
+  return {
+    access_token: res.access_token,
+    refresh_token: res.refresh_token
   }
 }
 

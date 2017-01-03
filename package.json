@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "babel-polyfill": "^6.20.0",
+    "base64url": "^2.0.0",
     "bcrypt-nodejs": "0.0.3",
     "co": "^4.6.0",
     "email-validator": "^1.0.7",

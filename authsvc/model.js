@@ -11,7 +11,7 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt-nodejs'
 import crypto from 'crypto'
 // TODO: Write your implementation of the base 64 encode/decode method
-// var base64url = require('base64url')
+import base64url from 'base64url'
 // Constants
 const JWT_SECRET = process.env.JWT_SECRET
 
@@ -20,6 +20,9 @@ const JWT_SECRET = process.env.JWT_SECRET
 const ErrorEmailRequired = 'Email address must be provided'
 const ErrorInvalidEmail = '{VALUE} is not a valid email address'
 const ErrorInvalidPassword = 'Password must be at least 6 characters'
+const ErrorIncorrectPassword = new Error('Password provided is incorrect')
+// TODO: handle incorrect password scenario for more than 3 times
+// Send email to notify that his/her password has been compromised
 
 const UserSchema = new Schema({
   email: {
@@ -49,7 +52,20 @@ const UserSchema = new Schema({
     type: String,
     enum: ['admin', 'user'],
     default: 'user'
-  }
+  },
+  devices: [ {
+    access_token: String,
+    refresh_token: String,
+    user_agent: String,
+    created_at: {
+      type: Date,
+      default: Date.now
+    },
+    modified_at: {
+      type: Date,
+      default: Date.now
+    }
+  } ]
 })
 
 UserSchema.methods.hashPassword = (password) => {
@@ -66,20 +82,22 @@ UserSchema.methods.hashPassword = (password) => {
   })
 }
 
-UserSchema.methods.comparePassword = (password) => {
+// Avoid arrow functions in methods so that the reference
+// to `this` is preserved
+UserSchema.methods.comparePassword = function (password) {
   // bcrypt provides a method called .compareSync(),
   // but it's always better to handle operations asynchronously
   return new Promise((resolve, reject) => {
-    bcrypt.compare('bacon', hash, function (err, res) {
+    bcrypt.compare(password, this.password, (err, isSamePassword) => {
       if (err) {
         reject(err)
       } else {
-        resolve(res)
+        console.log('comparepass', err, isSamePassword)
+        isSamePassword ? resolve(true) : reject(ErrorIncorrectPassword)
       }
     })
   })
 }
-
 
 UserSchema.methods.createRefreshToken = (size) => {
   // Make it all async!
