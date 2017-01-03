@@ -5,23 +5,19 @@
 Note: If you need to learn how to setup the server, check out 
 [https://github.com/babel/example-node-server](here).
 
-###Folder Structure
-+ common - contains all the common configuration/database/loggers etc.
-+ view - contains the HTML templates and partial views
-
-
-Install all the necessary dependencies.
-```
-npm install koa@2 --save
-
-npm install koa-router@next --save
-
-npm install koa-bodyparser@next --save
-
-```
 Start by creating a new `package.json` with the command `npm init`.
+
 Then initialize a new git with the command `git init`.
 
+We will be using the following npm modules to build our server.
+```
+// installing dependencies
+$ npm install koa@2 --save
+
+$ npm install koa-router@next --save
+
+$ npm install koa-bodyparser@next --save
+```
 
 ### Environment Variables
 
