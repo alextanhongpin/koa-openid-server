@@ -108,7 +108,7 @@ UserSchema.methods.createAccessToken = (payload) => {
     }, JWT_SECRET, {
       algorithm: 'HS256',
       expiresIn: '2m',
-      issuer: 'XD31W90F-openidconnect'
+      issuer: process.env.APP_NAME
     }, (err, token) => {
       if (err) {
         reject(err)
@@ -123,7 +123,7 @@ UserSchema.methods.validateAccessToken = (token) => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, JWT_SECRET, {
       algorithms: ['HS256'],
-      issuer: 'XD31W90F-openidconnect'
+      issuer: process.env.APP_NAME
     }, (err, decoded) => {
       if (err) {
         reject(err)
