@@ -1,13 +1,13 @@
 // endpoint.js
 
 // Login Endpoints
-const loginGet = async(ctx, next) => {
+const getLogin = async(ctx, next) => {
   await ctx.render('auth', {
     title: 'Login'
   })
 }
 
-const loginPost = async(ctx, next) => {
+const postLogin = async(ctx, next) => {
   try {
     const request = loginPostRequest(ctx.request.body)
     const user = await ctx.service.login(request.email, request.password)
@@ -19,13 +19,13 @@ const loginPost = async(ctx, next) => {
 }
 
 // Register Endpoints
-const registerGet = async(ctx, next) => {
+const getRegister = async(ctx, next) => {
   await ctx.render('auth', {
     title: 'Register'
   })
 }
 
-const registerPost = async(ctx, next) => {
+const postRegister = async(ctx, next) => {
   console.log('regiter user')
   try {
     const request = registerPostRequest(ctx.request.body)
@@ -48,26 +48,26 @@ const registerPost = async(ctx, next) => {
 
 // Requests/Responses
 
-const loginPostRequest = (req) => {
+const postLoginRequest = (req) => {
   return {
     email: req.email,
     password: req.password
   }
 }
-const loginPostResponse = (res) => {
+const postLoginResponse = (res) => {
   return {
     _id: res._id,
     username: res.username
   }
 }
 
-const registerPostRequest = (req) => {
+const postRegisterRequest = (req) => {
   return {
     email: req.email,
     password: req.password
   }
 }
-const registerPostResponse = (res) => {
+const postRegisterResponse = (res) => {
   return {
     _id: res._id,
     username: res.username
@@ -80,9 +80,9 @@ const successResponse = (ctx, response, status) => {
 }
 
 export default {
-  loginGet,
-  loginPost,
-  registerGet,
-  registerPost
+  getLogin,
+  postLogin,
+  getRegister,
+  postRegister
   // getUsers
 }
