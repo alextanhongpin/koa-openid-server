@@ -15,12 +15,35 @@ const postLogin = async(ctx, next) => {
     // Upon success, redirect the user to an empty page
     // first to create a new device and store the access
     // and refresh token locally
-    ctx.redirect('/profile/USER_ID_JWT')
+    // ctx.redirect('/profile/USER_ID_JWT')
     // ...or not
     // For mobile, it is best to just return the access and
     // refresh token directly
+    // Invoke the next middleware
+
+    requestmodule('/devices', {
+      method: 'POST',
+      headers: {
+        'Authorization': '',
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify({})
+    }, (err, res, body) => {
+      if (err) {
+        throw new Error('Unable to create device at the moment')
+      }
+      if (!err && response.statusCode === 200) {
+        // body
+        successResponse({
+          access_token: '',
+          refresh_token: ''
+        }, 200)
+      }
+    })
   } catch (err) {
-    ctx.redirect('/login?error=' + err.message)
+    errorResponse({
+      error: err.message
+    }, 400)
   }
 }
 
@@ -91,6 +114,10 @@ const createDeviceResponse = (res) => {
 
 const successResponse = (ctx, response, status) => {
   ctx.body = response
+  ctx.status = status
+}
+const errorResponse = (ctx, error, status) => {
+  ctx.body = error
   ctx.status = status
 }
 

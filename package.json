@@ -9,7 +9,7 @@
     "build": "babel . -d dist",
     "serve": "node dist/index.js"
   },
-  "author": "",
+  "author": "alextanhongpin",
   "license": "ISC",
   "dependencies": {
     "babel-polyfill": "^6.20.0",

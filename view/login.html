@@ -1,0 +1,55 @@
+<a href="/">Back to Home</a>
+
+<h1><%- title%></h1>
+
+
+<form>
+	<p><label>Email</label></p>
+	<p><input type="email" name="email"></p>
+
+	<br>
+
+	<p><label>Password</label></p>
+	<p><input type="password" name="password"></p>
+
+	<br>
+
+	<button id="submit">Submit</button>
+</form>
+
+<script type="text/javascript">
+	
+	const submit = document.getElementById('submit')
+	submit.addEventListener('click', (evt) => {
+
+		const email = document.querySelector('input[name=email]').value
+		const password = document.querySelector('input[name=password]').value
+
+
+		const request = fetch('/<%=title.toLowerCase()%>', {
+			method: 'POST',
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json;charset=utf-8'
+			},
+			body: JSON.stringify({
+				email, password
+			})
+		})
+
+		const response = request.then((body) => {
+			if (!body) {
+				window.alert('Error parsing body')
+				return
+			}
+			return body.json()
+		}).catch((err) => {
+			if (err) {
+				window.alert(err)
+			}
+		}).then((res) => {
+			// do something with the json response
+		})
+		return false
+	}, false)
+</script>
