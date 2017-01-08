@@ -3,11 +3,16 @@
 import mongoose, { connection } from 'mongoose'
 mongoose.Promise = global.Promise
 
-mongoose.connect(process.env.MONGO_URI)
+// In my opinion, you are trying to create another connection without closing the current one. So, you might want to use:
+// createConnection() instead of connect().
+const db = mongoose.createConnection(process.env.MONGO_URI)
+// When using mongoose create connection
+// you must use db.Model('MyModel') not mongoose.Model('MyModel') if you use createConnection
 
-connection.on('error', console.error.bind(console, 'connection error:'))
-connection.once('open', function () {
+db.on('error', console.error.bind(console, 'connection error:'))
+
+db.once('open', function () {
   console.log('connected to mongoose db')
 })
 
-export default mongoose
+export default db

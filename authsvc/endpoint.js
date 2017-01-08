@@ -1,8 +1,9 @@
 // endpoint.js
+import noderequest from 'request'
 
 // Login Endpoints
 const getLogin = async(ctx, next) => {
-  await ctx.render('auth', {
+  await ctx.render('login', {
     title: 'Login'
   })
 }
@@ -12,34 +13,15 @@ const postLogin = async(ctx, next) => {
     const request = postLoginRequest(ctx.request.body)
     const user = await ctx.service.login(request.email, request.password)
     const response = postLoginResponse(user)
-    // Upon success, redirect the user to an empty page
-    // first to create a new device and store the access
-    // and refresh token locally
-    // ctx.redirect('/profile/USER_ID_JWT')
-    // ...or not
-    // For mobile, it is best to just return the access and
-    // refresh token directly
-    // Invoke the next middleware
+    // Store the user's id in the context's state
+    ctx.state.user_id = response._id
+    ctx.state.user_agent = ctx.state.userAgent.source
 
-    requestmodule('/devices', {
-      method: 'POST',
-      headers: {
-        'Authorization': '',
-        'Content-Type': 'application/json;charset=utf-8'
-      },
-      body: JSON.stringify({})
-    }, (err, res, body) => {
-      if (err) {
-        throw new Error('Unable to create device at the moment')
-      }
-      if (!err && response.statusCode === 200) {
-        // body
-        successResponse({
-          access_token: '',
-          refresh_token: ''
-        }, 200)
-      }
-    })
+    const deviceRequest = postDeviceMiddlewareRequest(ctx.state)
+    const device = await postDeviceMiddleware(deviceRequest)
+    const deviceResponse = postDeviceMiddlewareResponse(device)
+
+    successResponse(ctx, deviceResponse, 200)
   } catch (err) {
     errorResponse({
       error: err.message
@@ -47,9 +29,34 @@ const postLogin = async(ctx, next) => {
   }
 }
 
+const postDeviceMiddleware = async({ user_id }) => {
+  return new Promise((resolve, reject) => {
+    noderequest('http://localhost:3100/devices', {
+      method: 'POST',
+      headers: {
+        // Client credentials grant
+        // 'Authorization': '',
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify({
+        user_id
+      })
+    }, (err, res, body) => {
+      console.log(err, body)
+      if (err) {
+        throw new Error('Unable to create device at the moment')
+      }
+      if (!err && res.statusCode === 200) {
+        // body
+        resolve(JSON.parse(body))
+      }
+    })
+  })
+}
+
 // Register Endpoints
 const getRegister = async(ctx, next) => {
-  await ctx.render('auth', {
+  await ctx.render('register', {
     title: 'Register'
   })
 }
@@ -62,14 +69,17 @@ const postRegister = async(ctx, next) => {
 
     // Store the user's id in the context's state
     ctx.state.user_id = response._id
-    const deviceRequest = createDeviceRequest(ctx)
-    const device = await ctx.service.createDevice(deviceRequest.user_id, deviceRequest.user_agent)
-    const deviceResponse = createDeviceResponse(device)
-    console.log(deviceResponse)
-    ctx.redirect('/profile')
+    ctx.state.user_agent = ctx.state.userAgent.source
+    
+    const deviceRequest = postDeviceMiddlewareRequest(ctx.state)
+    const device = await postDeviceMiddleware(deviceRequest)
+    const deviceResponse = postDeviceMiddlewareResponse(device)
+
+    successResponse(ctx, deviceResponse, 200)
   } catch (err) {
     console.log(err)
     ctx.redirect('/login?error=' + err.message)
+    errorResponse(err, 400)
   }
 }
 
@@ -112,6 +122,18 @@ const createDeviceResponse = (res) => {
   }
 }
 
+const postDeviceMiddlewareRequest = (req) => {
+  return {
+    user_id: req.user_id,
+    user_agent: req.user_agent
+  }
+}
+const postDeviceMiddlewareResponse = (res) => {
+  return {
+    access_token: res.access_token,
+    refresh_token: res.refresh_token
+  }
+}
 const successResponse = (ctx, response, status) => {
   ctx.body = response
   ctx.status = status

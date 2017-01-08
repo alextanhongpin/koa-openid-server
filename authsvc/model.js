@@ -12,6 +12,7 @@ import bcrypt from 'bcrypt-nodejs'
 import crypto from 'crypto'
 // TODO: Write your implementation of the base 64 encode/decode method
 import base64url from 'base64url'
+import db from '../common/database.js'
 // Constants
 const JWT_SECRET = process.env.JWT_SECRET
 
@@ -53,19 +54,6 @@ const UserSchema = new Schema({
     enum: ['admin', 'user'],
     default: 'user'
   }
-  // devices: [ {
-  //   access_token: String,
-  //   refresh_token: String,
-  //   user_agent: String,
-  //   created_at: {
-  //     type: Date,
-  //     default: Date.now
-  //   },
-  //   modified_at: {
-  //     type: Date,
-  //     default: Date.now
-  //   }
-  // } ]
 })
 
 UserSchema.methods.hashPassword = (password) => {
@@ -92,7 +80,6 @@ UserSchema.methods.comparePassword = function (password) {
       if (err) {
         reject(err)
       } else {
-        console.log('comparepass', err, isSamePassword)
         isSamePassword ? resolve(true) : reject(ErrorIncorrectPassword)
       }
     })
@@ -152,4 +139,10 @@ UserSchema.methods.validateAccessToken = (token) => {
   })
 }
 
-export default mongoose.model('User', UserSchema)
+let User
+try {
+  User = db.model('User')
+} catch (error) {
+  User = db.model('User', UserSchema)
+}
+export default User

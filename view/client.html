@@ -1,0 +1,24 @@
+<a href="/clients">Back to Apps List</a>
+
+<% if (error) { %>
+
+	<p><%- error %></p>
+
+<% } else { %>
+
+	<h1><%- client.client_name %></h1>
+
+	<h2>Your credentials:</h2>
+	<p><b>Client ID: </b> <%- client.client_id %></p>
+	<p><b>Client Secret: </b> <%- client.client_secret %></p>
+
+	<br>
+
+	<p><b>Website: </b> <%- client.client_uri %></p>
+	<p><b>Logo: </b> <%- client.logo_uri %></p>
+	<p><b>Responses Types: </b> <%- client.responses_types.join(', ') %></p>
+	<p><b>Grant Types: </b> <%- client.grant_types.join(', ') %></p>
+	<p><b>Contacts: </b> <%- client.contacts.join(', ') %></p>
+	<p><b>Callback URLs: </b> <%- client.redirect_uris.join(', ') %></p>
+
+<% } %>

@@ -1,0 +1,43 @@
+
+
+<h1>Profile</h1>
+
+<h2>You are currently logged in  with the following tokens:</h2>
+<br>
+<p>
+<b>Your access token</b>
+<div id='AccessToken'></div>
+</p>
+<p>
+<br>
+<b>Your refresh token</b>
+<div id='RefreshToken'></div>
+</p>
+
+<output id='Active'></output>
+<button id="Introspect">Introspect</button>
+<script type="text/javascript">
+	
+const accessToken = document.getElementById('AccessToken')
+accessToken.innerHTML = window.localStorage.accessToken
+
+const refreshToken = document.getElementById('RefreshToken')
+refreshToken.innerHTML = window.localStorage.refreshToken
+
+const introspect = document.getElementById('Introspect')
+const active = document.getElementById('Active')
+
+introspect.addEventListener('click', (evt) => {
+	active.innerHTML = ''
+	Service.introspect({
+		token: window.localStorage.accessToken,
+		token_type_hint: 'access_token'
+	}).then((data) => {
+		if (data.active) {
+			active.innerHTML = 'Your token is validated'
+		} else {
+			active.innerHTML = 'Your token has expired'
+		}
+	})
+}, false)
+</script>

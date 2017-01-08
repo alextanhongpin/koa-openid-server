@@ -12,6 +12,7 @@ import bcrypt from 'bcrypt-nodejs'
 import crypto from 'crypto'
 // TODO: Write your implementation of the base 64 encode/decode method
 import base64url from 'base64url'
+import db from '../common/database.js'
 // Constants
 const JWT_SECRET = process.env.JWT_SECRET
 
@@ -22,9 +23,23 @@ const JWT_SECRET = process.env.JWT_SECRET
 // Send email to notify that his/her password has been compromised
 
 const DeviceSchema = new Schema({
-  access_token: String,
-  refresh_token: String,
-  user_agent: String,
+  access_token: {
+    type: String,
+    required: true
+  },
+  refresh_token: {
+    type: String,
+    required: true
+  },
+  user_agent: {
+    type: String,
+    required: true
+  },
+  user_id: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   created_at: {
     type: Date,
     default: Date.now
@@ -87,5 +102,12 @@ DeviceSchema.methods.validateAccessToken = (token) => {
     })
   })
 }
-
-export default mongoose.model('Device', DeviceSchema)
+// For testing purposes, it will throw
+// MongooseError: Cannot overwrite `User` model once compiled.
+let Device
+try {
+  Device = db.model('Device')
+} catch (error) {
+  Device = db.model('Device', DeviceSchema)
+}
+export default Device

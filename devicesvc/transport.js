@@ -16,5 +16,7 @@ route.use(async(ctx, next) => {
 
 route.get('/devices', Endpoint.getDevices)
 route.get('/devices/:id', Endpoint.getDevice)
-
+route.post('/devices', Endpoint.postDevice)
+// Only admin can access
+// route.delete('/devices', Endpoint.destroy)
 export default route

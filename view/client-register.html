@@ -1,0 +1,94 @@
+<!--
+client.html
+
+Responsible for displaying the view for registering the client based on the specification found on:
+
+https://tools.ietf.org/html/draft-ietf-oauth-dyn-reg-17
+-->
+<h1>Client Registration</h1>
+<form'>
+
+<input type="text" name="client_name" placeholder='Your app name' required autofocus="true">
+<br>
+<input type="text" name="client_uri" placeholder='Your website url' required>
+<br>
+<input type="text" name="logo_uri" placeholder='Link to your app logo'>
+<br>
+<input type="text" name="contacts" placeholder='List of emails separated by ","'>
+<br>
+<input type="text" name="tos_uri" placeholder="Link to your app's Terms of Service">
+<br>
+<input type="text" name="policy_uri" placeholder="Link to your app's Privacy Policy">
+<br>	
+<input type="text" name="redirect_uris" placeholder='List of callback urls separated by ","' required="true">
+
+<p>
+<label><input type="checkbox" name="platform" value="ios"> iOS</label>
+<label><input type="checkbox" name="platform" value="android"> Android</label>
+<label><input type="checkbox" name="platform" value="web"> Web</label>
+</p>
+<button id='Submit'>Submit</button>
+</form>
+
+<script type="text/javascript">
+	
+
+
+	// TODO: Only registered users can create clients
+	function createClient ({ clientName, clientURI, logoURI, contacts, tosURI, policyURI, redirectURIs }) {
+      const request = fetch('/api/v1/clients', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json;charset=utf-8'
+          // 'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          clientName,
+          clientURI,
+          logoURI,
+          contacts,
+          tosURI,
+          policyURI,
+          redirectURIs
+        })
+      })
+
+      const response = request.then((body) => {
+        if (!body) {
+          return reject(new Error('Error parsing body'))
+        } else {
+          return body.json()
+        }
+      }).catch((err) => {
+        window.alert(err)
+      })
+      return response
+	}
+
+  const submit = document.getElementById('Submit')
+  submit.addEventListener('click', (evt) => {
+
+    evt.preventDefault()
+    const clientName = document.querySelector('input[name=client_name]').value
+    const clientURI = document.querySelector('input[name=client_uri]').value
+    const logoURI = document.querySelector('input[name=logo_uri]').value
+    const contacts = document.querySelector('input[name=contacts]').value.split(',')
+    const tosURI = document.querySelector('input[name=tos_uri]').value
+    const policyURI = document.querySelector('input[name=policy_uri]').value
+    const redirectURIs = document.querySelector('input[name=redirect_uris]').value.split(',')
+
+    createClient({
+      clientName,
+      clientURI,
+      logoURI,
+      contacts,
+      tosURI,
+      policyURI,
+      redirectURIs
+    }).then((data) => {
+      console.log(data)
+    })
+    return false
+  }, false)
+</script>

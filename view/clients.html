@@ -1,0 +1,10 @@
+<h1>Your registered applications:</h1>
+
+<% for (var i = 0; i < clients.length; i += 1) { %>
+	<% var client = clients[i] %>
+	<p>
+		<a href="/clients/<%-client.client_id%>"> <%- client.client_name %> </a>
+	</p>
+<% } %>
+
+<a href="/register/clients">Create a new Application</a>

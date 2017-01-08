@@ -27,6 +27,7 @@ We will store our environment variables in the `.env` file. Make sure you have i
 $ npm install -g foreman
 ```
 
+Create an `.env` file with the following variables. We can add more later.
 ```
 // .env
 PORT=3000
@@ -63,4 +64,31 @@ If you have accidentally committed the node_modules directory, you can follow th
 git rm -r --cached node_modules
 git commit -m 'Remove the now ignored directory node_modules'
 git push origin master
+```
+
+## Endpoints
+Standard OAuth 2.0 / OpenID Connect endpoints
+
+- server discovery
+- server jwk set
+- client registration
+- authorisation
+- token
+- token introspection
+- token revocation
+- userinfo
+We will create the following endpoints:
+```
+
+GET /login - Display the login form
+POST /login - Submit the login request (email, password) and obtain the response (access token, refresh token)
+
+GET /register - Display the register form
+POST /register - Submit the register request (email, password) and obtain the response (access token, refresh token)
+
+POST /logout - clears the user credentials from the server
+POST /userinfo - Get the user info with the JWT token in the Authorization header
+
+
+
 ```

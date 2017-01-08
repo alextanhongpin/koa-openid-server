@@ -1,3 +1,6 @@
+const ErrorUserIdNotProvided = new Error('Unable to identify user')
+const ErrorUserAgentNotProvided = new Error('Unable to identify the user agent')
+
 class DeviceInterface {
   getDevices () {
     throw new Error('DeviceInterfaceError: getDevices is not implemented')
@@ -9,31 +12,52 @@ class DeviceInterface {
 }
 
 class DeviceService extends DeviceInterface {
-  async postDevice (user_id, user_agent) {
+  constructor (props) {
+    super(props)
+    this.db = props.db
+  }
+  async getDevices (user_id = '', user_agent = '') {
+    // if (!user_id) throw ErrorUserIdNotProvided
+    // if (!user_agent) throw ErrorUserAgentNotProvided
+    const users = await this.db.find({
+      // user_id, user_agent
+    })
+    return users
+  }
+  async postDevice ({user_id, user_agent}) {
     if (!user_id) throw ErrorUserIdNotProvided
     if (!user_agent) throw ErrorUserAgentNotProvided
     const Device = this.db
-    const device = new Device()
     // device.access_token = await device.createAccessToken()
 
-    // const user = await this.db.findOne({
-    //   _id: user_id,
-    //   'devices.user_agent': { $ne: user_agent }
-    // })
-    // // if exist
-    // if (user) {
-    //   const response = await user.update({
-    //     _id: user_id
-    //   }, {
-    //     $addToSet: {
-    //       devices: {
-    //         access_token: await user.createAccessToken({ user_id, user_agent }),
-    //         refresh_token: await user.createRefreshToken(32),
-    //         user_agent: user_agent
-    //       }
-    //     }
-    //   })
-    // }
-    // return response
+    const device = await this.db.findOne({
+      user_id, user_agent
+    })
+    // No user with the device session
+    if (!device) {
+      const newDevice = new Device()
+      newDevice.user_id = user_id
+      newDevice.user_agent = user_agent
+      newDevice.access_token = await newDevice.createAccessToken({
+        user_id, user_agent
+      })
+      newDevice.refresh_token = await newDevice.createRefreshToken(32)
+      return newDevice.save()
+    } else {
+      device.access_token = await device.createAccessToken({
+        user_id, user_agent
+      })
+      device.refresh_token = await device.createRefreshToken(32)
+      return device.save()
+    }
   }
+
+  destroy () {
+    return this.db.remove({})
+  }
+}
+
+// Export a new auth service
+export default (options) => {
+  return new DeviceService(options)
 }
