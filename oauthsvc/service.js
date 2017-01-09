@@ -6,8 +6,11 @@
 
 import jwt from '../modules/jwt.js'
 class OAuthInteface {
-  getAuthorize() {
-
+  getAuthorize(params, callback) {
+    /*if (!params.name) {
+      return callback('Name is required')
+    }
+    callback(null, response)*/
   }
   postAuthorize () {
 
