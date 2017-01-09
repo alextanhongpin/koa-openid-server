@@ -88,7 +88,16 @@ POST /register - Submit the register request (email, password) and obtain the re
 
 POST /logout - clears the user credentials from the server
 POST /userinfo - Get the user info with the JWT token in the Authorization header
-
-
-
 ```
+
+# Glossary
+
+## Service
+
+Service is basically a part of the core business logic of the application. It takes in an input (request) and produces and output (response). The response can then be consumed by the end users through different `transports`.
+
+Transport can be a HTTP Server (REST), or RPC.
+
+## Endpoint
+
+The endpoint is where a service is called and the contracts are defined. Contracts are a predefined schema of request and response for the service.
