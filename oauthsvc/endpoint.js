@@ -2,6 +2,25 @@
 import base64 from '../modules/base64.js'
 import postIntrospect from './endpoints/introspect-post.js'
 import requestService from 'request'
+/*
+const Endpoints = {
+  AuthorizeEndpoint: '', 
+}
+
+const AuthorizeEndpoint = {
+  const request = {
+    response_type: ctx.query.response_type,
+    scope: ctx.query.scope,
+    client_id: ctx.query.client_id,
+    state: ctx.query.state,
+    redirect_uri: ctx.query.redirect_uri
+  }
+  try  {
+    const response = await service(request)
+  } catch (err) {
+    
+  }
+}*/
 
 // Login Endpoints
 const getAuthorizeRequest = (req) => {

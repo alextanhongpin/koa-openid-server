@@ -6,8 +6,8 @@
 
 import jwt from '../modules/jwt.js'
 class OAuthInteface {
-  getAuthorize() {
-
+  Authorize() {
+    throw new Error('OAuthInterfaceError: Authorize is not implemented')
   }
   postAuthorize () {
 
