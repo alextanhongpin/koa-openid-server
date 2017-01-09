@@ -1,7 +1,25 @@
 // endpoint.js
 import base64 from '../modules/base64.js'
-import postIntrospect from './endpoints/introspect-post.js'
 import requestService from 'request'
+import schema from './schema.js'
+import OpenIdSDK from '../modules/openidsdk.js'
+
+// The SDK is used on the client side to make requests to the openid endpoints
+const openIdSDK = OpenIdSDK({
+  clientId: 'Q_vcpNiuGw_LBxvg1MPzbbA6XGlT2abvLoPROLP61rA',
+  clientSecret: 'FK07NzrgbGmkbwLkuF0Pu_Gzvk-kAavdMCWhLnvLXok',
+  introspectEndpoint: 'http://localhost:3100/token/introspect'
+})
+
+// POST /token/introspect
+// Reference: http://connect2id.com/products/server/docs/api/token-introspection
+
+// Standardize the errors: either invalid (wrong, not supported, etc), 
+// missing (required, but not provided), or forbidden (no permission)
+const ErrorInvalidContentType = new Error('Invalid Content Type: Content-Type must be application/json')
+const ErrorBasicAuthorizationMissing = new Error('Invalid Request: Basic authorization header is required')
+const ErrorForbiddenAccess = new Error('Forbidden Access: Client does not have permission to access this service')
+
 /*
 const Endpoints = {
   AuthorizeEndpoint: '', 
@@ -22,6 +40,78 @@ const AuthorizeEndpoint = {
   }
 }*/
 
+const introspect = async (ctx, next) => {
+  // Business-rule-validation
+  if (!ctx.is('application/x-www-form-urlencoded')) {
+    ctx.throw('Bad Request', 400, {
+      description: ErrorInvalidContentType.message
+    })
+  }
+  const authorizationHeader = ctx.headers.authorization
+  const [ authType, authToken ] = authorizationHeader.split(' ')
+  if (authType !== 'Basic') {
+    ctx.throw('Bad Request', 400, {
+      description: ErrorBasicAuthorizationMissing.message
+    })
+  }
+  const authTokenValidated = base64.decode(authToken)
+  const [ clientId, clientSecret ] = authTokenValidated.split(':')
+  if (!clientId || !clientSecret) {
+    // throw error
+    ctx.throw('Forbidden Access', 403, {
+      description: ErrorForbiddenAccess.message
+    })
+  }
+  // Fire external service
+  // const client = await this.service.getClient({ clientId, clientSecret })
+  // if (!client) {
+  //   throw new Error('Forbidden Access: Client does not have permission to access this service') 
+  // }
+  const request = {
+    token: ctx.request.body.token,
+    token_type_hint: ctx.request.body.token_type_hint
+  }
+  const validRequest = schema.introspectRequest(request)
+  if (!validRequest) {
+    ctx.throw('Invalid Request', 400, {
+      description: schema.introspectRequest.errors[0].message
+    })
+  }
+  const output = await ctx.service.introspect(request)
+  const response = {
+    active: output.active
+  }
+  const validResponse = schema.introspectResponse(response)
+
+  ctx.status = 200
+  ctx.body = response
+  ctx.set('Cache-Control', 'no-cache')
+  ctx.set('Pragma', 'no-cache')
+}
+
+const refresh = async(ctx, next) => {
+  // Business-rule-validation
+  if (!ctx.is('application/x-www-form-urlencoded')) {
+    ctx.throw('Bad Request', 400, {
+      description: ErrorInvalidContentType.message
+    })
+  }
+  const authorizationHeader = ctx.headers.authorization
+  const [ authType, authToken ] = authorizationHeader.split(' ')
+  if (authType !== 'Basic') {
+    ctx.throw('Bad Request', 400, {
+      description: ErrorBasicAuthorizationMissing.message
+    })
+  }
+  const authTokenValidated = base64.decode(authToken)
+  const [ clientId, clientSecret ] = authTokenValidated.split(':')
+  if (!clientId || !clientSecret) {
+    // throw error
+    ctx.throw('Forbidden Access', 403, {
+      description: ErrorForbiddenAccess.message
+    })
+  }
+}
 // Login Endpoints
 const getAuthorizeRequest = (req) => {
   return {
@@ -36,46 +126,13 @@ const getAuthorizeRequest = (req) => {
 const getAuthorizeResponse = (res) => {
   return res
 }
-  // The client is the one making the request
-  // The call must be invoked on the server side to include the
-  // client secret in the header
-const IntrospectSDK = ({ token_type_hint, token }) => {
-
-  const client_id = 'Q_vcpNiuGw_LBxvg1MPzbbA6XGlT2abvLoPROLP61rA'
-  const client_secret = 'FK07NzrgbGmkbwLkuF0Pu_Gzvk-kAavdMCWhLnvLXok'
-  const introspect_endpoint = 'http://localhost:3100/token/introspect'
-
-  return new Promise((resolve, reject) => {
-    requestService(introspect_endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${base64.encode([client_id, client_secret].join(':'))}`
-      },
-      form: {
-        token_type_hint,
-        token
-      }
-    }, (err, res, body) => {
-      // do something
-      if (err) {
-        reject(err)
-      } else if (res.statusCode === 400) {
-        reject(JSON.parse(body))
-      } else {
-        resolve(JSON.parse(body))
-      }
-    })
-  })
-}
 
 export default {
   // POST /client-introspect
   async postClientIntrospect (ctx, next) {
-    console.log('postClientIntrospect')
     // Fires a middleware sdk to introspect the token
     try {
-      const response = await IntrospectSDK({
+      const response = await openIdSDK.introspect({
         token_type_hint: ctx.request.body.token_type_hint,
         token: ctx.request.body.token
       })
@@ -92,7 +149,7 @@ export default {
       }
     }
   },
-  postIntrospect,
+  introspect,
   // GET /authorize
   // Description: Renders the authorize view
   async getAuthorize (ctx, next) {

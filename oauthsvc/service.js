@@ -37,23 +37,9 @@ class OAuthInteface {
 //     "token_type": "bearer"
 // }
   }
+  // Create a new access token from the user_id
   refresh () {
-    // request
-// POST /oauth/token HTTP/1.1
-// Host: api.mendeley.com
-// Authorization: Basic NzczOnh6Y2RvRzh3bVJyZjdOcG0=
-// Content-Type: application/x-www-form-urlencoded
-// Content-Length: 167
-
-// grant_type=refresh_token&refresh_token=MSwxMDM3MzRU3OUMktdmTsZpCDveWT5XMxQOG1SQTtNzczLVUcHOzNADEsbwGFV&redirect_uri=http:%2F%2Flocalhost%2Fmendeley%2Fserver_sample.php
-
-// response
-// {
-//     "access_token": "MSwxN1zZPUxsLIzDM1wMJWEdDaTZiNNzMsYLDEdzcXNDY4NzaSzDA4Sw3QWCxFYFBZ0ZWzN3NzMZ3MWp5GM",
-//     "expires_in": 3600,
-//     "refresh_token": "MSwxMDM3MzRU3OUMktdmTsZpCDveWT5XMxQOG1SQTtNzczLVUcHOzNADEsbwGFV",
-//     "token_type": "bearer"
-// }
+    throw new Error('OAuthInterfaceError: Refresh is not implemented')
   }
 }
 
@@ -133,19 +119,18 @@ class OAuthService extends OAuthInteface {
  // &state=af0ifjsldkj
   }
 
-  postIntrospect ({ token, token_type_hint }) {
+  introspect ({ token, token_type_hint }) {
     // http://connect2id.com/products/server/docs/api/token-introspection
-    if (!token) {
-      throw new Error('Invalid request: Token is required')
-    }
-    if (!token_type_hint) {
-      throw new Error('Invalid request. token_type_hint is missing from request body')
-    }
-
-    if (token_type_hint !== 'access_token') {
-      throw new Error('Invalid request: Token type is not supported')
-    }
     return jwt.verify(token)
+    .catch((err) => {
+      if (err) {
+        // Create a new error with description
+        const error = new Error(err.name)
+        error.description = err.message
+        error.status = 400
+        throw error
+      }
+    })
     // await jwt.verify().then(() => {})
     // if (ErrorTokenExpired) { return active : false}
 // request
@@ -190,8 +175,20 @@ class OAuthService extends OAuthInteface {
 //   "error_description" : "Client not registered for https://c2id.com/token/introspect scope"
 // }
   }
-  postToken () {
+  token () {
     // 
+  }
+  refresh ({ refresh_token, user_id, user_agent }) {
+    return jwt.sign({
+      user_id, user_agent
+    }).then((access_token) => {
+      return {
+        access_token,
+        expires_in: '',
+        token_type: 'bearer',
+        refresh_token
+      }
+    })
   }
   // .well-known/openid-configuration
   configuration () {

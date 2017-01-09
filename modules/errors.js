@@ -7,7 +7,11 @@ const errors = () => {
     try {
       await next()
     } catch (err) {
-      ctx.body = { message: err.message }
+      console.log('GlobalErrorHandling', err)
+      ctx.body = {
+        error: err.message,
+        error_description: err.description 
+      }
       ctx.status = err.status || 500
     }
   }

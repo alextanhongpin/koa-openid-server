@@ -17,7 +17,7 @@ route.use(async(ctx, next) => {
 // route.get('/authorize', Endpoint.getAuthorize)
 // route.post('/authorize', Endpoint.postAuthorize)
 // route.post('/token', Endpoint.postToken)
-route.post('/token/introspect', Endpoint.postIntrospect)
+route.post('/token/introspect', Endpoint.introspect)
 
 // The routes that the client will integrate
 route.post('/client-introspect', Endpoint.postClientIntrospect)
