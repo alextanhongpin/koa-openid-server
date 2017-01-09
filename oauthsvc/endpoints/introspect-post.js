@@ -3,15 +3,7 @@
 // POST /token/introspect
 // Reference: http://connect2id.com/products/server/docs/api/token-introspection
 import base64 from '../../modules/base64.js'
-// @ctx is the koa's context
-// @token String the access token
-// @token_type_hint String must be "access_token"
-function request (ctx) {
-  return {
-    token_type_hint: ctx.request.body.token_type_hint,
-    token: ctx.request.body.token
-  }
-}
+
 
 // @res is the response from the service
 // HTTP/1.1 200 OK
@@ -44,10 +36,9 @@ function response (res) {
 
 
 const introspect = async (ctx, next) => {
-    console.log('introspect')
-  // Bearer type: Basic ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6
-  // Content-Type: application/json
-  // Separate business model and logic
+  if (!ctx.is('application/json')) {
+    ctx.throw('Invalid Content Type: Content-Type must be application/json', 400)
+  }
   try {
     const auth = ctx.headers.authorization
     const [ authType, authToken ] = auth.split(' ')
@@ -67,15 +58,32 @@ const introspect = async (ctx, next) => {
     //   throw new Error('Forbidden Access: Client does not have permission to access this service') 
     // }
 
-    const req = request(ctx)
-    const token = await ctx.service.postIntrospect(req)
+    const request = {
+      token_type_hint: ctx.request.body.token_type_hint,
+      token: ctx.request.body.token
+    }
 
-    console.log('token', token)
-    const res = response(token)
+    const output = await ctx.service.postIntrospect(request)
+
+    const response = {
+      active: output.active
+      // scope: "https://example.com/accounts https://example.com/groups",
+      // client_id  : "izad7cqy34bg4",
+      // username
+      // token_type : "Bearer",
+      // exp        : 1448367412,
+      // iat
+      // nbf
+      // sub        : "izad7cqy34bg4",
+      // aud
+      // iss       : "https://c2id.com"
+      // jti
+      // dat
+    }
     
     // Return as json
     ctx.status = 200
-    ctx.body = res
+    ctx.body = response
     ctx.set('Cache-Control', 'no-cache')
     ctx.set('Pragma', 'no-cache')
     // no store
