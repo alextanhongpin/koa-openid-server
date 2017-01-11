@@ -1,5 +1,5 @@
 import Ajv from 'ajv'
-import Parser from '../common/toolbox.js'
+import { Parser } from '../common/toolbox.js'
 
 const ajv = Ajv({
   allErrors: true,
