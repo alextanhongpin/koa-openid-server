@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://localhost:3000/schemas/token-response.json#",
+  "title": "introspect",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [ "access_token", "refresh_token", "expires_in", "token_type"],
+  "properties": {
+    "access_token": {
+    	"type": "string"
+	  },
+    "refresh_token": {
+      "type": "string"
+    },
+    "expires_in": {
+      "type": "number"
+    },
+    "token_type": { 
+    	"type": "string",
+    	"enum": ["bearer"]
+    }
+  }
+}
