@@ -1,3 +1,4 @@
+// Parse the request and response body for the http REST transport
 const parser = (ajv) => {
   const request = (schema) => {
     return (req) => {
@@ -30,4 +31,4 @@ const parser = (ajv) => {
   }
 }
 
-export default parser
+export default { parser }
