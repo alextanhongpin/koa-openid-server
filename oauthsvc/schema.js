@@ -9,30 +9,38 @@ const ajv = Ajv({
   ]
 })
 // Change the implementation slightly...
-const introspectRequest = (req) {
-  const validator = ajv.getSchema('http://localhost:3000/schemas/introspect-request.json#')
-  const isValid = validator(req)
-  if (!isValid) {
-    const error = new Error('Invalid Request')
-    error.description = validator.introspectRequest.errors[0].message
-    throw error
+
+const parseResponse = (schema) => {
+  return (res) => {
+    const validator = ajv.getSchema('http://localhost:3000/schemas/introspect-response.json#')
+    const isValid = validator(res)
+    if (!isValid) {
+      const error = new Error('Invalid Response')
+      error.description = validator.errors[0].message
+      throw error
+    }
+    return res
   }
-  return req
 }
-const introspectResponse = (res) {
-  const validator = ajv.getSchema('http://localhost:3000/schemas/introspect-response.json#')
-  const isValid = validator(res)
-  if (!isValid) {
-    const error = new Error('Invalid Response')
-    error.description = validator.introspectResponse.errors[0].message
-    throw error
+
+
+
+const parseRequest = (schema) => {
+  return (req) => {
+    const validator = ajv.getSchema(schema)
+    const isValid = validator(req)
+    if (!isValid) {
+      const error = new Error('Invalid Request')
+      error.description = validator.errors[0].message
+      throw error
+    }
+    return req
   }
-  return res
 }
 
 export default {
-  introspectRequest,
-  introspectResponse,
-  refreshTokenRequest: ajv.getSchema('http://localhost:3000/schemas/refresh-token-request.json#'),
-  refreshTokenResponse: ajv.getSchema('http://localhost:3000/schemas/refresh-token-response.json#'),
+  introspectRequest: parseRequest('http://localhost:3000/schemas/introspect-request.json#'),
+  introspectResponse: parseResponse('http://localhost:3000/schemas/introspect-response.json#'),
+  refreshTokenRequest: parseRequest('http://localhost:3000/schemas/refresh-token-request.json#'),
+  refreshTokenResponse: parseResponse('http://localhost:3000/schemas/refresh-token-response.json#'),
 }

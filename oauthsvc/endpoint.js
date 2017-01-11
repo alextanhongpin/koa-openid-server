@@ -67,21 +67,14 @@ const introspect = async (ctx, next) => {
   // if (!client) {
   //   throw new Error('Forbidden Access: Client does not have permission to access this service') 
   // }
-  const request = {
+  const request = schema.introspectRequest({
     token: ctx.request.body.token,
     token_type_hint: ctx.request.body.token_type_hint
-  }
-  const validRequest = schema.introspectRequest(request)
-  if (!validRequest) {
-    ctx.throw('Invalid Request', 400, {
-      description: schema.introspectRequest.errors[0].message
-    })
-  }
-  const output = await ctx.service.introspect(request)
-  const response = {
+  })
+  const output = await ctx.service.introspect(request) 
+  const response = schema.introspectResponse({
     active: output.active
-  }
-  const validResponse = schema.introspectResponse(response)
+  })
 
   ctx.status = 200
   ctx.body = response
