@@ -1,4 +1,6 @@
 import Ajv from 'ajv'
+import Parser from '../common/toolbox.js'
+
 const ajv = Ajv({
   allErrors: true,
   schemas: [
@@ -9,38 +11,11 @@ const ajv = Ajv({
   ]
 })
 // Change the implementation slightly...
-
-const parseResponse = (schema) => {
-  return (res) => {
-    const validator = ajv.getSchema('http://localhost:3000/schemas/introspect-response.json#')
-    const isValid = validator(res)
-    if (!isValid) {
-      const error = new Error('Invalid Response')
-      error.description = validator.errors[0].message
-      throw error
-    }
-    return res
-  }
-}
-
-
-
-const parseRequest = (schema) => {
-  return (req) => {
-    const validator = ajv.getSchema(schema)
-    const isValid = validator(req)
-    if (!isValid) {
-      const error = new Error('Invalid Request')
-      error.description = validator.errors[0].message
-      throw error
-    }
-    return req
-  }
-}
+const parser = Parser(ajv)
 
 export default {
-  introspectRequest: parseRequest('http://localhost:3000/schemas/introspect-request.json#'),
-  introspectResponse: parseResponse('http://localhost:3000/schemas/introspect-response.json#'),
-  refreshTokenRequest: parseRequest('http://localhost:3000/schemas/refresh-token-request.json#'),
-  refreshTokenResponse: parseResponse('http://localhost:3000/schemas/refresh-token-response.json#'),
+  introspectRequest: parser.request('http://localhost:3000/schemas/introspect-request.json#'),
+  introspectResponse: parser.response('http://localhost:3000/schemas/introspect-response.json#'),
+  refreshTokenRequest: parser.request('http://localhost:3000/schemas/refresh-token-request.json#'),
+  refreshTokenResponse: parser.response('http://localhost:3000/schemas/refresh-token-response.json#'),
 }
