@@ -17,8 +17,7 @@
       "type": "array"
     },
     "redirect_uri": {
-      "type": "string",
-      "format": "uri"
+      "type": "string"
     }
   }
 }

@@ -5,85 +5,62 @@
 // https://tools.ietf.org/html/rfc7636
 
 import jwt from '../modules/jwt.js'
+
 class OAuthInteface {
-  Authorize() {
-    throw new Error('OAuthInterfaceError: Authorize is not implemented')
+  authorize() {
+    throw new Error('OAuthInterfaceError: authorize() is not implemented')
   }
-  postAuthorize () {
-
-  }
-  getImplicit() {
-
-  }
-  postImplicit () {
-
-  }
-
   token () {
-    //request
-
-// POST /oauth/token HTTP/1.1
-// Host: api.mendeley.com
-// Authorization: Basic NzczOnh6Y2RvRzh3bVJyZjdOcG0=
-// Content-Type: application/x-www-form-urlencoded
-// Content-Length: 127
-
-// grant_type=authorization_code&code=zNlyssMxdc88XcKeLdfHvtxmApe&redirect_uri=http:%2F%2Flocalhost%2Fmendeley%2Fserver_sample.php
-//     // REsponse
-// {
-//     "access_token": "MSwxNMWRSemRhbTVVeWYwDA4NDMzY2LDsYWxsLCw0TWtrNEFBNFJoLMSw3NzOTAzZQYWdZeEEEwMzczNDM1",
-//     "expires_in": 3600,
-//     "refresh_token": "MSwxMDM3MzRU3OUMktdmTsZpCDveWT5XMxQOG1SQTtNzczLVUcHOzNADEsbwGFV",
-//     "token_type": "bearer"
-// }
+    throw new Error('OAuthInterfaceError: token() is not implemented')
   }
-  // Create a new access token from the user_id
   refresh () {
-    throw new Error('OAuthInterfaceError: Refresh is not implemented')
+    throw new Error('OAuthInterfaceError: refresh() is not implemented')
   }
 }
 
 class OAuthService extends OAuthInteface {
-  getAuthorize ({ response_type, scope, client_id, state, redirect_uri}) {
-    if (!response_type) throw new Error('')
-    if (response_type !== 'code') throw new Error('')
-    if (!client_id) throw new Error('')
-    if (!redirect_uri) throw new Error('')
-
-    const client = this.db.getClient({ client_id })
-    if (!client) {
-      // do something
-    }
-      // "client_name"   : "My Example App",
-  // "logo_uri"      : "http://client.example.org/logo.png",
-  // "client_uri"    : "http://client.example.org",
-  // "policy_uri"    : "http://client.example.org/privacy-policy.html",
-  // "tos_uri"       : "http://client.example.org/terms-of-service.html"
-
+  constructor(props) {
+    super(props)
+    this.db = props.db
   }
-  postAuthorize () {
-// https://c2id.com/login?
-//  response_type=code
-//  &scope=openid%20email
-//  &client_id=123
-//  &state=af0ifjsldkj
-//  &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
-
-    if (!response_type) throw new Error('')
-    if (response_type !== 'code') throw new Error('')
-    if (!client_id) throw new Error('')
-    if (!redirect_uri) throw new Error('')
-    const client = this.db.getClient({ client_id })
-    if (!client) {
-      // do something
-    }
-    // create a code that can only be used once
-    const code = ''
-
-// Response for auth code flow
-// https://client.example.org/cb?
- // code=SplxlOBeZQQYbYS6WxSbIA
- // &state=af0ifjsldkj
+  getAuthorize ({ response_type, scope, client_id, state, redirect_uri }) {
+    return this.db.getClient({ client_id }).then((client) => {
+      if (!client) {
+        // Client does not exist error
+      } else {
+        if (client.redirect_uri !== redirect_uri) {
+          // throw error
+        }
+        if (client.scope !== scope) {
+          // throw error
+        }
+        return {
+          client_name: 'my example app',
+          logo_uri: 'http://client.example.org/logo.png',
+          client_uri: 'http://client.example.org',
+          policy_uri: 'http://client.example.org/privacy-policy.html',
+          tos_uri: 'http://client.example.org/terms-of-service.html'
+        }
+      }
+    })
+  }
+  postAuthorize ({ response_type, scope, client_id, state, redirect_uri }) {
+    return this.db.getClient({ client_id }).then((client) => {
+      if (!client) {
+        // Client does not exist error
+      } else {
+        if (client.redirect_uri !== redirect_uri) {
+          // throw error
+        }
+        if (client.scope !== scope) {
+          // throw error
+        }
+        return {
+          code: 'new code',
+          state
+        }
+      }
+    })
   }
 
   getImplicit () {
@@ -131,29 +108,6 @@ class OAuthService extends OAuthInteface {
         throw error
       }
     })
-    // await jwt.verify().then(() => {})
-    // if (ErrorTokenExpired) { return active : false}
-// request
-// POST /clients HTTP/1.1
-// Host: c2id.com
-// Authorization: Bearer ztucZS1ZyFKgh0tUEruUtiSTXhnexmd6
-// Content-Type: application/json
-
-// { 
-//   "grant_types" : [ "client_credentials" ], 
-//   "scope"       : "https://c2id.com/token/introspect"
-// }
-
-// response
-
-
-/// For invalid token
-// HTTP/1.1 200 OK
-// Content-Type: application/json;charset=UTF-8
-
-// {
-//   "active" : false
-// }
 
 
 // HTTP/1.1 400 Bad Request
@@ -184,7 +138,7 @@ class OAuthService extends OAuthInteface {
     }).then((access_token) => {
       return {
         access_token,
-        expires_in: '',
+        expires_in: 3600, // Update it later
         token_type: 'bearer',
         refresh_token
       }

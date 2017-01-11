@@ -1,5 +1,5 @@
 // Parse the request and response body for the http REST transport
-const parser = (ajv) => {
+const Parser = (ajv) => {
   const request = (schema) => {
     return (req) => {
       const validator = ajv.getSchema(schema)
@@ -31,4 +31,4 @@ const parser = (ajv) => {
   }
 }
 
-export default { parser }
+export default { Parser }

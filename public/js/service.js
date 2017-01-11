@@ -86,7 +86,7 @@ const Service = {
       }
     })
   },
-  refresh (accessToken, refreshToken) {
+  refresh ({accessToken, refreshToken}) {
     return new Promise((resolve, reject) => {
       if (!accessToken || !refreshToken) {
         // Redirect the user to the login page

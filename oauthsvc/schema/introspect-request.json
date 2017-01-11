@@ -9,10 +9,15 @@
     "token": {
     	"type": "string", 
     	"minLength": 1 
-	},
+	  },
     "token_type_hint": { 
     	"type": "string",
     	"enum": ["refresh_token", "access_token"]
+    }
+  },
+  "errorMessages": {
+    "required": {
+      "token": "Invalid request: Missing required token parameter"
     }
   }
 }

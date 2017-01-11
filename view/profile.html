@@ -16,6 +16,8 @@
 
 <output id='Active'></output>
 <button id="Introspect">Introspect</button>
+
+<button id="Refresh">Refresh your Token</button>
 <script type="text/javascript">
 	
 const accessToken = document.getElementById('AccessToken')
@@ -26,6 +28,7 @@ refreshToken.innerHTML = window.localStorage.refreshToken
 
 const introspect = document.getElementById('Introspect')
 const active = document.getElementById('Active')
+const refresh = document.getElementById('Refresh')
 
 introspect.addEventListener('click', (evt) => {
 	active.innerHTML = ''
@@ -40,4 +43,22 @@ introspect.addEventListener('click', (evt) => {
 		}
 	})
 }, false)
+
+refresh.addEventListener('click', (evt) => {
+	active.innerHTML = ''
+	Service.refresh({
+		accessToken: window.localStorage.accessToken,
+		refreshToken: window.localStorage.refreshToken
+	}).then((data) => {
+		console.log(data)
+		if (data) {
+			active.innerHTML = 'Your access token is updated'
+			window.localStorage.accessToken = data.access_token
+			window.localStorage.refreshToken = data.refresh_token
+			accessToken.innerHTML = window.localStorage.accessToken
+		} else {
+			active.innerHTML = 'Fail to update access token'
+		}
+	})
+})
 </script>

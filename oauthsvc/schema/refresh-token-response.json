@@ -4,7 +4,7 @@
   "title": "refresh",
   "type": "object",
   "additionalProperties": false,
-  "required": [ "token_type", "access_token", "expires_in" ],
+  "required": [ "token_type", "access_token", "expires_in", "refresh_token" ],
   "properties": {
     "token_type": {
     	"type": "string",

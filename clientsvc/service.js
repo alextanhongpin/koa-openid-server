@@ -3,13 +3,19 @@
 // The Client interface
 class ClientInterface {
   getClients () {
-    throw new Error('ClientInterfaceError: getClients is not implemented')
+    throw new Error('ClientInterfaceError: getClients() is not implemented')
   }
   getClient () {
-    throw new Error('ClientInterfaceError: getClient is not implemented')
+    throw new Error('ClientInterfaceError: getClient() is not implemented')
   }
   postClient () {
-    throw new Error('ClientInterfaceError: postClient is not implemented')
+    throw new Error('ClientInterfaceError: postClient() is not implemented')
+  }
+  updateClient () {
+    throw new Error('ClientInterfaceError: updateClient() is not implemented')
+  }
+  deleteClient () {
+    throw new Error('ClientInterfaceError: deleteClient() is not implemented')
   }
 }
 
@@ -47,6 +53,22 @@ class ClientService extends ClientInterface {
     client.redirect_uris = redirect_uris
 
     return client.save()
+  }
+
+  // Requires authentication
+  updateClient ({ _id, client_name, client_uri, logo_uri, policy_uri, redirect_uris }) {
+    return this.db.find({ _id }).then((client) => {
+      if (!client) {
+        // throw error client does not exist
+      } else {
+        client.client_name = client_name
+        client.client_uri = client_uri
+        client.logo_uri = client.logo_uri
+        client.policy_uri = client.policy_uri
+        client.redirect_uris = client.redirect_uris
+        return client.save()
+      }
+    })
   }
 }
 
