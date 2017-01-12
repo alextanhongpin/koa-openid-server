@@ -7,10 +7,14 @@ import OpenIdSDK from '../modules/openidsdk.js'
 
 // The SDK is used on the client side to make requests to the openid endpoints
 const openIdSDK = OpenIdSDK({
-  clientId: 'Q_vcpNiuGw_LBxvg1MPzbbA6XGlT2abvLoPROLP61rA',
-  clientSecret: 'FK07NzrgbGmkbwLkuF0Pu_Gzvk-kAavdMCWhLnvLXok',
+  authorizeEndpoint: 'http://localhost:3100/authorize',
+  redirectURI: 'http://localhost:3100/client-authorize/callback',
+  clientId: 'jHS3sWTkO4u3sIAMWcj_0smNhndmmKrRZHfmt00D0Mg',
+  clientSecret: 'jHS3sWTkO4u3sIAMWcj_0smNhndmmKrRZHfmt00D0Mg-kAavdMCWhLnvLXok',
+  scope: ['openid', 'email'],
   introspectEndpoint: 'http://localhost:3100/token/introspect',
   refreshTokenEndpoint: 'http://localhost:3100/token/refresh',
+  tokenEndpoint: 'http://localhost:3100/token'
 })
 
 // POST /token/introspect
@@ -23,8 +27,11 @@ const ErrorBasicAuthorizationMissing = new Error('Invalid Request: Basic authori
 const ErrorForbiddenAccess = new Error('Forbidden Access: Client does not have permission to access this service')
 
 const getAuthorize = async (ctx, next) => {
+  console.log(ctx.query)
   const request = schema.authorizeRequest(ctx.query)
   const client = await ctx.service.getAuthorize(request)
+
+  console.log('getAuthorize', client)
 
   if (!client) {
     // Error getting client
@@ -36,7 +43,9 @@ const getAuthorize = async (ctx, next) => {
     // Render the consent screen
     await ctx.render('consent', {
       title: 'Consent',
-      client: client
+      client: client,
+      // can be masked with additional jwt for security
+      authorize_uri: `/authorize?${qs.stringify(request)}`
     })
   }
   // validate the request and also client first
@@ -88,7 +97,11 @@ const introspect = async (ctx, next) => {
   })
   const output = await ctx.service.introspect(request) 
   const response = schema.introspectResponse({
-    active: output.active
+    active: output.active,
+    expires_in: output.expires_in,
+    iat: output.iat,
+    iss: output.iss,
+    exp: output.exp
   })
 
   ctx.status = 200
@@ -124,12 +137,14 @@ const refresh = async(ctx, next) => {
   // if (!client) {
   //   throw new Error('Forbidden Access: Client does not have permission to access this service') 
   // }
+  console.log(ctx.request.body)
   const request = schema.refreshTokenRequest({
     grant_type: ctx.request.body.grant_type,
     refresh_token: ctx.request.body.refresh_token,
     scope: ctx.request.body.scope,
     redirect_uri: ctx.request.body.redirect_uri
   })
+  console.log(request, "refreshTokenREquest")
   const output = await ctx.service.refresh(request) 
   console.log('refreshTokenResponse', output)
   const response = schema.refreshTokenResponse({
@@ -159,7 +174,16 @@ const getAuthorizeResponse = (res) => {
   return res
 }
 
+const token = (ctx, next) => {
+
+}
+
 export default {
+  async getClientConnect (ctx, next) {
+    await ctx.render('connect', {
+      title: 'Connect'
+    })
+  },
   // POST /client-introspect
   async postClientIntrospect (ctx, next) {
     // Fires a middleware sdk to introspect the token
@@ -170,9 +194,7 @@ export default {
       })
       // Success Response
       ctx.status = 200
-      ctx.body = {
-        active: true
-      }
+      ctx.body = response
     } catch (err) {
       // Error response
       ctx.status = 200
@@ -197,7 +219,8 @@ export default {
   },
   async getClientAuthorize (ctx, next) {
     const response = await openIdSDK.authorize()
-    res.redirect(response.authorize_uri)
+    console.log(response)
+    ctx.redirect(response.authorize_uri)
   },
   async getClientAuthorizeCallback (ctx, next) {
     try {
@@ -215,5 +238,8 @@ export default {
   },
   introspect,
   refresh,
+  getAuthorize,
+  postAuthorize,
+  token
 
 }

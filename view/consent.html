@@ -1,0 +1,11 @@
+<h1><%- client.client_name %> would like to access the following</h1>
+
+<p><%- client.scope ? client.scope.join(',') : '' %></p>
+
+<form method="post" action="<%-authorize_uri%>">
+	<button>Allow</button>
+</form>
+<a href="">Log in as another user</a>
+
+<p>Note: If user is not logged in, bring them to the login page</p>
+<p>Start to integrate redis and also rabbitmq</p>

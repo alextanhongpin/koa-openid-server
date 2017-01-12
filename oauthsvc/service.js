@@ -21,10 +21,12 @@ class OAuthInteface {
 class OAuthService extends OAuthInteface {
   constructor(props) {
     super(props)
-    this.db = props.db
+    this.Client = props.Client
+    this.Code = props.Code
+    this.Device = props.Device
   }
   getAuthorize ({ response_type, scope, client_id, state, redirect_uri }) {
-    return this.db.getClient({ client_id }).then((client) => {
+    return this.Client.findOne({ client_id }).then((client) => {
       if (!client) {
         // Client does not exist error
       } else {
@@ -34,18 +36,19 @@ class OAuthService extends OAuthInteface {
         if (client.scope !== scope) {
           // throw error
         }
-        return {
-          client_name: 'my example app',
-          logo_uri: 'http://client.example.org/logo.png',
-          client_uri: 'http://client.example.org',
-          policy_uri: 'http://client.example.org/privacy-policy.html',
-          tos_uri: 'http://client.example.org/terms-of-service.html'
-        }
+        return client
+        // return {
+        //   client_name: 'my example app',
+        //   logo_uri: 'http://client.example.org/logo.png',
+        //   client_uri: 'http://client.example.org',
+        //   policy_uri: 'http://client.example.org/privacy-policy.html',
+        //   tos_uri: 'http://client.example.org/terms-of-service.html'
+        // }
       }
     })
   }
   postAuthorize ({ response_type, scope, client_id, state, redirect_uri }) {
-    return this.db.getClient({ client_id }).then((client) => {
+    return this.Client.findOne({ client_id }).then((client) => {
       if (!client) {
         // Client does not exist error
       } else {
@@ -107,6 +110,14 @@ class OAuthService extends OAuthInteface {
         error.status = 400
         throw error
       }
+    }).then((token) => {
+      // iat
+      // exp
+      // iss (compare the iss to see if it's the same)
+      return {
+        active: true,
+        expires_in: token.exp - Date.now() / 1000
+      }
     })
 
 
@@ -132,17 +143,33 @@ class OAuthService extends OAuthInteface {
   token () {
     // 
   }
-  refresh ({ refresh_token, user_id, user_agent }) {
-    return jwt.sign({
+  async refresh ({ refresh_token, user_id, user_agent }) {
+    // Find the device that is tied to this refresh token
+    // If not available, then remove it
+    // Else update the device's access token
+    const device = await this.Device.findOne({ refresh_token })
+    console.log(device)
+
+    if (!device) {
+      const error = new Error('Error: Device not found')
+      error.code = 400
+      error.description = 'The device is not found'
+      throw error
+    } 
+    const access_token = await jwt.sign({
       user_id, user_agent
-    }).then((access_token) => {
-      return {
-        access_token,
-        expires_in: 3600, // Update it later
-        token_type: 'bearer',
-        refresh_token
-      }
     })
+    device.access_token = access_token
+    device.modified_at = Date.now()
+
+    await device.save()
+
+    return {
+      access_token,
+      expires_in: 3600, // Update it later
+      token_type: 'bearer',
+      refresh_token
+    }
   }
   // .well-known/openid-configuration
   configuration () {

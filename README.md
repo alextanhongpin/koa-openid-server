@@ -90,8 +90,26 @@ POST /logout - clears the user credentials from the server
 POST /userinfo - Get the user info with the JWT token in the Authorization header
 ```
 
-# Glossary
 
+### Validating Request/Response
+
+When querying from the database, you will normally need to have a `request` (e.g. id of the resource to be queried) and a `response` (the JSON object that will be returned from the user). The request can be a http `query`, `params`, or `body`, depending on the request type. Do not confuse the `requests/response` with the `Model`. `Model` is usually the representation of the resources that will be stored in the database. 
+
+Remember that out `Models` contains all the buiness login for out application. Therefore, validation is normally carried out on the `Model`. 
+
+In order to distinguish `Model` validation from the `request/response` validations, `schemas` are created. They are stored in the schemas folder for each services and contains the fields that are required for the request/response respectively. 
+
+We use schemas for the following reason:
+
+1. Fail fast -  It is wiser to detect error early by throwing the error rather than waiting for the database operation to take place first.
+2. Error messages - We want to return users reasonable error messages, and therefore the schemas should define all the errors
+3. Centralized checking - Rather than having our validations scattered across the app code, it's better to define them in the schema and validate the request/response just before/after the service is called
+4. Transparency - The schemas serve as a standardized documentation that can be exposed to users to ease their integration with our services.
+5. Testing - It's easier to test each services/endpoints because the request/repsonse is well documented. The errors messages can be tested against the different scenarios too. 
+6. Comfort - I'm just comfortable with this approach, that's all. I use `ajv`, because they claim themselves to be the fastest JSON Schema validator for node.js and browser. 
+
+# Glossary
+WORK IN PROGRESS
 ## Service
 
 Service is basically a part of the core business logic of the application. It takes in an input (request) and produces and output (response). The response can then be consumed by the end users through different `transports`.

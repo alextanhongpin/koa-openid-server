@@ -67,7 +67,7 @@ class OpenIdSDK {
   authorize () {
     const baseUri = this._authorizeEndpoint
     const query = qs.stringify({
-      response_type: 'code',
+      response_type: ['code'],
       scope: this._scope,
       client_id: this._clientId,
       redirect_uri: this._redirectURI

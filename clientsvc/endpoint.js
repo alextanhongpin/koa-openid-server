@@ -1,5 +1,5 @@
 // Endpoints
-
+import schema from './schema.js'
 
 // GET /register/clients
 const postClientView = async(ctx, next) => {
@@ -32,11 +32,31 @@ const getClientsView = async (ctx, next) => {
 const getClientView = async(ctx, next) => {
   try {
     const request = getClientRequest(ctx)
-    const client = await ctx.service.getClient(request)
-    const response = getClientResponse(client)
+    const client = await ctx.service.getClientById(request)
+    console.log(client)
 
     await ctx.render('client', {
       title: 'Client',
+      client,
+      error: null
+    })
+  } catch (err) {
+    console.log(err)
+    await ctx.render('client', {
+      title: 'Client',
+      error: 'The client does not exist or have been deleted'
+    })
+  }
+
+}
+const getClientUpdateView = async(ctx, next) => {
+  try {
+    const request = getClientRequest(ctx)
+    const client = await ctx.service.getClientById(request)
+    const response = getClientResponse(client)
+
+    await ctx.render('client-edit', {
+      title: 'Client Edit',
       client,
       error: null
     })
@@ -46,7 +66,6 @@ const getClientView = async(ctx, next) => {
       error: 'The client does not exist or have been deleted'
     })
   }
-
 }
 // GET /clients
 // Description: Returns a list of clients
@@ -72,7 +91,7 @@ const getClients = async(ctx, next) => {
 const getClient = async(ctx, next) => {
   try {
     const request = getClientRequest(ctx)
-    const client = await ctx.service.getClient(request)
+    const client = await ctx.service.getClientById(request)
     const response = getClientResponse(client)
     // this.set('Cache-Control', 'no-cache')
     // this.set('Pragma', 'no-cache')
@@ -85,10 +104,45 @@ const getClient = async(ctx, next) => {
 // Description: Create a new client
 const postClient = async(ctx, next) => {
   try {
-    const request = postClientRequest(ctx)
+    const request = schema.postClientRequest({
+      contacts: ctx.request.body.contacts,
+      client_name: ctx.request.body.clientName,
+      client_uri: ctx.request.body.clientURI,
+      logo_uri: ctx.request.body.logoURI,
+      tos_uri: ctx.request.body.tosURI,
+      policy_uri: ctx.request.body.policyURI,
+      redirect_uris: ctx.request.body.redirectURIs
+    })
     const client = await ctx.service.postClient(request)
-    const response = postClientResponse(client)
+    const response = schema.postClientResponse(client)
     successResponse(ctx, response, 200)
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      ctx.status = 400
+      ctx.message = err.message
+    } else {
+      // Handle other errors
+      throw err
+    }
+  }
+}
+
+const updateClient = async (ctx, next) => {
+  // Add a permission setting to allow only authorized user to update
+  console.log(ctx.params)
+  try {
+    const request = schema.updateClientRequest({
+      contacts: ctx.request.body.contacts,
+      client_name: ctx.request.body.clientName,
+      client_uri: ctx.request.body.clientURI,
+      logo_uri: ctx.request.body.logoURI,
+      tos_uri: ctx.request.body.tosURI,
+      policy_uri: ctx.request.body.policyURI,
+      redirect_uris: ctx.request.body.redirectURIs
+    })
+
+    const client = await ctx.service.updateClient(ctx.params.id, request)
+    successResponse(ctx, client, 200)
   } catch (err) {
     if (err.name === 'ValidationError') {
       ctx.status = 400
@@ -111,7 +165,7 @@ const getClientsResponse = (res) => {
 
 const getClientRequest = (ctx) => {
   return {
-    client_id: ctx.params.id
+    _id: ctx.params.id
   }
 }
 
@@ -233,7 +287,10 @@ export default {
   postClientView,
   getClientsView,
   getClientView,
+  getClientUpdateView,
+
   getClients,
   getClient,
-  postClient
+  postClient,
+  updateClient
 }

@@ -5,6 +5,7 @@ const Parser = (ajv) => {
       const validator = ajv.getSchema(schema)
       const isValid = validator(req)
       if (!isValid) {
+        console.log(validator.errors)
         const error = new Error('Invalid Request')
         error.description = validator.errors[0].message
         throw error

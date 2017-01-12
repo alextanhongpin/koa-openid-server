@@ -3,7 +3,7 @@
 <% for (var i = 0; i < clients.length; i += 1) { %>
 	<% var client = clients[i] %>
 	<p>
-		<a href="/clients/<%-client.client_id%>"> <%- client.client_name %> </a>
+		<a href="/clients/<%-client._id%>"> <%- client.client_name %> </a>
 	</p>
 <% } %>
 
