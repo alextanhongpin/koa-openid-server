@@ -34,3 +34,28 @@ if ip_attempt_count is greater than 25 or
 if ip_block_attempt_count is greater than 100 or
 if username_attempt_count is greater than 5
 reject the login.
+
+
+function limitApiCall (access_token) {
+    return new Promise((resolve, reject) => {
+        const count = client.get(access_token)
+        const isBlocked = client.get(`blocked:${access_token}`)
+        if (isBlocked) {
+            return reject(new Error('You are blocked from making this request. Please wait X minutes'))
+        } else {
+            // Don't store unnecessary data
+            client.delete(`blocked:${access_token}`)
+        }
+        if (count > 10) {
+            client.set(`blocked:${access_token}`, true)
+            // Block for 15 minutes
+            client.expire(`blocked:${access_token}`, 15 * 1000 * 60)
+            client.delete(access_token)
+            reject(new Error('429: Too many requests'))
+        } else {
+            // Throttled to 15 calls per second
+            client.expire(access_token, 1000 / 15)
+            resolve()
+        }
+    })
+}
