@@ -1,4 +1,4 @@
-config/initializers/devise.rb
+/*config/initializers/devise.rb
 
 # Lock account based on failed login attempts
 config.lock_strategy = :failed_attempts
@@ -35,7 +35,15 @@ if ip_block_attempt_count is greater than 100 or
 if username_attempt_count is greater than 5
 reject the login.
 
+*/
 
+function lockLogin (cookie_id, ip, email) {
+    client.incr(cookie_id)
+    client.incr(ip)
+    const ipAttemptCount = client.get(`login:${ip}`)
+    const ipBlockAttemptCount = client.get(`login:block:${ip}`)
+    const usernameAttemptCount = client.get(`login:email:${email}`)
+}
 function limitApiCall (access_token) {
     return new Promise((resolve, reject) => {
         const count = client.get(access_token)
