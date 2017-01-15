@@ -12,7 +12,7 @@ import crypto from 'crypto'
 import base64url from 'base64url'
 import db from '../common/database.js'
 
-const clientSchema = Schema({
+const ClientSchema = Schema({
   // user_id;  who the account is tied to
   client_id: {
     type: String,
@@ -112,7 +112,7 @@ const clientSchema = Schema({
      //   'implicit' instead."
      // }
 
-clientSchema.methods.generateClientId = function (size) {
+ClientSchema.statics.generateClientId = function (size) {
   return new Promise((resolve, reject) => {
     crypto.randomBytes(size, (err, buffer) => {
       if (err) {
@@ -125,7 +125,7 @@ clientSchema.methods.generateClientId = function (size) {
   })
 }
 
-clientSchema.methods.generateClientSecret = function (size) {
+ClientSchema.statics.generateClientSecret = function (size) {
   return new Promise((resolve, reject) => {
     crypto.randomBytes(size, (err, buffer) => {
       if (err) {

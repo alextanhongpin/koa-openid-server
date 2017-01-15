@@ -136,7 +136,7 @@ UserSchema.statics.createRefreshToken = (size) => {
   })
 }
 
-UserSchema.statics.createAccessToken = (payload) => {
+UserSchema.statics.createAccessToken = (payload, expiresIn = '2m') => {
   return new Promise((resolve, reject) => {
     // The access token should have the user_id decoded
     // This will make it easier to use the JWT token as
@@ -148,7 +148,7 @@ UserSchema.statics.createAccessToken = (payload) => {
       user_agent: payload.user_agent
     }, JWT_SECRET, {
       algorithm: 'HS256',
-      expiresIn: '2m',
+      expiresIn,
       issuer: process.env.APP_NAME
     }, (err, token) => {
       if (err) {

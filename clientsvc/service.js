@@ -43,8 +43,8 @@ class ClientService extends ClientInterface {
   async postClient ({ client_name, client_uri, logo_uri, policy_uri, redirect_uris }) {
     const Client = this.db
     const client = new Client()
-    client.client_id = await client.generateClientId(32)
-    client.client_secret = await client.generateClientSecret(32)
+    client.client_id = await Client.generateClientId(32)
+    client.client_secret = await Client.generateClientSecret(32)
     client.grant_types = ['authorization_code', 'refresh_token']
     client.responses_types = ['code']
     client.client_name = client_name

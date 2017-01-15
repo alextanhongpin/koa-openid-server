@@ -20,10 +20,7 @@ const getLogin = async(ctx, next) => {
 
 const postLogin = async(ctx, next) => {
   try {
-    const request = schema.loginRequest({
-      email: ctx.request.body.email,
-      password: ctx.request.body.password
-    })
+    const request = schema.loginRequest(ctx.request.body)
     const user = await ctx.service.login(request.email, request.password)
     const response = schema.loginResponse({
       email: user.email
@@ -102,15 +99,11 @@ const getRegister = async(ctx, next) => {
 
 const postRegister = async(ctx, next) => {
   try {
-    const request = schema.registerRequest({
-      email: ctx.request.body.email,
-      password: ctx.request.body.password
-    })
+    const request = schema.registerRequest(ctx.request.body)
     const user = await ctx.service.register(request.email, request.password)
     const response = schema.registerResponse({
       email: user.email
     })
-
     // CLIENT
     const message = JSON.stringify({
       user_id: user.id,
