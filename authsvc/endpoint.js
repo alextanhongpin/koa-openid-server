@@ -1,6 +1,7 @@
 // endpoint.js
-import noderequest from 'request'
+// import noderequest from 'request'
 import Channel from '../common/amqp.js'
+import schema from './schema.js'
 
 const worker = {
   exchange: 'devicesvc',
@@ -19,34 +20,34 @@ const getLogin = async(ctx, next) => {
 
 const postLogin = async(ctx, next) => {
   try {
-    const request = postLoginRequest(ctx.request.body)
+    const request = schema.loginRequest({
+      email: ctx.request.body.email,
+      password: ctx.request.body.password
+    })
     const user = await ctx.service.login(request.email, request.password)
-    const response = postLoginResponse(user)
-
+    const response = schema.loginResponse({
+      email: user.email
+    })
+    console.log('response', user, response)
     // CLIENT
     const message = JSON.stringify({
-      user_id: response._id,
+      user_id: user.id,
       user_agent: ctx.state.userAgent.source
     })
-
+    // Create a new channel
     const chan = await Channel()
-    
-    // Run the service in the background?
-    ctx.body = await publishDevice({ chan, message, user_id: response._id.toString() })
-
-
+    ctx.body = await publishDevice({ chan, message, user_id: user.id })
+    ctx.status = 200
   } catch (err) {
-    errorResponse({
+    ctx.status = 400
+    ctx.body = {
       error: err.message
-    }, 400)
+    }
   }
 }
 
 const publishDevice = ({ chan, message, user_id }) => {
-
   return new Promise((resolve, reject) => {
-
-
     chan.assertExchange(worker.exchange, 'direct', { autoDelete: false })
     chan.assertQueue(worker.queue, { autoDelete: false })
     chan.bindQueue(worker.queue, worker.exchange, 'create')
@@ -55,66 +56,39 @@ const publishDevice = ({ chan, message, user_id }) => {
       autoDelete: false,
       exclusive: true
     }).then((q) => {
-
-    
-    chan.bindQueue(q.queue, worker.exchange)
+      chan.bindQueue(q.queue, worker.exchange)
 
     // chan.publish(worker.exchange, worker.route, new Buffer(message), {
     //   correlationId: response._id,
     //   replyTo: worker.queue
     // })
-    chan.consume(q.queue, (msg) => {
-      console.log('chan consume at POST /login', msg)
-      if (msg.properties.correlationId === user_id) {
+      chan.consume(q.queue, (msg) => {
+        console.log('chan consume at POST /login', msg)
+        if (msg.properties.correlationId === user_id) {
         // Action completed
 
-        const device = JSON.parse(msg.content.toString())
-        console.log(device, 'device')
+          const device = JSON.parse(msg.content.toString())
+          console.log(device, 'device')
         // chan.close()
-        //next()
+        // next()
         // chan.close()
-        
-        resolve(device)
-        
+
+          resolve(device)
+
         // ctx.status = 200
 
         // msg.ack(msg)
         // successResponse(ctx, device, 200)
-      }
-    }, { noAck: true }, (err, ok) => {
-      console.log(err, ok)
-    })
-    // chan.assertQueue(worker.queue, { exclusive: true })
-    
-    chan.sendToQueue(worker.queue, new Buffer(message), {
-      correlationId: user_id,
-      replyTo: q.queue
-    })
-    })
-  })
-}
-
-const postDeviceMiddleware = async({ user_id }) => {
-  return new Promise((resolve, reject) => {
-    noderequest('http://localhost:3100/devices', {
-      method: 'POST',
-      headers: {
-        // Client credentials grant
-        // 'Authorization': '',
-        'Content-Type': 'application/json;charset=utf-8'
-      },
-      body: JSON.stringify({
-        user_id
+        }
+      }, { noAck: true }, (err, ok) => {
+        console.log(err, ok)
       })
-    }, (err, res, body) => {
-      console.log(err, body)
-      if (err) {
-        throw new Error('Unable to create device at the moment')
-      }
-      if (!err && res.statusCode === 200) {
-        // body
-        resolve(JSON.parse(body))
-      }
+    // chan.assertQueue(worker.queue, { exclusive: true })
+
+      chan.sendToQueue(worker.queue, new Buffer(message), {
+        correlationId: user_id,
+        replyTo: q.queue
+      })
     })
   })
 }
@@ -128,84 +102,27 @@ const getRegister = async(ctx, next) => {
 
 const postRegister = async(ctx, next) => {
   try {
-    const request = postRegisterRequest(ctx.request.body)
+    const request = schema.registerRequest({
+      email: ctx.request.body.email,
+      password: ctx.request.body.password
+    })
     const user = await ctx.service.register(request.email, request.password)
-    const response = postRegisterResponse(user)
+    const response = schema.registerResponse({
+      email: user.email
+    })
 
-    // Store the user's id in the context's state
-    ctx.state.user_id = response._id
-    ctx.state.user_agent = ctx.state.userAgent.source
-    
-    const deviceRequest = postDeviceMiddlewareRequest(ctx.state)
-    const device = await postDeviceMiddleware(deviceRequest)
-    const deviceResponse = postDeviceMiddlewareResponse(device)
-
-    successResponse(ctx, deviceResponse, 200)
+    // CLIENT
+    const message = JSON.stringify({
+      user_id: user.id,
+      user_agent: ctx.state.userAgent.source
+    })
+    // Create a new channel
+    const chan = await Channel()
+    ctx.body = await publishDevice({ chan, message, user_id: user._id.toString() })
+    ctx.status = 200
   } catch (err) {
-    console.log(err)
     ctx.redirect('/login?error=' + err.message)
-    errorResponse(err, 400)
   }
-}
-
-// Requests/Responses
-
-const postLoginRequest = (req) => {
-  return {
-    email: req.email,
-    password: req.password
-  }
-}
-const postLoginResponse = (res) => {
-  return {
-    _id: res._id,
-    username: res.username
-  }
-}
-
-const postRegisterRequest = (req) => {
-  return {
-    email: req.email,
-    password: req.password
-  }
-}
-const postRegisterResponse = (res) => {
-  return res
-}
-
-const createDeviceRequest = (req) => {
-  return {
-    user_agent: req.headers['user-agent'],
-    user_id: req.state.user_id
-  }
-}
-
-const createDeviceResponse = (res) => {
-  return {
-    access_token: res.access_token,
-    refresh_token: res.refresh_token
-  }
-}
-
-const postDeviceMiddlewareRequest = (req) => {
-  return {
-    user_id: req.user_id,
-    user_agent: req.user_agent
-  }
-}
-const postDeviceMiddlewareResponse = (res) => {
-  return {
-    access_token: res.access_token,
-    refresh_token: res.refresh_token
-  }
-}
-const successResponse = (ctx, response, status) => {
-  ctx.body = response
-  ctx.status = status
-}
-const errorResponse = (ctx, error, status) => {
-  ctx.body = error
-  ctx.status = status
 }
 
 export default {

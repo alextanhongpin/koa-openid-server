@@ -195,7 +195,6 @@ class OAuthService extends OAuthInteface {
     // If not available, then remove it
     // Else update the device's access token
     const device = await this.Device.findOne({ refresh_token })
-    console.log(device)
 
     if (!device) {
       const error = new Error('Error: Device not found')

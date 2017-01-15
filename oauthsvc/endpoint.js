@@ -66,11 +66,9 @@ const checkUser = async (ctx, next) => {
 
   try {
     const token = await jwt.verify(authToken)
-    console.log('check user', token)
     ctx.state.user_id = token.user_id
     await next()
   } catch (err) {
-    console.log('check user error', err)
     const error = qs.stringify({
       error: err.name,
       error_description: err.message
@@ -189,16 +187,13 @@ const refresh = async(ctx, next) => {
   // if (!client) {
   //   throw new Error('Forbidden Access: Client does not have permission to access this service')
   // }
-  console.log(ctx.request.body)
   const request = schema.refreshTokenRequest({
     grant_type: ctx.request.body.grant_type,
     refresh_token: ctx.request.body.refresh_token,
     scope: ctx.request.body.scope,
     redirect_uri: ctx.request.body.redirect_uri
   })
-  console.log(request, 'refreshTokenREquest')
   const output = await ctx.service.refresh(request)
-  console.log('refreshTokenResponse', output)
   const response = schema.refreshTokenResponse({
     access_token: output.access_token,
     refresh_token: output.refresh_token,
@@ -233,6 +228,9 @@ const token = async (ctx, next) => {
 
   ctx.body = response
   ctx.status = 200
+}
+// The UserInfo Endpoint MUST support the use of the HTTP GET and HTTP POST methods defined in RFC 2616 [RFC2616].
+const userinfo = async (ctx, next) => {
 }
 
 export default {
@@ -283,7 +281,6 @@ export default {
     const response = await openIdSDK.authorize()
     // The response will be a redirect url
     // to the provider consent screen
-    console.log('getClientAuthorize', response)
     ctx.redirect(response.authorize_uri)
   },
   // GET /client-authorize/callback
@@ -301,7 +298,6 @@ export default {
       // Should have a code
       // to be traded with an access token
       const response = await openIdSDK.authorizeCallback(request)
-      console.log('getClientAuthorizeCallback', response)
       // ctx.state.response = response
       ctx.status = 200
       ctx.body = response

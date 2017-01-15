@@ -15,7 +15,8 @@
       "minLength": 1
     },
     "scope": {
-      "type": "array"
+      "type": "array",
+      "enum": ["openid", "profile", "email", "address", "phone"]
     },
     "redirect_uri": {
       "type": "string"

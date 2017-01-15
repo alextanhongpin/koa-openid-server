@@ -12,7 +12,7 @@
 	  },
     "scope": { 
     	"type": "array",
-    	"enum": ["openid", "email"]
+      "enum": ["openid", "profile", "email", "address", "phone"]
     },
     "state": {
       "type": "string"

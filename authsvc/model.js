@@ -54,9 +54,43 @@ const UserSchema = new Schema({
     enum: ['admin', 'user'],
     default: 'user'
   }
+  // // Standard Claims
+  // sub ()
+  // name
+  // given_name
+  // family_name
+  // middle_name
+  // nickname
+  // preferred_username
+  // profile
+  // picture
+  // website
+  // email
+  // email_verified
+  // gender // male or femail
+  // birthdate // ISO 8601:2004 [ISO8601‑2004] YYYY-MM-DD
+  // zoneinfo // Europe/Paris
+  // locale: en_US,
+  // phone_number: +1 (604) 555-1234;ext=5678,
+  // phone_number_verified
+  // address
+  // updated_at
+  // // address claim
+  // address: {
+  //   formatted,
+  //   street_address
+  //   locality
+  //   region
+  //   postal_code
+  //   country
+  // }
 })
 
-UserSchema.methods.hashPassword = (password) => {
+// profile OPTIONAL. This scope value requests access to the End-User's default profile Claims, which are: name, family_name, given_name, middle_name, nickname, preferred_username, profile, picture, website, gender, birthdate, zoneinfo, locale, and updated_at.
+// email OPTIONAL. This scope value requests access to the email and email_verified Claims.
+// address OPTIONAL. This scope value requests access to the address Claim.
+// phone OPTIONAL. This scope value requests access to the phone_number and phone_number_verified Claims.
+UserSchema.static.hashPassword = (password) => {
   // bcrypt provides a method called .hashSync(),
   // but it's always better to handle operations asynchronously
   return new Promise((resolve, reject) => {
@@ -86,7 +120,9 @@ UserSchema.methods.comparePassword = function (password) {
   })
 }
 
-UserSchema.methods.createRefreshToken = (size) => {
+// Statics are pure functions, so arrow function
+// is acceptable
+UserSchema.statics.createRefreshToken = (size) => {
   // Make it all async!
   return new Promise((resolve, reject) => {
     crypto.randomBytes(size, (err, buffer) => {
@@ -100,7 +136,7 @@ UserSchema.methods.createRefreshToken = (size) => {
   })
 }
 
-UserSchema.methods.createAccessToken = (payload) => {
+UserSchema.statics.createAccessToken = (payload) => {
   return new Promise((resolve, reject) => {
     // The access token should have the user_id decoded
     // This will make it easier to use the JWT token as
@@ -124,7 +160,7 @@ UserSchema.methods.createAccessToken = (payload) => {
   })
 }
 
-UserSchema.methods.validateAccessToken = (token) => {
+UserSchema.statics.validateAccessToken = (token) => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, JWT_SECRET, {
       algorithms: ['HS256'],

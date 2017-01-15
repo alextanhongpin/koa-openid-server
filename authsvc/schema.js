@@ -1,4 +1,5 @@
 import Ajv from 'ajv'
+import Toolbox from '../common/toolbox.js'
 const ajv = Ajv({
   allErrors: true,
   schemas: [
@@ -8,10 +9,10 @@ const ajv = Ajv({
     require('./schema/register-response.json')
   ]
 })
-
+const parser = Toolbox.Parser(ajv)
 export default {
-  loginRequest: ajv.getSchema('http://localhost:3000/schemas/login-request.json#'),
-  loginResponse: ajv.getSchema('http://localhost:3000/schemas/login-response.json#'),
-  registerRequest: ajv.getSchema('http://localhost:3000/schemas/register-request.json#'),
-  registerResponse: ajv.getSchema('http://localhost:3000/schemas/register-response.json#'),
+  loginRequest: parser.request('http://localhost:3000/schemas/login-request.json#'),
+  loginResponse: parser.response('http://localhost:3000/schemas/login-response.json#'),
+  registerRequest: parser.request('http://localhost:3000/schemas/register-request.json#'),
+  registerResponse: parser.response('http://localhost:3000/schemas/register-response.json#')
 }

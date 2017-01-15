@@ -16,8 +16,6 @@ class AuthInterface {
 const ErrorUserNotFound = new Error('User not Found')
 const ErrorIncorrectPassword = new Error('The password is incorrect')
 const ErrorInvalidEmail = new Error('The email format is incorrect')
-const ErrorEmailNotProvided = new Error('Email is required')
-const ErrorPasswordNotProvided = new Error('Password is required')
 // const ErrorUserIdNotProvided = new Error('User id is required')
 // const ErrorUserAgentNotProvided = new Error('User agent is required')
 
@@ -27,11 +25,9 @@ class AuthService extends AuthInterface {
     this.db = props.db
   }
   async login (email, password) {
-    if (!email) throw ErrorEmailNotProvided
-    if (!password) throw ErrorPasswordNotProvided
-
+    console.log('service.login', email, password)
     const user = await this.db.findOne({ email })
-
+    console.log(user)
     if (!user) {
       throw ErrorUserNotFound
     } else {
@@ -44,9 +40,6 @@ class AuthService extends AuthInterface {
     }
   }
   async register (email, password) {
-    if (!email) throw ErrorEmailNotProvided
-    if (!password) throw ErrorPasswordNotProvided
-
     const user = await this.db.findOne({ email })
     if (user) {
       return user
@@ -54,7 +47,7 @@ class AuthService extends AuthInterface {
       const User = this.db
       const user = new User()
       user.email = email
-      user.password = await user.hashPassword(password)
+      user.password = await User.hashPassword(password)
       await user.save()
       return user
     }
