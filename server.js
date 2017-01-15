@@ -14,6 +14,7 @@ import oauthsvc from './oauthsvc/transport.js'
 import authsvc from './authsvc/transport.js'
 import devicesvc from './devicesvc/transport.js'
 import clientsvc from './clientsvc/transport.js'
+import client from './client/transport.js'
 
 import errors from './modules/errors.js'
 
@@ -43,25 +44,20 @@ app
 .use(clientsvc.allowedMethods())
 .use(oauthsvc.routes())
 .use(oauthsvc.allowedMethods())
+.use(client.routes())
+.use(client.allowedMethods())
 
-
-app.use(async(ctx, next)=> {
-  await ctx.render('profile', {
-    title: 'Profile'
-  })
-})
-// Catch-All Route
-app.use(async (ctx, next) => {
-  await ctx.render('home', {
-    title: 'Hello'
-  })
-})
+// // Catch-All Route
+// app.use(async (ctx, next) => {
+//   await ctx.render('home', {
+//     title: 'Hello'
+//   })
+// })
 
 if (!module.parent) {
   app.listen(PORT, () => {
     console.log(`listening to port *:${PORT}.\npress ctrl + c to cancel.`)
   })
 }
-
 
 export default app

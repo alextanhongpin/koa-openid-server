@@ -30,17 +30,17 @@ const clientSchema = Schema({
     type: Date,
     default: Date.now
   },
-  redirect_uris: [{ 
-    type: String,
+  redirect_uris: [{
+    type: String
     // required: true
   }],
-  client_name: { 
-    type: String, 
+  client_name: {
+    type: String,
     required: true
   },
   client_uri: {
-    type: String, 
-    required: true 
+    type: String,
+    required: true
   },
   logo_uri: String,
   // scope: [],
@@ -56,9 +56,9 @@ const clientSchema = Schema({
   token_endpoint_auth_method: {
     type: String,
     enum: [
-    'none', // The client is a public client as defined in oauth2 and does not have a client secret
-    'client_secret_post', // The client uses the HTTP Post parameters defined in oauth2.0
-    'client_secret_basic', // The client uses the HTTP basic defined in oauth2.0
+      'none', // The client is a public client as defined in oauth2 and does not have a client secret
+      'client_secret_post', // The client uses the HTTP Post parameters defined in oauth2.0
+      'client_secret_basic' // The client uses the HTTP basic defined in oauth2.0
     ]
   },
   grant_types: [{
@@ -69,14 +69,14 @@ const clientSchema = Schema({
       'password', // The resource owner password credentials grant described in oauth2.0
       'refresh_token', // the refresh token grant described in oauth2.0
       'urn:ietf:prams:oauth:grant-type:jwt-bearer', // The JWT Bearer grant described in Oauth JWT Bearer Token Profiles
-      'urn:ietf:params:outh:grant-type:saml2-bearer', // The SAML 2 Bearer Grant described in Oauth saml 2 bearer token profiles
+      'urn:ietf:params:outh:grant-type:saml2-bearer' // The SAML 2 Bearer Grant described in Oauth saml 2 bearer token profiles
     ]
   }],
   responses_types: [{
     type: String,
     enum: [
       'code', // The authorization code response,
-      'token', // The implicit response
+      'token' // The implicit response
     ]
   }]
 })
@@ -115,7 +115,6 @@ const clientSchema = Schema({
 clientSchema.methods.generateClientId = function (size) {
   return new Promise((resolve, reject) => {
     crypto.randomBytes(size, (err, buffer) => {
-      
       if (err) {
         reject(err)
       } else {
@@ -125,7 +124,6 @@ clientSchema.methods.generateClientId = function (size) {
     })
   })
 }
-
 
 clientSchema.methods.generateClientSecret = function (size) {
   return new Promise((resolve, reject) => {

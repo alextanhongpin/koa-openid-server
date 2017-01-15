@@ -4,7 +4,6 @@ import Endpoint from './endpoint.js'
 import Service from './service.js'
 import Client from './model.js'
 
-
 const route = new Router()
 // Default namespace is /clients
 

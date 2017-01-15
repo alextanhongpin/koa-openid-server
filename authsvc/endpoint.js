@@ -1,6 +1,15 @@
 // endpoint.js
 import noderequest from 'request'
+import Channel from '../common/amqp.js'
 
+const worker = {
+  exchange: 'devicesvc',
+  route: 'create',
+  queue: 'device',
+  option: {
+    durable: false
+  }
+}
 // Login Endpoints
 const getLogin = async(ctx, next) => {
   await ctx.render('login', {
@@ -13,20 +22,76 @@ const postLogin = async(ctx, next) => {
     const request = postLoginRequest(ctx.request.body)
     const user = await ctx.service.login(request.email, request.password)
     const response = postLoginResponse(user)
-    // Store the user's id in the context's state
-    ctx.state.user_id = response._id
-    ctx.state.user_agent = ctx.state.userAgent.source
 
-    const deviceRequest = postDeviceMiddlewareRequest(ctx.state)
-    const device = await postDeviceMiddleware(deviceRequest)
-    const deviceResponse = postDeviceMiddlewareResponse(device)
+    // CLIENT
+    const message = JSON.stringify({
+      user_id: response._id,
+      user_agent: ctx.state.userAgent.source
+    })
 
-    successResponse(ctx, deviceResponse, 200)
+    const chan = await Channel()
+    
+    // Run the service in the background?
+    ctx.body = await publishDevice({ chan, message, user_id: response._id.toString() })
+
+
   } catch (err) {
     errorResponse({
       error: err.message
     }, 400)
   }
+}
+
+const publishDevice = ({ chan, message, user_id }) => {
+
+  return new Promise((resolve, reject) => {
+
+
+    chan.assertExchange(worker.exchange, 'direct', { autoDelete: false })
+    chan.assertQueue(worker.queue, { autoDelete: false })
+    chan.bindQueue(worker.queue, worker.exchange, 'create')
+
+    chan.assertQueue('', {
+      autoDelete: false,
+      exclusive: true
+    }).then((q) => {
+
+    
+    chan.bindQueue(q.queue, worker.exchange)
+
+    // chan.publish(worker.exchange, worker.route, new Buffer(message), {
+    //   correlationId: response._id,
+    //   replyTo: worker.queue
+    // })
+    chan.consume(q.queue, (msg) => {
+      console.log('chan consume at POST /login', msg)
+      if (msg.properties.correlationId === user_id) {
+        // Action completed
+
+        const device = JSON.parse(msg.content.toString())
+        console.log(device, 'device')
+        // chan.close()
+        //next()
+        // chan.close()
+        
+        resolve(device)
+        
+        // ctx.status = 200
+
+        // msg.ack(msg)
+        // successResponse(ctx, device, 200)
+      }
+    }, { noAck: true }, (err, ok) => {
+      console.log(err, ok)
+    })
+    // chan.assertQueue(worker.queue, { exclusive: true })
+    
+    chan.sendToQueue(worker.queue, new Buffer(message), {
+      correlationId: user_id,
+      replyTo: q.queue
+    })
+    })
+  })
 }
 
 const postDeviceMiddleware = async({ user_id }) => {

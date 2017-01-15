@@ -1,3 +1,5 @@
 web: npm start
-test: npm test
 db: mongod
+redis: redis-server
+# amqp: rabbitmq-server
+# test: npm test

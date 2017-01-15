@@ -27,6 +27,10 @@
 		const password = document.querySelector('input[name=password]').value
 
 		Service.login(email, password).then((data) => {
+			console.log(data)
+			if (!data) {
+				return false
+			}
 			const { access_token, refresh_token } = data
 			if (access_token && refresh_token) {
 				window.localStorage.accessToken = access_token

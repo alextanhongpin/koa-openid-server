@@ -5,9 +5,10 @@
 // https://tools.ietf.org/html/rfc7636
 
 import jwt from '../modules/jwt.js'
+import Code from '../modules/code.js'
 
 class OAuthInteface {
-  authorize() {
+  authorize () {
     throw new Error('OAuthInterfaceError: authorize() is not implemented')
   }
   token () {
@@ -19,19 +20,28 @@ class OAuthInteface {
 }
 
 class OAuthService extends OAuthInteface {
-  constructor(props) {
+  constructor (props) {
     super(props)
+    this.redis = props.redis
     this.Client = props.Client
-    this.Code = props.Code
+    // this.Code = props.Code
     this.Device = props.Device
   }
   getAuthorize ({ response_type, scope, client_id, state, redirect_uri }) {
     return this.Client.findOne({ client_id }).then((client) => {
       if (!client) {
         // Client does not exist error
+        const errorClientDoNotExist = new Error('Forbidden')
+        errorClientDoNotExist.description = 'The client is not found or have been deleted'
+        errorClientDoNotExist.redirect_uri = redirect_uri
+        throw errorClientDoNotExist
       } else {
-        if (client.redirect_uri !== redirect_uri) {
-          // throw error
+        const uriSet = new Set(client.redirect_uris)
+        if (!uriSet.has(redirect_uri)) {
+          const errorInvalidRedirectURI = new Error('Invalid Request')
+          errorInvalidRedirectURI.description = 'The redirect uri provided does not match the client redirect uri'
+          errorInvalidRedirectURI.redirect_uri = redirect_uri
+          throw errorInvalidRedirectURI
         }
         if (client.scope !== scope) {
           // throw error
@@ -51,17 +61,29 @@ class OAuthService extends OAuthInteface {
     return this.Client.findOne({ client_id }).then((client) => {
       if (!client) {
         // Client does not exist error
+        const errorClientDoNotExist = new Error('Forbidden')
+        errorClientDoNotExist.description = 'The client is not found or have been deleted'
+        errorClientDoNotExist.redirect_uri = redirect_uri
+        throw errorClientDoNotExist
       } else {
-        if (client.redirect_uri !== redirect_uri) {
-          // throw error
+        const uriSet = new Set(client.redirect_uris)
+        if (!uriSet.has(redirect_uri)) {
+          const errorInvalidRedirectURI = new Error('Invalid Request')
+          errorInvalidRedirectURI.description = 'The redirect uri provided does not match the client redirect uri'
+          errorInvalidRedirectURI.redirect_uri = redirect_uri
+          throw errorInvalidRedirectURI
         }
+
         if (client.scope !== scope) {
           // throw error
         }
-        return {
-          code: 'new code',
-          state
-        }
+        // Generate a new code
+        return Code(32).then((code) => {
+          return {
+            code,
+            state
+          }
+        })
       }
     })
   }
@@ -79,7 +101,7 @@ class OAuthService extends OAuthInteface {
 
   }
 
-  postImplicit() {
+  postImplicit () {
     // request for get implict
 // https://openid.c2id.com?response_type=code
 //     &client_id=123
@@ -120,7 +142,6 @@ class OAuthService extends OAuthInteface {
       }
     })
 
-
 // HTTP/1.1 400 Bad Request
 
 // {
@@ -140,10 +161,36 @@ class OAuthService extends OAuthInteface {
 //   "error_description" : "Client not registered for https://c2id.com/token/introspect scope"
 // }
   }
-  token () {
-    // 
+  token ({ code, grant_type }) {
+    const redis = this.redis
+    const key = `authcode:user:${code}`
+    return new Promise((resolve, reject) => {
+      redis.get(key, function (err, value) {
+        if (err) {
+          reject(err)
+        } else {
+          if (value) {
+            const createAccessToken = jwt.sign({
+              user_id: value.user_id
+            })
+            const createRefreshToken = Code(32)
+            Promise.all([createAccessToken, createRefreshToken]).then((data) => {
+              redis.del(key)
+              resolve({
+                access_token: data[0],
+                refresh_token: data[1],
+                expires_in: 120,
+                token_type: 'bearer'
+              })
+            })
+          } else {
+            reject(new Error('the code has expired'))
+          }
+        }
+      })
+    })
   }
-  async refresh ({ refresh_token, user_id, user_agent }) {
+  async refresh ({ refresh_token }) {
     // Find the device that is tied to this refresh token
     // If not available, then remove it
     // Else update the device's access token
@@ -155,9 +202,10 @@ class OAuthService extends OAuthInteface {
       error.code = 400
       error.description = 'The device is not found'
       throw error
-    } 
+    }
     const access_token = await jwt.sign({
-      user_id, user_agent
+      user_id: device.user_id,
+      user_agent: device.user_agent
     })
     device.access_token = access_token
     device.modified_at = Date.now()
@@ -204,19 +252,19 @@ class OAuthService extends OAuthInteface {
 //                                               "refresh_token",
 //                                               "password",
 //                                               "client_credentials",
-//                                               "urn:ietf:params:oauth:grant-type:jwt-bearer",      
-//                                               "urn:ietf:params:oauth:grant-type:saml2-bearer" ],      
+//                                               "urn:ietf:params:oauth:grant-type:jwt-bearer",
+//                                               "urn:ietf:params:oauth:grant-type:saml2-bearer" ],
 //   "code_challenge_methods_supported"      : [ "S256",
 //                                               "plain" ],
 //   "acr_values_supported"                  : [ "urn:c2id:acr:bronze",
 //                                               "urn:c2id:acr:silver"
 //                                               "urn:c2id:acr:gold" ],
-//   "subject_types_supported"               : [ "public" ],                                
+//   "subject_types_supported"               : [ "public" ],
 //   "token_endpoint_auth_methods_supported" : [ "client_secret_basic",
 //                                               "client_secret_post",
 //                                               "client_secret_jwt",
-//                                               "private_key_jwt" ],                                 
-//   "token_endpoint_auth_signing_alg_values_supported" : 
+//                                               "private_key_jwt" ],
+//   "token_endpoint_auth_signing_alg_values_supported" :
 //                                             [ "HS256",
 //                                               "HS512",
 //                                               "HS384",
@@ -228,7 +276,7 @@ class OAuthService extends OAuthInteface {
 //                                               "PS512",
 //                                               "ES256",
 //                                               "ES384",
-//                                               "ES512" ],                                 
+//                                               "ES512" ],
 //   "id_token_signing_alg_values_supported" : [ "RS256",
 //                                               "RS384",
 //                                               "RS512",
@@ -246,10 +294,10 @@ class OAuthService extends OAuthInteface {
 //                                               "PS512",
 //                                               "HS256",
 //                                               "HS384",
-//                                               "HS512" ],   
-//   "display_values_supported"              : [ "page", 
-//                                               "popup" ],   
-//   "claim_types_supported"                 : [ "normal" ],   
+//                                               "HS512" ],
+//   "display_values_supported"              : [ "page",
+//                                               "popup" ],
+//   "claim_types_supported"                 : [ "normal" ],
 //   "claims_supported"                      : [ "sub",
 //                                               "iss",
 //                                               "auth_time",
@@ -260,8 +308,8 @@ class OAuthService extends OAuthInteface {
 //                                               "nickname",
 //                                               "email",
 //                                               "email_verified" ],
-//   "ui_locales_supported"                  : [ "en" ],   
-//   "claims_parameter_supported"            : true,   
+//   "ui_locales_supported"                  : [ "en" ],
+//   "claims_parameter_supported"            : true,
 //   "request_parameter_supported"           : false,
 //   "request_uri_parameter_supported"       : false,
 //   "require_request_uri_registration"      : false
@@ -272,8 +320,6 @@ class OAuthService extends OAuthInteface {
 
 // Authorisation Code Grant
 // Implicit Grant
-
-
 
 // response_type: code for oauthcode flow
 // response_type: token id_token for implicit flow

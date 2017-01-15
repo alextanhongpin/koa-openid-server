@@ -4,6 +4,8 @@ import requestService from 'request'
 import schema from './schema.js'
 import qs from 'querystring'
 import OpenIdSDK from '../modules/openidsdk.js'
+import jwt from '../modules/jwt'
+import redis from '../common/redis.js'
 
 // The SDK is used on the client side to make requests to the openid endpoints
 const openIdSDK = OpenIdSDK({
@@ -20,48 +22,98 @@ const openIdSDK = OpenIdSDK({
 // POST /token/introspect
 // Reference: http://connect2id.com/products/server/docs/api/token-introspection
 
-// Standardize the errors: either invalid (wrong, not supported, etc), 
+// Standardize the errors: either invalid (wrong, not supported, etc),
 // missing (required, but not provided), or forbidden (no permission)
 const ErrorInvalidContentType = new Error('Invalid Content Type: Content-Type must be application/json')
 const ErrorBasicAuthorizationMissing = new Error('Invalid Request: Basic authorization header is required')
 const ErrorForbiddenAccess = new Error('Forbidden Access: Client does not have permission to access this service')
 
 const getAuthorize = async (ctx, next) => {
-  console.log(ctx.query)
-  const request = schema.authorizeRequest(ctx.query)
-  const client = await ctx.service.getAuthorize(request)
+  try {
+    const request = schema.authorizeRequest(ctx.query)
+    const client = await ctx.service.getAuthorize(request)
 
-  console.log('getAuthorize', client)
-
-  if (!client) {
-    // Error getting client
-  } else {
-    // client name,
-    // client logo
-    // client scopes
-    // client redirect uri matches
-    // Render the consent screen
     await ctx.render('consent', {
       title: 'Consent',
       client: client,
-      // can be masked with additional jwt for security
-      authorize_uri: `/authorize?${qs.stringify(request)}`
+      // NOTE: can be masked with additional jwt for security
+      request: JSON.stringify(request)
     })
+  } catch (err) {
+    const error = qs.stringify({
+      error: err.message,
+      error_description: err.description
+    })
+    // NOTE: Instead of returning a json error,
+    // return it as the query in the url
+    return ctx.redirect(`${err.redirect_uri}?${error}`)
   }
-  // validate the request and also client first
 }
 
+const checkUser = async (ctx, next) => {
+  const authorizationHeader = ctx.headers.authorization
+  const [ authType, authToken ] = authorizationHeader.split(' ')
+  if (authType !== 'Bearer') {
+    const error = qs.stringify({
+      error: 'Bad Request',
+      description: ErrorBasicAuthorizationMissing.message
+    })
+    ctx.status = 400
+    ctx.body = {
+      redirect_uri: `${ctx.state.request.redirect_uri}?${error}`
+    }
+  }
+
+  try {
+    const token = await jwt.verify(authToken)
+    console.log('check user', token)
+    ctx.state.user_id = token.user_id
+    await next()
+  } catch (err) {
+    console.log('check user error', err)
+    const error = qs.stringify({
+      error: err.name,
+      error_description: err.message
+    })
+
+    ctx.set('Cache-Control', 'no-cache')
+    ctx.set('Pragma', 'no-cache')
+    ctx.status = 400
+    ctx.body = {
+      redirect_uri: `${ctx.state.request.redirect_uri}?${error}`
+    }
+  }
+}
+
+const cacheAuthorizationCode = async (ctx, next) => {
+  const FIVE_MINUTES = 300
+  const value = `authcode:user:${ctx.state.response.code}`
+  redis.set(value, ctx.state.user_id)
+  redis.expire(value, FIVE_MINUTES)
+}
+
+// POST /authorize
+// Description: Coming from the consent screen,
+// should return a valid code once the user has been
+// validated
 const postAuthorize = async (ctx, next) => {
-  const request = schema.authorizeRequest(ctx.query)
+  const request = schema.authorizeRequest(ctx.request.body)
   const output = await ctx.service.postAuthorize(request)
   const response = schema.authorizeResponse({
     code: output.code,
     state: output.state
   })
+  ctx.state.request = request
+  ctx.state.response = response
+
+  await next()
+
   ctx.set('Cache-Control', 'no-cache')
   ctx.set('Pragma', 'no-cache')
-  // redirect to the callback url
-  ctx.redirect(`${request.redirect_uri}?qs.stringify(response)`)
+  ctx.status = 200
+  ctx.body = {
+    redirect_uri: `${request.redirect_uri}?${qs.stringify(response)}`
+  }
 }
 
 const introspect = async (ctx, next) => {
@@ -89,13 +141,13 @@ const introspect = async (ctx, next) => {
   // Fire external service
   // const client = await this.service.getClient({ clientId, clientSecret })
   // if (!client) {
-  //   throw new Error('Forbidden Access: Client does not have permission to access this service') 
+  //   throw new Error('Forbidden Access: Client does not have permission to access this service')
   // }
   const request = schema.introspectRequest({
     token: ctx.request.body.token,
     token_type_hint: ctx.request.body.token_type_hint
   })
-  const output = await ctx.service.introspect(request) 
+  const output = await ctx.service.introspect(request)
   const response = schema.introspectResponse({
     active: output.active,
     expires_in: output.expires_in,
@@ -135,7 +187,7 @@ const refresh = async(ctx, next) => {
   // Fire external service
   // const client = await this.service.getClient({ clientId, clientSecret })
   // if (!client) {
-  //   throw new Error('Forbidden Access: Client does not have permission to access this service') 
+  //   throw new Error('Forbidden Access: Client does not have permission to access this service')
   // }
   console.log(ctx.request.body)
   const request = schema.refreshTokenRequest({
@@ -144,8 +196,8 @@ const refresh = async(ctx, next) => {
     scope: ctx.request.body.scope,
     redirect_uri: ctx.request.body.redirect_uri
   })
-  console.log(request, "refreshTokenREquest")
-  const output = await ctx.service.refresh(request) 
+  console.log(request, 'refreshTokenREquest')
+  const output = await ctx.service.refresh(request)
   console.log('refreshTokenResponse', output)
   const response = schema.refreshTokenResponse({
     access_token: output.access_token,
@@ -174,8 +226,13 @@ const getAuthorizeResponse = (res) => {
   return res
 }
 
-const token = (ctx, next) => {
+const token = async (ctx, next) => {
+  const request = schema.tokenRequest(ctx.request.body)
+  const output = await ctx.service.token(request)
+  const response = schema.tokenResponse(output)
 
+  ctx.body = response
+  ctx.status = 200
 }
 
 export default {
@@ -217,20 +274,38 @@ export default {
       throw err
     }
   },
+  // GET /client-authorize
+  // Description: When the client chooses to connect
+  // with the provided, the client will trigger an
+  // authorize() endpoint from their side which will
+  // call the authorizeSDK()
   async getClientAuthorize (ctx, next) {
     const response = await openIdSDK.authorize()
-    console.log(response)
+    // The response will be a redirect url
+    // to the provider consent screen
+    console.log('getClientAuthorize', response)
     ctx.redirect(response.authorize_uri)
   },
+  // GET /client-authorize/callback
+  // Description: Once the client has accepted/rejected
+  // the connection with the Provider, the client
+  // will receive the success/error response
+  // at the callback url.
+  // The code received here will be traded with a valid access token
+  // and can only be used once
   async getClientAuthorizeCallback (ctx, next) {
     try {
       const request = {
         code: ctx.query.code
       }
+      // Should have a code
+      // to be traded with an access token
       const response = await openIdSDK.authorizeCallback(request)
-
+      console.log('getClientAuthorizeCallback', response)
+      // ctx.state.response = response
       ctx.status = 200
       ctx.body = response
+      await next()
     } catch (err) {
       // handle error
       console.log(err)
@@ -240,6 +315,8 @@ export default {
   refresh,
   getAuthorize,
   postAuthorize,
-  token
+  token,
+  checkUser,
+  cacheAuthorizationCode
 
 }

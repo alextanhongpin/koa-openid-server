@@ -21,7 +21,6 @@ class ClientInterface {
 
 // const ErrorUserNotFound = new Error('User not Found')
 
-
 class ClientService extends ClientInterface {
   constructor (props) {
     super(props)
@@ -33,16 +32,15 @@ class ClientService extends ClientInterface {
     .limit(limit)
   }
 
-  getClient({ client_id }) {
+  getClient ({ client_id }) {
     return this.db.findOne({ client_id })
   }
 
-  getClientById({ _id }) {
+  getClientById ({ _id }) {
     return this.db.findOne({ _id })
   }
 
-  async postClient({ client_name, client_uri, logo_uri, policy_uri, redirect_uris }) {
-
+  async postClient ({ client_name, client_uri, logo_uri, policy_uri, redirect_uris }) {
     const Client = this.db
     const client = new Client()
     client.client_id = await client.generateClientId(32)
@@ -61,7 +59,7 @@ class ClientService extends ClientInterface {
 
   // Requires authentication
   updateClient (_id, { client_name, client_uri, contacts, logo_uri, policy_uri, redirect_uris }) {
-    console.log(_id, "iddddd")
+    console.log(_id, 'iddddd')
     return this.db.findOneAndUpdate({ _id }, {
       $set: {
         contacts,

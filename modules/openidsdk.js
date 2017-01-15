@@ -13,6 +13,8 @@ class OpenIdSDK {
     this._tokenEndpoint = props.tokenEndpoint
     this._refreshTokenEndpoint = props.refreshTokenEndpoint
     this._refreshTokenCallback = props.refreshTokenCallback
+
+    this.AUTHORIZATION_CODE = 'authorization_code'
   }
   // Introspect a token's status to see if it's valid
   introspect ({ token, token_type_hint }) {
@@ -72,6 +74,8 @@ class OpenIdSDK {
       client_id: this._clientId,
       redirect_uri: this._redirectURI
     })
+    console.log('baseUri', baseUri)
+    console.log('query', query)
     return Promise.resolve({
       authorize_uri: `${baseUri}?${query}`
     })
@@ -87,15 +91,21 @@ class OpenIdSDK {
         },
         form: {
           code,
-          grant_type: 'authorization_code'
+          grant_type: this.AUTHORIZATION_CODE
         }
       }, (err, res, body) => {
+        console.log(err, body)
         if (err) {
           reject(err)
         } else if (res.statusCode === 400) {
           reject(JSON.parse(body))
         } else {
-          resolve(JSON.parse(body))
+          try {
+            const res = JSON.parse(body)
+            resolve(res)
+          } catch (err) {
+            reject(body)
+          }
         }
       })
     })

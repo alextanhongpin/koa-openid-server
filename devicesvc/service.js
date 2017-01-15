@@ -25,6 +25,7 @@ class DeviceService extends DeviceInterface {
     return users
   }
   async postDevice ({user_id, user_agent}) {
+    console.log('postDevice', user_agent, user_id)
     if (!user_id) throw ErrorUserIdNotProvided
     if (!user_agent) throw ErrorUserAgentNotProvided
     const Device = this.db

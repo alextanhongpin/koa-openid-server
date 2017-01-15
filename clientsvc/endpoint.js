@@ -47,7 +47,6 @@ const getClientView = async(ctx, next) => {
       error: 'The client does not exist or have been deleted'
     })
   }
-
 }
 const getClientUpdateView = async(ctx, next) => {
   try {
@@ -195,7 +194,7 @@ const postClientRequest = (ctx) => {
     logo_uri: ctx.request.body.logoURI,
     tos_uri: ctx.request.body.tosURI,
     policy_uri: ctx.request.body.policyURI,
-    redirect_uris: ctx.request.body.redirectURIs,
+    redirect_uris: ctx.request.body.redirectURIs
   }
 }
 const postClientResponse = res => {
@@ -203,7 +202,7 @@ const postClientResponse = res => {
     client_id: res.client_id,
     client_secret: res.client_secret,
     client_id_issued_at: res.created_at,
-    client_secret_expires_at: 0, 
+    client_secret_expires_at: 0,
     redirect_uris: res.redirect_uris,
     grant_types: res.grant_types,
     client_name: res.client_name,
@@ -222,7 +221,6 @@ const postClientResponse = res => {
   // "client_uri"    : "http://client.example.org",
   // "policy_uri"    : "http://client.example.org/privacy-policy.html",
   // "tos_uri"       : "http://client.example.org/terms-of-service.html"
-
 
 // {
 //   "client_id"                    : "ug2sb5zkcmpsi",
@@ -276,7 +274,6 @@ const postClientResponse = res => {
 //   "aud" : "https://demo.c2id.com/c2id/token",
 //   "exp" : 1453021544
 // }
-
 
 const successResponse = (ctx, response, status) => {
   ctx.body = response

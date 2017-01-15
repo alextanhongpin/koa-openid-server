@@ -2,10 +2,35 @@
 
 <p><%- client.scope ? client.scope.join(',') : '' %></p>
 
-<form method="post" action="<%-authorize_uri%>">
-	<button>Allow</button>
+<form>
+	<button id="Submit">Allow</button>
 </form>
 <a href="">Log in as another user</a>
 
 <p>Note: If user is not logged in, bring them to the login page</p>
 <p>Start to integrate redis and also rabbitmq</p>
+
+<script type="text/javascript">
+	
+
+
+	
+
+	const submit = document.getElementById('Submit')
+
+	submit.addEventListener('click', (evt) => {
+		evt.preventDefault()
+		const request = Object.assign({}, <%-request%>, {
+			access_token: window.localStorage.accessToken
+		})
+		Service.authorize(request).then((data) => {
+			console.log('authorize request', data)
+			window.location.href = data.redirect_uri
+		})
+		return false
+	}, false)
+
+	
+
+
+</script>

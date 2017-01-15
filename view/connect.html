@@ -1,3 +1,17 @@
 <h1>Connect</h1>
 
-<a href="/client-authorize">Connect you application with "APP_NAME"</a>
+<a href="/client-authorize">Connect with Redirect</a>
+
+
+<button id="Popup">Connect with Popup</button>
+
+<script type="text/javascript">
+	
+	const popup = document.getElementById('Popup')
+
+	popup.addEventListener('click', (evt) => {
+
+		window.open('http://localhost:3100/client-authorize', '_blank', 'height=400,width=480,menubar=yes,location=no,resizable=yes,scrollbars=yes,status=yes')
+	}, false)
+
+</script>

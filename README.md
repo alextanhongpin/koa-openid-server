@@ -114,6 +114,8 @@ WORK IN PROGRESS
 
 Service is basically a part of the core business logic of the application. It takes in an input (request) and produces and output (response). The response can then be consumed by the end users through different `transports`.
 
+Anything related to the request and response of a particular business rule should be placed in the service. Service should accept a set of know parameters, in which the validation will be carried out before passing in the request. It should also respond with a set of know responses, which is both predefined in the schema.
+
 Transport can be a HTTP Server (REST), or RPC.
 
 ## Endpoint

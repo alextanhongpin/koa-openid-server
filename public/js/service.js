@@ -144,5 +144,33 @@ const Service = {
     })
 
     return response
+  },
+
+  authorize ({ access_token, client_id, redirect_uri, response_type, scope }) {
+    const request = fetch('/authorize', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json;charset=utf-8',
+        'Authorization': `Bearer ${access_token}`
+      },
+      body: JSON.stringify({
+        client_id,
+        redirect_uri,
+        response_type,
+        scope
+      })
+    })
+
+    const response = request.then((body) => {
+      if (!body) {
+        return reject(new Error('Error parsing body'))
+      } else {
+        return body.json()
+      }
+    }).catch((err) => {
+      console.log(err)
+    })
+    return response
   }
 }
