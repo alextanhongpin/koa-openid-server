@@ -3,6 +3,7 @@ import Toolbox from '../common/toolbox.js'
 
 const ajv = Ajv({
   allErrors: true,
+  removeAdditional: true,
   schemas: [
     require('./schema/get-client-request.json'),
     require('./schema/get-client-response.json'),

@@ -116,12 +116,19 @@ const postClient = async(ctx, next) => {
       redirect_uris: ctx.request.body.redirectURIs
     })
     const client = await ctx.service.postClient(request)
-    const response = schema.postClientResponse(client)
+    // NOTE: the client object returned is not pure JSON, causing
+    // error for AJV to parse
+    const response = schema.postClientResponse(JSON.parse(JSON.stringify(client)))
     successResponse(ctx, response, 200)
   } catch (err) {
     if (err.name === 'ValidationError') {
+      // Handle Mongoose Schema errors
       ctx.status = 400
       ctx.message = err.message
+    } else if (err.name === 'Invalid Request') {
+      // Handle AJV errors
+      ctx.status = 400
+      ctx.message = err.description
     } else {
       // Handle other errors
       throw err

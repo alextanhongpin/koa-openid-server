@@ -4,12 +4,15 @@
   "title": "client",
   "type": "object",
   "additionalProperties": false,
-  "required": [ "client_id", "client_secret", "grant_types", "responses_types", "client_name" ],
+  "required": [ "client_name" ],
   "properties": {
     "client_id": {
     	"type": "string"
 	  },
     "client_secret": { 
+      "type": "string"
+    },
+    "client_uri": { 
       "type": "string"
     },
     "grant_types": {

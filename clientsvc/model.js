@@ -39,11 +39,13 @@ const ClientSchema = Schema({
     required: true
   },
   client_uri: {
-    type: String,
-    required: true
+    type: String
+    // required: true
   },
   logo_uri: String,
-  // scope: [],
+  scope: [{
+    type: String
+  }],
   contacts: [{ type: String }], // email addresses
   tos_uri: String,
   policy_uri: String,
@@ -147,6 +149,6 @@ let Client
 try {
   Client = db.model('Client')
 } catch (error) {
-  Client = db.model('Client', clientSchema)
+  Client = db.model('Client', ClientSchema)
 }
 export default Client

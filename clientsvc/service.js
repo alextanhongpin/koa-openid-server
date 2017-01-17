@@ -54,7 +54,9 @@ class ClientService extends ClientInterface {
     // client.policy_uri = policy_uri
     client.redirect_uris = redirect_uris
 
-    return client.save()
+    await client.save()
+
+    return client
   }
 
   // Requires authentication

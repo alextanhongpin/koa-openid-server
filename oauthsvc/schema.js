@@ -26,4 +26,5 @@ export default {
   authorizeResponse: parser.response('http://localhost:3000/schemas/authorize-response.json#'),
   tokenRequest: parser.request('http://localhost:3000/schemas/token-request.json#'),
   tokenResponse: parser.response('http://localhost:3000/schemas/token-response.json#')
+  // userinfo
 }

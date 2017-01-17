@@ -1,20 +1,26 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "http://localhost:3000/schemas/post-client-response.json#",
-  "title": "client",
+  "title": "Response returned after the client has been successfully created",
   "type": "object",
   "additionalProperties": false,
-  "required": [ "client_id", "client_secret", "grant_types", "responses_types", "client_name" ],
+  "required": [ "client_id", "client_secret" ],
   "properties": {
     "client_id": {
-    	"type": "string"
-	  },
-    "client_secret": { 
+      "type": "string"
+    },
+    "client_secret": {
+      "type": "string"
+    },
+    "client_uri": {
       "type": "string"
     },
     "token_endpoint_auth_method": {
-    	"type": "array",
-    	"enum": ["client_secret_basic"]
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["client_secret_basic"]
+      }
     },
     "client_id_issued_at": {
       "type": "number"
@@ -24,11 +30,17 @@
     },
     "grant_types": {
       "type": "array",
-      "enum": ["authorization_code", "refresh_token"]
+      "items": {
+        "type": "string",
+        "enum": ["authorization_code", "refresh_token"]
+      }
     },
     "responses_types": {
       "type": "array",
-      "enum": ["code"]
+      "items": {
+        "type": "string",
+        "enum": ["code"]
+      }
     },
     "client_name": {
       "type": "string"
@@ -47,6 +59,9 @@
     },
     "application_type": {
       "type": "string"
+    },
+    "scope": {
+      "type": "array"
     }
   }
 }

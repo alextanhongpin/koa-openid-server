@@ -16,8 +16,8 @@ describe('Client Service', () => {
     Client.remove({}).then(() => done())
   })
 
-  context('GET /clients', () =>{
-    it ('shall respond with status 200', (done) => {
+  context('GET /clients', () => {
+    it('shall respond with status 200', (done) => {
       server()
       .get('/api/v1/clients')
       .end((err, res) => {
@@ -29,7 +29,7 @@ describe('Client Service', () => {
   })
 
   context('POST /clients', () => {
-    it ('shall create a new client', (done) => {
+    it('shall create a new client', (done) => {
       server()
       .post('/api/v1/clients')
       .send({
@@ -59,7 +59,7 @@ describe('Client Service', () => {
       })
     })
 
-    it ('shall throw error if client name is not provided', (done) => {
+    it('shall throw error if client name is not provided', (done) => {
       server()
       .post('/api/v1/clients')
       .send({
@@ -77,7 +77,7 @@ describe('Client Service', () => {
       })
     })
 
-    it ('shall throw error if client uri is not provided', (done) => {
+    it('shall throw error if client uri is not provided', (done) => {
       server()
       .post('/api/v1/clients')
       .send({
@@ -94,6 +94,5 @@ describe('Client Service', () => {
         done()
       })
     })
-
   })
 })

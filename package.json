@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "mocha test/**/**.js --compilers babel-core/register --watch",
+  "scripts": { 
+    "test": "PORT=3000 MONGO_URI=mongodb://localhost/koa-auth JWT_SECRET=shhhhhh APP_NAME=XD31W90F-openidconnect REDIS_URI=redis://localhost AMQP_URI=amqp://localhost mocha test/**/**.js --compilers babel-core/register --watch",
     "start": "nodemon server.js --exec babel-node",
     "build": "babel . -d dist",
     "serve": "node dist/index.js"
