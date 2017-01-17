@@ -37,6 +37,10 @@
     },
     "redirect_uris": {
       "type": "array"
+    },
+    "application_type": {
+      "type": "string",
+      "enum": ["native", "web"]
     }
   }
 }

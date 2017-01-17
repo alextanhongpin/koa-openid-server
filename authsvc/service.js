@@ -22,12 +22,11 @@ const ErrorInvalidEmail = new Error('The email format is incorrect')
 class AuthService extends AuthInterface {
   constructor (props) {
     super(props)
-    this.db = props.db
+    // Pass in the User context through dependency injection (DI)
+    this.User = props.User
   }
   async login (email, password) {
-    console.log('service.login', email, password)
-    const user = await this.db.findOne({ email })
-    console.log(user)
+    const user = await this.User.findOne({ email })
     if (!user) {
       throw ErrorUserNotFound
     } else {
@@ -40,12 +39,11 @@ class AuthService extends AuthInterface {
     }
   }
   async register (email, password) {
-    const user = await this.db.findOne({ email })
+    const user = await this.User.findOne({ email })
     if (user) {
       return user
     } else {
-      const User = this.db
-      const user = new User()
+      const user = new this.User()
       user.email = email
       user.password = await User.hashPassword(password)
       await user.save()

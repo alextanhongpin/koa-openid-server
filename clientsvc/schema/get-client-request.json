@@ -1,13 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://localhost:3000/schemas/login-response.json#",
-  "title": "Local authentication response",
+  "id": "http://localhost:3000/schemas/get-client-request.json#",
+  "title": "client",
   "type": "object",
   "additionalProperties": false,
-  "required": [ "email" ],
+  "required": [ "_id" ],
   "properties": {
-    "email": {
+    "_id": {
     	"type": "string"
-	}
+	  }
   }
 }

@@ -10,9 +10,11 @@ import validator from 'email-validator'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt-nodejs'
 import crypto from 'crypto'
-// TODO: Write your implementation of the base 64 encode/decode method
 import base64url from 'base64url'
+
+// Database
 import db from '../common/database.js'
+
 // Constants
 const JWT_SECRET = process.env.JWT_SECRET
 
@@ -22,6 +24,7 @@ const ErrorEmailRequired = 'Email address must be provided'
 const ErrorInvalidEmail = '{VALUE} is not a valid email address'
 const ErrorInvalidPassword = 'Password must be at least 6 characters'
 const ErrorIncorrectPassword = new Error('Password provided is incorrect')
+
 // TODO: handle incorrect password scenario for more than 3 times
 // Send email to notify that his/her password has been compromised
 
@@ -35,6 +38,10 @@ const UserSchema = new Schema({
       },
       message: ErrorInvalidEmail
     }
+  },
+  email_verified: {
+    type: Boolean,
+    default: false
   },
   password: {
     type: String,
@@ -53,37 +60,78 @@ const UserSchema = new Schema({
     type: String,
     enum: ['admin', 'user'],
     default: 'user'
-  }
+  },
   // // Standard Claims
-  // sub ()
-  // name
-  // given_name
-  // family_name
-  // middle_name
-  // nickname
-  // preferred_username
-  // profile
-  // picture
-  // website
-  // email
-  // email_verified
-  // gender // male or femail
-  // birthdate // ISO 8601:2004 [ISO8601‑2004] YYYY-MM-DD
-  // zoneinfo // Europe/Paris
-  // locale: en_US,
-  // phone_number: +1 (604) 555-1234;ext=5678,
-  // phone_number_verified
-  // address
-  // updated_at
-  // // address claim
-  // address: {
-  //   formatted,
-  //   street_address
-  //   locality
-  //   region
-  //   postal_code
-  //   country
-  // }
+  sub: {
+    type: String
+  },
+  name: {
+    type: String                            
+  },
+  given_name: {
+    type: String
+  },
+  family_name: {
+    type: String
+  },
+  middle_name: {
+    type: String
+  },
+  nickname: {
+    type: String
+  },
+  preferred_username: {
+    type: String
+  },
+  profile: {
+    type: String
+  },
+  picture: {
+    type: String
+  },
+  website: {
+    type: String
+  },
+  gender: {
+    type: String,
+    enum: ['male', 'female'] 
+  },
+  birthdate: {
+    // Format: ISO 8601:2004 [ISO8601‑2004] YYYY-MM-DD
+    type: String
+  },
+  zoneinfo: {
+    type: String
+  },
+  locale: {
+    type: String
+  },
+  phone_number: {
+    type: String
+  },
+  phone_number_verified: {
+    type: String
+  },
+  address: {
+    formatted: {
+      type: String
+    },
+    street_address: {
+      type: String
+    },
+    locality: {
+      type: String
+    },
+    region: {
+      type: String
+    },
+    postal_code: {
+      type: String
+    },
+    country: {
+      type: String
+    }
+  }
 })
 
 // profile OPTIONAL. This scope value requests access to the End-User's default profile Claims, which are: name, family_name, given_name, middle_name, nickname, preferred_username, profile, picture, website, gender, birthdate, zoneinfo, locale, and updated_at.
@@ -160,6 +208,7 @@ UserSchema.statics.createAccessToken = (payload, expiresIn = '2m') => {
   })
 }
 
+// Static method to validate the access token
 UserSchema.statics.validateAccessToken = (token) => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, JWT_SECRET, {

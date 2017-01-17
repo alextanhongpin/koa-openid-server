@@ -9,13 +9,14 @@ const route = new Router()
 route.use(async(ctx, next) => {
   // Manually inject the service in the context
   ctx.service = Service({
-    db: User
+    User: User
   })
   await next()
 })
 
 route.get('/login', Endpoint.getLogin)
 route.post('/login', Endpoint.postLogin)
+
 route.get('/register', Endpoint.getRegister)
 route.post('/register', Endpoint.postRegister)
 
