@@ -184,22 +184,49 @@ At the `schema` we define the following:
 
 Testing is carried out using mocha and also Postman.
 
+The following naming for the test files are accepted: 
+```
+clientsvc_schema_test.js: Contains the test for the schema (request and response, error messages, validations)
+clientsvc_endpoint_test.js: Contains the test for the endpoints
+clientsvc_model_test.js: Contains the test for the model (statics, methods, validation)
+clientsvc_service_test.js: Contains the test for the service (input, output)
+clientsvc_transport_test.js: Test if the endpoint exists (status 200)
+```
+
 It should cover the following:
 
-a) list of API URLs to test,
-b) list of all params required in JSON request
-c) list of mandatory params in JSON request
-d) list of error/success codes and messages
++ list of API URLs to test,
++ list of all params required in JSON request
++ list of mandatory params in JSON request
++ list of error/success codes and messages
++ it makes a cURL call for an API
++ validation on error codes and messages
++ writes Pass/Fail on a text or excel file
++ read input values for params in API requests from text or excel file
++ how many concurrent connections server can take before it fails
++ concurrent loads in batches like 25, 100, 200, 500 and so on
++ expected response time for all user loads
++ expected throughput for all user loads
++ expected qps - queries per second
 
-2. for automation testing, a framework that has these functionalities
-a) it makes a cURL call for an API
-b) validation on error codes and messages
-c) writes Pass/Fail on a text or excel file
-d) read input values for params in API requests from text or excel file
 
-3. for performance testing using Siege Home or Apache JMeter - Apache JMeter™
-a) how many concurrent connections server can take before it fails
-b) concurrent loads in batches like 25, 100, 200, 500 and so on
-c) expected response time for all user loads
-d) expected throughput for all user loads
-e) expected qps - queries per second
+#### svc_schema_test
+
+The schema test should cover the following: 
++ required fields
++ accepted fields
++ validations
++ error messages
++ accepted request
++ accepted response
+
+#### svc_model_test
+
+The model test should cover the following:
++ required fields
++ accepted fields
++ validations
++ error messages
++ response
++ static methods input/output
++ build in methods input/output
