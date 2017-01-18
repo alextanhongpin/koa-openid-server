@@ -1,0 +1,38 @@
+[
+  {
+    "client_id"                       : "s6BhdRkqt3",
+    "client_secret"                   : "JBGuX8sIsPhL2aiHtdo_rb8JIMyTjHkLgfVB_zYf2NQ",
+    "client_secret_expires_at"        : 1577858400,
+    "registration_access_token"       : "SQvs1wv1NcAgsZomWWif0d9SDO0GKHYrUN6YR0ocmN0",
+    "registration_client_uri"         : "https://c2id.com/clients/s6BhdRkqt3",
+    "client_name"                     : "My Cool App",
+    "logo_uri"                        : "https://client.example.org/logo.png",
+    "contacts"                        : [ "admin@example.org" ],
+    "application_type"                : "web",
+    "grant_types"                     : [ "authorization_code" ],
+    "response_types"                  : [ "code" ],
+    "redirect_uris"                   : [ "https://client.example.org/callback",
+                                          "https://client.example.org/callback2" ],
+    "token_endpoint_auth_method"      : "client_secret_basic",
+    "id_token_signed_response_alg"    : "RS256",
+    "subject_type"                    : "public"
+  },
+
+  {
+    "client_id"                       : "joaix93Kf4",
+    "client_secret"                   : "posIjfdOJlejLfdsP0dfk23xkKJwpKfjLkdlslsOz",
+    "client_secret_expires_at"        : 1577858400,
+    "registration_access_token"       : "POifsadPOIe30xcPJeOjfo2zp_dfsdfoifas_3234",
+    "registration_client_uri"         : "https://c2id.com/clients/joaix93Kf4",
+    "client_name"                     : "My Test App",
+    "logo_uri"                        : "https://app.example.org/logo.png",
+    "contacts"                        : [ "admin@example.org" ],
+    "application_type"                : "web",
+    "grant_types"                     : [ "authorization_code" ],
+    "response_types"                  : [ "code" ],
+    "redirect_uris"                   : [ "https://app.example.org/callback" ],
+    "token_endpoint_auth_method"      : "client_secret_basic",
+    "id_token_signed_response_alg"    : "RS256",
+    "subject_type"                    : "public"
+  }
+]
