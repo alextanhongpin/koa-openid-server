@@ -1,10 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "http://localhost:3000/schemas/get-client-response.json#",
-  "title": "client",
+  "title": "Get client response",
   "type": "object",
   "additionalProperties": false,
-  "required": [ "client_id", "client_secret" ],
   "properties": {
     "logo_uri": {
       "type": "string"
@@ -28,7 +27,10 @@
       }
     },
     "grant_types": {
-      "type": "string"
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "contacts": {
       "type": "array"

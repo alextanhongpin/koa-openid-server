@@ -114,9 +114,9 @@ const ClientSchema = Schema({
      //   'implicit' instead."
      // }
 
-ClientSchema.statics.generateClientId = function (size) {
+ClientSchema.statics.generateClientId = function (size = 32) {
   return new Promise((resolve, reject) => {
-    crypto.randomBytes(size, (err, buffer) => {
+    crypto.randomBytes(size || 32, (err, buffer) => {
       if (err) {
         reject(err)
       } else {
@@ -127,9 +127,9 @@ ClientSchema.statics.generateClientId = function (size) {
   })
 }
 
-ClientSchema.statics.generateClientSecret = function (size) {
+ClientSchema.statics.generateClientSecret = function (size = 32) {
   return new Promise((resolve, reject) => {
-    crypto.randomBytes(size, (err, buffer) => {
+    crypto.randomBytes(size || 32, (err, buffer) => {
       if (err) {
         reject(err)
       } else {

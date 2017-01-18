@@ -1,4 +1,5 @@
-Example: 
+Example:
+
 ```
 https://client.example.org/cb?
  error=invalid_request
