@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://localhost:3000/schemas/token-refresh-token-grant-request.json#",
+  "title": "Token refresh token grant request",
+  "content-type": "application/x-www-form-urlencoded",
+  "method": "POST",
+  "endpoint": "/token",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [ "grant_type"],
+  "properties": {
+    "grant_type": { 
+    	"type": "string",
+    	"enum": ["refresh_token"],
+	    "description": "Must be set to refresh_token."
+    },
+    "grant_type": { 
+    	"type": "string",
+    	"enum": ["refresh_token"],
+	    "description": "Must be set to refresh_token."
+    },
+    "refresh_token": {
+        "type": "string",
+	      "description": "The refresh token issued to the client."
+    }
+  }
+}
