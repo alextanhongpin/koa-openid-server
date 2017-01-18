@@ -1,6 +1,28 @@
 # OAuth Server example using Koa and KoaRouter
 
+## Introduction
+
+I wrote this architecture for a REST api service, before moving on with `graphql` and `falcor`.
+This includes answers to questions that I once asked myself like:
+
+- How do I architecture a koajs app?
+- How do I setup babel for ES7?
+- How do I store my app configs for different environments?
+- How do I split the routes for different services?
+- How do I connect to the database?
+- How do I carry out validations for request/response?
+- How do I handle errors on the server side?
+- How do I write reusable modules?
+- How do I carry out testing for different endpoints?
+- How do I integrate different clients (rabbitmq, redis)?
+- How do I call one controller from another controller?
+- How do I write mantainable codes?
+
+There are many different stack combination/different ways of solving the problem I mentioned. So I'll just stick to the one that works. :muscle:
+
 ##WORK IN PROGRESS
+
+### Get Started
 
 Note: If you need to learn how to setup the server, check out 
 [https://github.com/babel/example-node-server](here).
@@ -19,7 +41,7 @@ $ npm install koa-router@next --save
 $ npm install koa-bodyparser@next --save
 ```
 
-### Environment Variables
+### Storing Environment Variables
 
 We will store our environment variables in the `.env` file. Make sure you have installed node-foreman beforehand.
 ```
@@ -33,7 +55,7 @@ Create an `.env` file with the following variables. We can add more later.
 PORT=3000
 MONGO_URI=mongodb://localhost/koa-oauth
 ```
-Your environment variables can be accessed from your node.js program through `process.env.PORT`, `process.env.MONGO_URI`.
+Your environment variables can be accessed from your node.js program through `process.env.PORT`, `process.env.MONGO_URI`. If you have a testing environment, you can store it in a `.env.test` file.
 
 
 ### Starting the Server
@@ -112,12 +134,18 @@ We use schemas for the following reason:
 WORK IN PROGRESS
 ## Service
 
-Service is basically a part of the core business logic of the application. It takes in an input (request) and produces and output (response). The response can then be consumed by the end users through different `transports`.
+Service is basically the core business logic of the application. It takes in an input (request) and produces and output (response). The response can then be consumed by the end users through different `transports` (e.g. REST, RPC).
 
 Anything related to the request and response of a particular business rule should be placed in the service. Service should accept a set of know parameters, in which the validation will be carried out before passing in the request. It should also respond with a set of know responses, which is both predefined in the schema.
 
-Transport can be a HTTP Server (REST), or RPC.
+`Transport` an be a HTTP Server (REST), or RPC.
 
 ## Endpoint
+The endpoint is where a service is called and the contracts are defined. Contracts are a predefined schema of request and response for the service. The contracts can be found in the `schema` folder for each corresponding services.
 
-The endpoint is where a service is called and the contracts are defined. Contracts are a predefined schema of request and response for the service.
+At the `schema` we define the following: 
+- the type of response that will be returned (mostly object)
+- `additonalProperties: true` means we do not accept any other fields than the ones defined
+- `required` field is an array of fields that are mandatory for the request
+- `properties` define the static type for each field and also custom validation (minLength, enum)
+- `errorMessages` allow us to define custom error messages 
