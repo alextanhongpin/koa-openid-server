@@ -8,24 +8,41 @@
   "properties": {
     "response_type": {
     	"type": "string", 
-    	"enum": ["code"]
-	  },
+    	"enum": ["code", "token", "id_token"],
+	"description": "The OAuth 2.0 response type. For clients using the OAuth code flow it should be set to code. For clients using the implicit flow it should be set to id_token or token id_token."
+    },
     "scope": { 
     	"type": "array",
     	"items": {
-        "type": "string",
-        "enum": ["openid", "profile", "email", "address", "phone"]
-      }
+		"type": "string",
+		"enum": ["openid", "profile", "email", "address", "phone"]
+      	},
+	"description": "Space separated list of the requested scope values. Must include at least the openid value."
     },
     "state": {
-      "type": "string"
+	"type": "string",
+	"description": "Opaque value, e.g. a random string, used to maintain state between the request and the callback. Use of this parameter is not required but highly recommended."
     },
     "redirect_uri": {
-      "type": "string",
-      "format": "uri"
+	"type": "string",
+	"format": "uri",
+	"description": "The redirection URI to which the response will be sent. It must exactly match one of the registered redirection URIs for the client."
     },
     "client_id": {
-      "type": "string"
+	"type": "string",
+ 	"description": "The OAuth 2.0 client identifier, obtained at registration."
+    },
+    "nonce": {
+    	"type": "string",
+	"description": "Opaque value, e.g. a random string, used to associate a client session with an ID Token, and to mitigate replay attacks. Use of this parameter is required in the implicit flow."
+    },
+    "code_challenge": {
+    	"type": "string",
+	"description": "The code challenge, computed from the code verifier using a transform"
+    },
+    "code_challenge_method": {
+    	"type": "string",
+        "description": "The code transform, defaults to plain if not specified. The supported methods are S256 (recommended) and plain."
     }
   }
 }
