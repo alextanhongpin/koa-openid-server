@@ -14,10 +14,9 @@
     	"enum": ["refresh_token"],
 	    "description": "Must be set to refresh_token."
     },
-    "grant_type": { 
+    "scope": { 
     	"type": "string",
-    	"enum": ["refresh_token"],
-	    "description": "Must be set to refresh_token."
+	"description": "Optional requested scope values for the new access token. Must not include any scope values not originally granted by the resource owner, and if omitted is treated as equal to the originally granted scope."
     },
     "refresh_token": {
         "type": "string",
