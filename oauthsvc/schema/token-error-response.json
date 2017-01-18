@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://localhost:3000/schemas/token-error-response.json#",
+  "title": "Token error response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [ "error"],
+  "properties": {
+    "error": {
+    	"type": "string",
+	    "description": "An error code which can take on of the following values:",
+      "enum": ["invalid_request", "invalid_client", "invalid_grant", "unauthorized_client", "unsupported_grant_type", "invalid_scope"]
+    },
+    "error_description": {
+	    "type": "string",
+	    "description": "Optional text providing additional information about the error that occurred."
+    },
+    "error_uri": {
+      "type": "string",
+      "description": "Optional URI for a web page with information about the error that occurred."
+    }
+  }
+}
