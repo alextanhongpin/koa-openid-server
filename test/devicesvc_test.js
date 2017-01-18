@@ -35,11 +35,10 @@ describe('GET /devices', () => {
 })
 
 describe('POST /devices', () => {
-
   beforeEach((done) => {
     Device.remove({}).then(() => done())
   })
-  it ('shall create a new device', (done) => {
+  it('shall create a new device', (done) => {
     server()
     .post('/devices')
     .send({
@@ -55,7 +54,7 @@ describe('POST /devices', () => {
     })
   })
 
-  it ('shall throw error when no user id is provided', (done) => {
+  it('shall throw error when no user id is provided', (done) => {
     server()
     .post('/devices')
     .send({
@@ -63,7 +62,8 @@ describe('POST /devices', () => {
     })
     .end((err, res) => {
       res.should.have.status(500)
-      res.body.should.have.property('message')
+      res.body.should.have.property('error')
+      // res.body.should.have.property('error_description')
       done()
     })
   })
