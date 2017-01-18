@@ -2,17 +2,21 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "http://localhost:3000/schemas/introspect-request.json#",
   "title": "introspect",
+  "resources": "POST /introspect/token",
+  "content-type": "application/x-www-form-urlencoded",
   "type": "object",
   "additionalProperties": false,
   "required": [ "token", "token_type_hint" ],
   "properties": {
     "token": {
     	"type": "string", 
-    	"minLength": 1 
-	  },
+    	"minLength": 1,
+	"description": "The token to inspect."
+    },
     "token_type_hint": { 
     	"type": "string",
-    	"enum": ["refresh_token", "access_token"]
+    	"enum": ["refresh_token", "access_token"],
+	"description": "Optional hint about the type of the submitted token; if omitted the server will use heuristics to determine the token type." 
     }
   },
   "errorMessages": {
