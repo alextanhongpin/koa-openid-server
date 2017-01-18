@@ -7,43 +7,59 @@
   "required": [ "active" ],
   "properties": {
     "active": {
-    	"type": "boolean"
+    	"type": "boolean",
+      "description": "If true the token is valid and active. If false the token is either invalid or has expired."
     },
     "scope": {
-      "type": "string"
+      "type": "string",
+      "description": "The scope values for the token. The Connect2id server will always set this value."
     },
     "client_id": {
-      "type": "string"
+      "type": "string",
+      "description": "The identifier of the OAuth 2.0 client that requested the token. The Connect2id server will always set this value."
     },
     "username": {
-      "type": "string"
+      "type": "string",
+      "description": "Username of the resource owner who authorised the token."
     },
     "token_type": {
-      "type": "string"
+      "type": "string",
+      "description": "Type of the token, set to Bearer. The Connect2id will always set this value."
     },
     "exp": {
-      "type": "number"
+      "type": "number",
+      "description": "The token expiration time, as number of seconds since the Unix epoch (1970-01-01T0:0:0Z) as measured in UTC until the date/time. Has the same semantics as the JWT claim name. The Connect2id server will always set this value."
     },
     "iat": {
-      "type": "number"
+      "type": "number",
+      "description": "The token issue time, as number of seconds since the Unix epoch (1970-01-01T0:0:0Z) as measured in UTC until the date/time. Has the same semantics as the JWT claim name."
     },
     "nbf": {
-      "type": "string"
+      "type": "number",
+      "description": "The token use-not-before time, as number of seconds since the Unix epoch (1970-01-01T0:0:0Z) as measured in UTC until the date/time. Has the same semantics as the JWT claim name."
     },
     "sub": {
-      "type": "string"
+      "type": "string",
+      "description": "The subject of the token. Typically the user identifier of the resource owner who authorised the token. Has the same semantics as the JWT claim name. The Connect2id server will always set this value."
     },
     "aud": {
-      "type": "string"
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Audience values for the token. Has the same semantics as the JWT claim name."
     },
     "iss": {
-      "type": "string"
+      "type": "string",
+      "description": "The token issuer (the OpenID provider issuer identifier). Has the same semantics as the JWT claim name."
     },
     "jti": {
-      "type": "string"
+      "type": "string",
+      "description": "Identifier for the token. Has the same semantics as the JWT claim name."
     },
     "dat": {
-      "type": "string"
+      "type": "object",
+      "description": "Optional custom authorisation data."
     },
     "expires_in": {
       "type": "number"
