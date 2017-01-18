@@ -178,3 +178,28 @@ At the `schema` we define the following:
 - `required` field is an array of fields that are mandatory for the request
 - `properties` define the static type for each field and also custom validation (minLength, enum)
 - `errorMessages` allow us to define custom error messages 
+
+
+## Testing
+
+Testing is carried out using mocha and also Postman.
+
+It should cover the following:
+
+a) list of API URLs to test,
+b) list of all params required in JSON request
+c) list of mandatory params in JSON request
+d) list of error/success codes and messages
+
+2. for automation testing, a framework that has these functionalities
+a) it makes a cURL call for an API
+b) validation on error codes and messages
+c) writes Pass/Fail on a text or excel file
+d) read input values for params in API requests from text or excel file
+
+3. for performance testing using Siege Home or Apache JMeter - Apache JMeter™
+a) how many concurrent connections server can take before it fails
+b) concurrent loads in batches like 25, 100, 200, 500 and so on
+c) expected response time for all user loads
+d) expected throughput for all user loads
+e) expected qps - queries per second
