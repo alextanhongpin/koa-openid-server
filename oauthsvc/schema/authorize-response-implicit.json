@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://localhost:3000/schemas/authorize-response-implicit.json#",
+  "title": "OAuth implicit flow",
+  "description": "implicit flow response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [ "code" ],
+  "properties": {
+    "access_token": {
+    	"type": "string",
+	    "description": "The OAuth 2.0 access token. Required for the UserInfo endpoint and other authorised protected resources."
+    },
+    "token_type": {
+    	"type": "string",
+	    "description": "The OAuth 2.0 token type, set to bearer.",
+      "enum": ["bearer"]
+    },
+    "expires_in": {
+      "type": "number",
+      "description": "Expiration time of the access token in seconds since the response was generated."
+    },
+    "id_token": {
+      "type": "string",
+      "description": "The OpenID Connect ID token."
+    },
+    "state": {
+      "type": "string",
+      "description": "The state value, if one was passed with the request. Clients must validate the value before proceeding."
+    }
+  }
+}
