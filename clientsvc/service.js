@@ -56,7 +56,8 @@ class ClientService extends ClientInterface {
 
     await client.save()
 
-    return client
+    // Create a new copy
+    return Object.assign({}, client)
   }
 
   // Requires authentication

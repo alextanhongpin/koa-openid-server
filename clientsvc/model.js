@@ -40,38 +40,34 @@ const ClientSchema = Schema({
   },
   client_uri: {
     type: String
-    // required: true
   },
   logo_uri: String,
   scope: [{
     type: String
   }],
-  contacts: [{ type: String }], // email addresses
+  contacts: [{ type: String }],
   tos_uri: String,
   policy_uri: String,
   jwks_uri: String,
-  // jwks
-  // software_id
-  // software_version
   registration_client_uri: String,
   registration_access_token: String,
   token_endpoint_auth_method: {
     type: String,
     enum: [
-      'none', // The client is a public client as defined in oauth2 and does not have a client secret
-      'client_secret_post', // The client uses the HTTP Post parameters defined in oauth2.0
-      'client_secret_basic' // The client uses the HTTP basic defined in oauth2.0
+      'none', 
+      'client_secret_post', 
+      'client_secret_basic' 
     ]
   },
   grant_types: [{
     type: String,
     enum: [
-      'authorization_code', // The authorization code grant as described in oauth2.0
-      'implicit', // The implicit grant as described in oauth2.0
-      'password', // The resource owner password credentials grant described in oauth2.0
-      'refresh_token', // the refresh token grant described in oauth2.0
-      'urn:ietf:prams:oauth:grant-type:jwt-bearer', // The JWT Bearer grant described in Oauth JWT Bearer Token Profiles
-      'urn:ietf:params:outh:grant-type:saml2-bearer' // The SAML 2 Bearer Grant described in Oauth saml 2 bearer token profiles
+      'authorization_code',
+      'implicit',
+      'password',
+      'refresh_token',
+      'urn:ietf:prams:oauth:grant-type:jwt-bearer',
+      'urn:ietf:params:outh:grant-type:saml2-bearer'
     ]
   }],
   responses_types: [{
@@ -83,36 +79,6 @@ const ClientSchema = Schema({
   }]
 })
 
-// Errors
-// error: Single ASCII error code string
-// error_description
-
-   // invalid_redirect_uri
-   //    The value of one or more redirection URIs is invalid.
-
-   // invalid_client_metadata
-   //    The value of one of the client metadata fields is invalid and the
-   //    server has rejected this request.  Note that an Authorization
-   //    server MAY choose to substitute a valid value for any requested
-   //    parameter of a client's metadata.
-
-   // invalid_software_statement
-   //    The software statement presented is invalid.
-
-   // unapproved_software_statement
-   //    The software statement presented is not approved for use by this
-   //    authorization server.
-    // {
-    //   "error": "invalid_redirect_uri",
-    //   "error_description": "The redirect URI http://sketchy.example.com
-    //     is not allowed by this server."
-    //  }
-     // {
-     //  "error": "invalid_client_metadata",
-     //  "error_description": "The grant type 'authorization_code' must be
-     //    registered along with the response type 'code' but found only
-     //   'implicit' instead."
-     // }
 
 ClientSchema.statics.generateClientId = function (size = 32) {
   return new Promise((resolve, reject) => {
