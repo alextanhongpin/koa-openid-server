@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://localhost:3000/schemas/token-authorization-code-grant-request.json#",
+  "title": "Token authorization code grant request",
+  "content-type": "application/x-www-form-urlencoded",
+  "method": "POST",
+  "endpoint": "/token",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [ "code", "grant_type"],
+  "properties": {
+    "code": {
+    	"type": "string",
+	"description": "The code received with the authentication response."
+    },
+    "grant_type": { 
+    	"type": "string",
+    	"enum": ["authorization_code"],
+	"description": "Must be set to authorization_code."
+    },
+    "redirect_uri": {
+        "type": "string",
+	"description": "The value of the redirect_uri parameter included in the original authentication request."
+    },
+    "code_verifier": {
+        "type": "string",
+	"description": "The code verifier if Proof Key of Code Exchange (PKCE) is employed (for public OAuth clients)."
+    }
+  }
+}
