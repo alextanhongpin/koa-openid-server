@@ -1,0 +1,12 @@
+{
+  "client_id"                  : "s6BhdRkqt3",
+  "application_type"           : "web",
+  "redirect_uris"              : [ "https://client.example.org/callback",
+                                   "https://client.example.org/callback2" ],
+  "client_name"                : "My Cool App",
+  "logo_uri"                   : "https://client.example.org/logo.png",
+  "policy_uri"                 : "https://client.example.org/privacy-policy",
+  "tos_uri"                    : "https://client.example.org/terms-of-service",
+  "token_endpoint_auth_method" : "client_secret_basic",
+  "contacts"                   : [ "admin@example.org" ]
+}
