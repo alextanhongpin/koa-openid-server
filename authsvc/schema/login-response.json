@@ -3,11 +3,20 @@
   "id": "http://localhost:3000/schemas/login-response.json#",
   "title": "Local authentication response",
   "type": "object",
+  "endpoint": "/login",
+  "method": "POST",
   "additionalProperties": false,
   "required": [ "email" ],
   "properties": {
     "email": {
-    	"type": "string"
-	}
+    	"type": "string",
+	"description": "The email that the user registered with.",
+	"format": "email"
+    },
+    "password": {
+    	"type": "string",
+	"description": "The password that the user register with.",
+	"minLength": 6
+    }
   }
 }
