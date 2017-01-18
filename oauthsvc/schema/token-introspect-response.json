@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://localhost:3000/schemas/introspect-response.json#",
-  "title": "introspect",
+  "id": "http://localhost:3000/schemas/token-introspect-response.json#",
+  "title": "token introspect",
   "type": "object",
   "additionalProperties": false,
   "required": [ "active" ],
