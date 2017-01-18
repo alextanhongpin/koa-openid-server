@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://localhost:3000/schemas/introspect-request.json#",
+  "id": "http://localhost:3000/schemas/token-introspect-request.json#",
   "title": "introspect",
   "resources": "POST /introspect/token",
   "content-type": "application/x-www-form-urlencoded",
