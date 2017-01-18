@@ -1,9 +1,10 @@
 # OAuth Server example using Koa and KoaRouter
+##WORK IN PROGRESS
 
 ## Introduction
 
 I wrote this architecture for a REST api service, before moving on with `graphql` and `falcor`.
-This includes answers to questions that I once asked myself like:
+This includes answers to questions that I once asked myself :openmouth: like:
 
 - How do I architecture a koajs app?
 - How do I setup babel for ES7?
@@ -18,9 +19,9 @@ This includes answers to questions that I once asked myself like:
 - How do I call one controller from another controller?
 - How do I write mantainable codes?
 
-There are many different stack combination/different ways of solving the problem I mentioned. So I'll just stick to the one that works. :muscle:
+> TL;DR. I just want an architecture that is `mantainable`, `reproducible`, and `easy` to understand. It has to include `unit testing`, `functional approach` and each services can be `scaled independently` when necessary.
 
-##WORK IN PROGRESS
+There are many different stack combination/different ways of solving the problem I mentioned. So I'll just stick to the one that works. :muscle:
 
 ### Get Started
 
@@ -41,10 +42,10 @@ $ npm install koa-router@next --save
 $ npm install koa-bodyparser@next --save
 ```
 
-### Storing Environment Variables
+### Configs/Environment Variables
 
-We will store our environment variables in the `.env` file. Make sure you have installed node-foreman beforehand.
-```
+We will store our configs as environment variables in the `.env` file. Make sure you have installed node-foreman beforehand.
+```bash
 // node-foreman installation
 $ npm install -g foreman
 ```
@@ -64,16 +65,24 @@ Create a `PROCFILE` with the following command. We will use `nodemon` which will
 ```
 // PROCFILE
 web: nodemon server.js
+redis: redis-server start
+mongo: mongod
 ```
+
 You can start the server with the command `$ nf start`.
 The environment variables will be loaded automatically from the `.env` file on runtime.
 ```terminal
 $ nf start
 ```
+You can specify which `.env` file or even load multiple `.env` file when starting the server.
+```bash
+// Loads both the .env and .envdev files
+nf start -e .env,.envdev
+```
 
 ### .gitignore
 
-Create a `.gitignore` file. It should exclude the `node_modules` directory and `.env` file. This will prevent us from accidentally commiting sensitive information (password etc) to Github.
+Create a `.gitignore` file. It should exclude the `node_modules` directory and `.env` file. This will prevent us from accidentally commiting sensitive information (password, configs etc) to Github.
 
 ```
 // .gitignore
@@ -87,6 +96,26 @@ git rm -r --cached node_modules
 git commit -m 'Remove the now ignored directory node_modules'
 git push origin master
 ```
+
+## Service Folder
+
+The following is a valid name for the service folder:
+```
+// ACCEPTED
+clientsvc
+client-service
+
+// REJECTED
+client_service
+clientService
+```
+It's just a matter of preference, but I like to keep things standardized. The service folder will contain the following files/folders:
+
+- __endpoint__ - The logic for handling the request/response at the specified endpoints
+- __model__ - The core database model for the service. 
+- __schema__ - The validation for the request/response of the service.
+- __service__ - The core business rule. Accepts a defined input and produces a known output.
+- __transport__ - The transport layers. Normally a router that handles that connects the endpoints to the routes.
 
 ## Endpoints
 Standard OAuth 2.0 / OpenID Connect endpoints
