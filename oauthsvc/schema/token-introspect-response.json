@@ -1,68 +1,70 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://localhost:3000/schemas/token-introspect-response.json#",
-  "title": "token introspect",
-  "type": "object",
   "additionalProperties": false,
-  "required": [ "active" ],
+  "id": "http://localhost:3000/schemas/token-introspect-response.json#",
   "properties": {
     "active": {
-    	"type": "boolean",
-      "description": "If true the token is valid and active. If false the token is either invalid or has expired."
-    },
-    "scope": {
-      "type": "string",
-      "description": "The scope values for the token. The Connect2id server will always set this value."
-    },
-    "client_id": {
-      "type": "string",
-      "description": "The identifier of the OAuth 2.0 client that requested the token. The Connect2id server will always set this value."
-    },
-    "username": {
-      "type": "string",
-      "description": "Username of the resource owner who authorised the token."
-    },
-    "token_type": {
-      "type": "string",
-      "description": "Type of the token, set to Bearer. The Connect2id will always set this value."
-    },
-    "exp": {
-      "type": "number",
-      "description": "The token expiration time, as number of seconds since the Unix epoch (1970-01-01T0:0:0Z) as measured in UTC until the date/time. Has the same semantics as the JWT claim name. The Connect2id server will always set this value."
-    },
-    "iat": {
-      "type": "number",
-      "description": "The token issue time, as number of seconds since the Unix epoch (1970-01-01T0:0:0Z) as measured in UTC until the date/time. Has the same semantics as the JWT claim name."
-    },
-    "nbf": {
-      "type": "number",
-      "description": "The token use-not-before time, as number of seconds since the Unix epoch (1970-01-01T0:0:0Z) as measured in UTC until the date/time. Has the same semantics as the JWT claim name."
-    },
-    "sub": {
-      "type": "string",
-      "description": "The subject of the token. Typically the user identifier of the resource owner who authorised the token. Has the same semantics as the JWT claim name. The Connect2id server will always set this value."
+      "description": "If true the token is valid and active. If false the token is either invalid or has expired.",
+      "type": "boolean"
     },
     "aud": {
-      "type": "array",
+      "description": "Audience values for the token. Has the same semantics as the JWT claim name.",
       "items": {
         "type": "string"
       },
-      "description": "Audience values for the token. Has the same semantics as the JWT claim name."
+      "type": "array"
     },
-    "iss": {
-      "type": "string",
-      "description": "The token issuer (the OpenID provider issuer identifier). Has the same semantics as the JWT claim name."
-    },
-    "jti": {
-      "type": "string",
-      "description": "Identifier for the token. Has the same semantics as the JWT claim name."
+    "client_id": {
+      "description": "The identifier of the OAuth 2.0 client that requested the token. The Connect2id server will always set this value.",
+      "type": "string"
     },
     "dat": {
-      "type": "object",
-      "description": "Optional custom authorisation data."
+      "description": "Optional custom authorisation data.",
+      "type": "object"
+    },
+    "exp": {
+      "description": "The token expiration time, as number of seconds since the Unix epoch (1970-01-01T0:0:0Z) as measured in UTC until the date/time. Has the same semantics as the JWT claim name. The Connect2id server will always set this value.",
+      "type": "number"
     },
     "expires_in": {
       "type": "number"
+    },
+    "iat": {
+      "description": "The token issue time, as number of seconds since the Unix epoch (1970-01-01T0:0:0Z) as measured in UTC until the date/time. Has the same semantics as the JWT claim name.",
+      "type": "number"
+    },
+    "iss": {
+      "description": "The token issuer (the OpenID provider issuer identifier). Has the same semantics as the JWT claim name.",
+      "type": "string"
+    },
+    "jti": {
+      "description": "Identifier for the token. Has the same semantics as the JWT claim name.",
+      "type": "string"
+    },
+    "nbf": {
+      "description": "The token use-not-before time, as number of seconds since the Unix epoch (1970-01-01T0:0:0Z) as measured in UTC until the date/time. Has the same semantics as the JWT claim name.",
+      "type": "number"
+    },
+    "scope": {
+      "description": "The scope values for the token. The Connect2id server will always set this value.",
+      "type": "string"
+    },
+    "sub": {
+      "description": "The subject of the token. Typically the user identifier of the resource owner who authorised the token. Has the same semantics as the JWT claim name. The Connect2id server will always set this value.",
+      "type": "string"
+    },
+    "token_type": {
+      "description": "Type of the token, set to Bearer. The Connect2id will always set this value.",
+      "type": "string"
+    },
+    "username": {
+      "description": "Username of the resource owner who authorised the token.",
+      "type": "string"
     }
-  }
+  },
+  "required": [
+    "active"
+  ],
+  "title": "token introspect",
+  "type": "object"
 }

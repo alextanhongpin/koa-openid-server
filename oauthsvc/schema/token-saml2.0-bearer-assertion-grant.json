@@ -1,26 +1,30 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://localhost:3000/schemas/token-saml-2.0-bearer-assertion-grant-request.json#",
-  "title": "Token saml 2.0 bearer assertion grant request",
-  "content-type": "application/x-www-form-urlencoded",
-  "method": "POST",
-  "endpoint": "/token",
-  "type": "object",
   "additionalProperties": false,
-  "required": [ "grant_type"],
+  "content-type": "application/x-www-form-urlencoded",
+  "endpoint": "/token",
+  "id": "http://localhost:3000/schemas/token-saml-2.0-bearer-assertion-grant-request.json#",
+  "method": "POST",
   "properties": {
-    "grant_type": { 
-    	"type": "string",
-    	"enum": ["urn:ietf:params:oauth:grant-type:saml2-bearer"],
-	    "description": "Must be set to urn:ietf:params:oauth:grant-type:saml2-bearer."
+    "assertion": {
+      "description": "The SAML 2.0 assertion, base 64 URL encoded.",
+      "type": "string"
     },
-    "assertion": { 
-    	"type": "string",
-	    "description": "The SAML 2.0 assertion, base 64 URL encoded."
+    "grant_type": {
+      "description": "Must be set to urn:ietf:params:oauth:grant-type:saml2-bearer.",
+      "enum": [
+        "urn:ietf:params:oauth:grant-type:saml2-bearer"
+      ],
+      "type": "string"
     },
-    "scope": { 
-    	"type": "string",
-	    "description": "Optional requested scope values for the access token."
+    "scope": {
+      "description": "Optional requested scope values for the access token.",
+      "type": "string"
     }
-  }
+  },
+  "required": [
+    "grant_type"
+  ],
+  "title": "Token saml 2.0 bearer assertion grant request",
+  "type": "object"
 }
