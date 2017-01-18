@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://localhost:3000/schemas/token-revoke-request.json#",
+  "title": "Token revoke",
+  "method": "POST",
+  "resource": "POST /token/revoke",
+  "content-type": "application/x-www-form-urlencoded.",
+  "authorization": true,
+  "type": "object",
+  "additionalProperties": false,
+  "required": [ "token", "token_type_hint" ],
+  "properties": {
+    "token": {
+      "type": "string",
+      "description": "The token that the client wants to get revoked."
+    },
+    "token_type_hint": {
+      "type": "string",
+      "description": "Optional hint about the type of the submitted token; if omitted the server will use heuristics to determine the token type:",
+      "enum": ["access_token", "refresh_token"]
+    }
+  }
+}
