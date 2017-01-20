@@ -1,10 +1,12 @@
-# OAuth Server example using Koa and KoaRouter
-##WORK IN PROGRESS
+# Koa REST API Architecture
+
+A reusable REST API architecture using OpenId Connect server as an example. To find out more about the OpenId Connect, visit [here](http://openid.net/connect/). Implements practices from the `Twelve-Factor-App` and also `Specification by Example`.
 
 ## Introduction
 
-I wrote this architecture for a REST api service, before moving on with `graphql` and `falcor`.
-This includes answers to questions that I once asked myself :openmouth: like:
+This is how I will structure my REST API for node.js. It will be interesting to see how this architecture integrates with `graphql` and `falcor`.
+
+This architecture is the answer to questions that I once asked myself :openmouth: like:
 
 - How do I architecture a koajs app?
 - How do I setup babel for ES7?
@@ -19,14 +21,14 @@ This includes answers to questions that I once asked myself :openmouth: like:
 - How do I call one controller from another controller?
 - How do I write mantainable codes?
 
-> TL;DR. I just want an architecture that is `mantainable`, `reproducible`, and `easy` to understand. It has to include `unit testing`, `functional approach` and each services can be `scaled independently` when necessary.
+> TL;DR I just want an architecture that is `mantainable`, `reproducible`, and `easy` to understand. It has to include `unit testing`, `functional approach` and each services can be `scaled independently` when necessary.
 
 There are many different stack combination/different ways of solving the problem I mentioned. So I'll just stick to the one that works. :muscle:
 
 ### Get Started
 
 Note: If you need to learn how to setup the server, check out 
-[https://github.com/babel/example-node-server](here).
+[here](https://github.com/babel/example-node-server).
 
 Start by creating a new `package.json` with the command `npm init`.
 
@@ -42,22 +44,106 @@ $ npm install koa-router@next --save
 $ npm install koa-bodyparser@next --save
 ```
 
-### Configs/Environment Variables
+### Folder Structure
+```
+.
++-- common
+|   +-- amqp.js
+|   +-- config.js
+|   +-- database.js
+|   +-- redis.js
+|   +-- toolbox.js
++-- modules
+|   +-- base64.js
+|   +-- code.js
+|   +-- errors.js
+|   +-- jwt.js
++-- public
++-- clientsvc
+|   +-- sample
+|       +-- error-400.md
+|       +-- error-401.md
+|       +-- error-403.md
+|       +-- error-404.md
+|       +-- error-500.md
+|       +-- get-client-request.json
+|       +-- get-client-response.json
+|   +-- schema
+|       +-- get-client-request.js
+|       +-- get-client-response.js
+|   +-- endpoint.js
+|   +-- model.js
+|   +-- schema.js
+|   +-- service.js
+|   +-- transport.js
++-- test
+|   +-- clientsvc
+|       +-- schema_test.js
+|       +-- model_test.js
+|       +-- service_test.js
++-- view
+|   +-- _base.html
+|   +-- index.html
++-- server.js
+```
 
-We will store our configs as environment variables in the `.env` file. Make sure you have installed node-foreman beforehand.
+
+`Common` folder contains all the setups for the application, which includes third-party vendors (amqp, redis) and database.
+
+`Modules` folder contains all the modules that will be published to NPM. I usually separate reusable modules and place publish it to NPM so that I can use it in other node.js apps. Once it is published, remove it from the folder.
+
+`Public` folder contains static files.
+`View` folder contains the view template.
+
+`server.js` contains the application logic.
+
+`clientsvc` is an example service folder. It contains the core business logic for a standalone service. You can choose to deploy and scale it independently (standalone server, database). The `sample` folder contains the json request/response in the `.json` or `.md` format (since some response can be a redirection and doesn't return a json response, we will write the example in the .md file) This is our living documentation and it stays in our source code. The `schema` folder contains the JSON-Schema validation for each services request/response object.
+
+
+### Configs
+
+Configs are stored as environment variables (*env vars*) in the `.env` file. Make sure you have installed node-foreman beforehand. For configs best practices, refer to the [Twelve-Factor-App](https://12factor.net/config).
+
 ```bash
 // node-foreman installation
 $ npm install -g foreman
 ```
 
 Create an `.env` file with the following variables. We can add more later.
+
 ```
 // .env
 PORT=3000
 MONGO_URI=mongodb://localhost/koa-oauth
 ```
-Your environment variables can be accessed from your node.js program through `process.env.PORT`, `process.env.MONGO_URI`. If you have a testing environment, you can store it in a `.env.test` file.
 
+Your environment variables can be accessed from your node.js program through `process.env.PORT`, `process.env.MONGO_URI`. ~~If you have a testing environment, you can store it in a `.env.test` file.~~ Don't do this, it defeats the purpose of storing configs in environment variables.
+
+```javascript
+// e.g. config.js
+
+// NOTE: 
+const PORT = process.env.PORT
+const MONGO_URI = process.env.MONGO_URI
+
+// required environment variables
+[
+  'MONGO_URI',
+  'PORT'
+].forEach((name) => {
+  if (!process.env[name]) {
+    throw new Error(`Environment variable ${name} is missing`)
+  }
+})
+
+// db.js
+mongoose.connect(MONGO_URI)
+
+// server.js
+app.listen(PORT, (err) => {
+  console.log(`listening to port *:${PORT}. press ctrl + c to cancel.`)
+})
+```
 
 ### Starting the Server
 
@@ -71,10 +157,13 @@ mongo: mongod
 
 You can start the server with the command `$ nf start`.
 The environment variables will be loaded automatically from the `.env` file on runtime.
+
 ```terminal
 $ nf start
 ```
+
 You can specify which `.env` file or even load multiple `.env` file when starting the server.
+
 ```bash
 // Loads both the .env and .envdev files
 nf start -e .env,.envdev
@@ -100,6 +189,7 @@ git push origin master
 ## Service Folder
 
 The following is a valid name for the service folder:
+
 ```
 // ACCEPTED
 clientsvc
@@ -109,6 +199,7 @@ client-service
 client_service
 clientService
 ```
+
 It's just a matter of preference, but I like to keep things standardized. The service folder will contain the following files/folders:
 
 - __endpoint__ - The logic for handling the request/response at the specified endpoints
@@ -219,6 +310,9 @@ The schema test should cover the following:
 + error messages
 + accepted request
 + accepted response
++ for strings, min/maxLength, null, empty string, defaults, pattern
++ for object, null, {}
++ for numbers, range, min, max, accepted, -1, 0, 1, pattern, default
 
 #### svc_model_test
 
