@@ -1,14 +1,14 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "http://localhost:3000/schemas/login-request.json#",
-  "title": "Local authentication request",
+  "title": "Login request",
   "type": "object",
   "additionalProperties": false,
   "required": [ "email", "password" ],
   "properties": {
     "email": {
     	"type": "string"
-	},
+	  },
     "password": { 
     	"type": "string",
     	"minLength": 6 

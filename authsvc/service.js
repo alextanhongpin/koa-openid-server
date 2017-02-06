@@ -3,29 +3,26 @@
 // The authentication interface
 class AuthInterface {
   login () {
-    throw new Error('AuthInterfaceError: login is not implemented')
+    throw new Error('AuthInterfaceError: method login() is not implemented')
   }
   logout () {
-    throw new Error('AuthInterfaceError: logout is not implemented')
+    throw new Error('AuthInterfaceError: method logout() is not implemented')
   }
   register () {
-    throw new Error('AuthInterfaceError: login is not implemented')
+    throw new Error('AuthInterfaceError: method register() is not implemented')
   }
 }
 
 const ErrorUserNotFound = new Error('User not Found')
 const ErrorIncorrectPassword = new Error('The password is incorrect')
 const ErrorInvalidEmail = new Error('The email format is incorrect')
-// const ErrorUserIdNotProvided = new Error('User id is required')
-// const ErrorUserAgentNotProvided = new Error('User agent is required')
 
 class AuthService extends AuthInterface {
   constructor (props) {
     super(props)
-    // Pass in the User context through dependency injection (DI)
     this.User = props.User
   }
-  async login (email, password) {
+  async login ({email, password}) {
     const user = await this.User.findOne({ email })
     if (!user) {
       throw ErrorUserNotFound
@@ -38,7 +35,7 @@ class AuthService extends AuthInterface {
       }
     }
   }
-  async register (email, password) {
+  async register ({email, password}) {
     const user = await this.User.findOne({ email })
     if (user) {
       return user
@@ -53,7 +50,6 @@ class AuthService extends AuthInterface {
   logout () {
     // TODO: Clears the user's token/device from the database
   }
-
 }
 
 // Export a new auth service

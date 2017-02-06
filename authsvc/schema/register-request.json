@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "http://localhost:3000/schemas/register-request.json#",
-  "title": "Local registration request",
+  "title": "Register request",
   "type": "object",
   "additionalProperties": false,
   "required": [ "email", "password" ],

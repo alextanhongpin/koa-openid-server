@@ -1,13 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "http://localhost:3000/schemas/register-response.json#",
-  "title": "Local registration response",
+  "title": "Register response",
   "type": "object",
   "additionalProperties": false,
   "required": [ "email" ],
   "properties": {
     "email": {
     	"type": "string"
-	}
+	  }
   }
 }
