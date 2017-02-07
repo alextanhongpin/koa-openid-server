@@ -1,7 +1,6 @@
 // endpoint.js
 // import noderequest from 'request'
 import Channel from '../common/amqp.js'
-import schema from './schema.js'
 
 const worker = {
   exchange: 'devicesvc',
@@ -23,11 +22,11 @@ class Endpoints {
   async postLogin (ctx, next) {
     try {
       // Parse the request
-      const request = schema.loginRequest(ctx.request.body)
+      const request = ctx.schema.loginRequest(ctx.request.body)
       // Call the sevice
       const user = await ctx.service.login(request)
       // Parse the response
-      const response = schema.loginResponse(user)
+      const response = ctx.schema.loginResponse(user)
       // Payload
       const message = JSON.stringify({
         user_id: user.id,
@@ -55,9 +54,9 @@ class Endpoints {
 
   async postRegister(ctx, next) {
     try {
-      const request = schema.registerRequest(ctx.request.body)
+      const request = ctx.schema.registerRequest(ctx.request.body)
       const user = await ctx.service.register(request)
-      const response = schema.registerResponse({
+      const response = ctx.schema.registerResponse({
         email: user.email
       })
       // CLIENT

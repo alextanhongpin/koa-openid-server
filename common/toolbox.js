@@ -1,33 +1,28 @@
 // Parse the request and response body for the http REST transport
-const Parser = (ajv) => {
-  const request = (schema) => {
-    return (req) => {
-      const validator = ajv.getSchema(schema)
-      const isValid = validator(req)
+import Ajv from 'ajv'
+// const ajv = Ajv({
+//   allErrors: true,
+//   schemas: [
+//     require('./schema/post-device-request.json'),
+//     require('./schema/post-device-response.json')
+//   ]
+// })
+class Parser {
+  constructor(props) { 
+    this.ajv = Ajv(props.options)
+  }
+  parse (schema) {
+    return (params) => {
+      const validator = this.ajv.getSchema(schema)
+      const isValid = validator(params)
       if (!isValid) {
-        const error = new Error('Invalid Request')
+        const error = new Error('Invalid Schema')
         error.description = validator.errors[0].message
         throw error
       }
-      return req
+      return params
     }
-  }
 
-  const response = (schema) => {
-    return (res) => {
-      const validator = ajv.getSchema(schema)
-      const isValid = validator(res)
-      if (!isValid) {
-        const error = new Error('Invalid Response')
-        error.description = validator.errors[0].message
-        throw error
-      }
-      return res
-    }
-  }
-  return {
-    request,
-    response
   }
 }
 

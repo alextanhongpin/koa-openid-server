@@ -5,14 +5,16 @@ import Service from './service.js'
 import Device from './model.js'
 import Channel from '../common/amqp.js'
 
+import schema from './schema.js'
 // HTTP Transport
 const route = new Router()
 
 route.use(async(ctx, next) => {
-  // Manually inject the service in the context
+  ctx.schema = schema
   ctx.service = Service({
     db: Device
   })
+
   await next()
 })
 
@@ -21,7 +23,6 @@ route.get('/devices/:id', Endpoint.getDevice)
 route.post('/devices', Endpoint.postDevice)
 // Only admin can access
 // route.delete('/devices', Endpoint.destroy)
-
 
 // AMQP Transport
 Channel().then((chan) => {

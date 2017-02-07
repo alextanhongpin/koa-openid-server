@@ -1,7 +1,6 @@
-import Ajv from 'ajv'
 import Toolbox from '../common/toolbox.js'
 
-const ajv = Ajv({
+const parser = Toolbox.Parser({
   allErrors: true,
   schemas: [
     require('./schema/token-introspect-request.json'),
@@ -14,8 +13,6 @@ const ajv = Ajv({
     require('./schema/authorize-code-response.json')
   ]
 })
-// Change the implementation slightly...
-const parser = Toolbox.Parser(ajv)
 
 export default {
   introspectRequest: parser.request('http://localhost:3000/schemas/token-introspect-request.json#'),
@@ -26,5 +23,4 @@ export default {
   authorizeResponse: parser.response('http://localhost:3000/schemas/authorize-code-response.json#'),
   tokenRequest: parser.request('http://localhost:3000/schemas/token-authorization-code-grant-request.json#'),
   tokenResponse: parser.response('http://localhost:3000/schemas/token-response.json#')
-  // userinfo
 }
