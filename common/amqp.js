@@ -1,16 +1,13 @@
 import amqp from 'amqplib'
 
-const ok = amqp.connect(process.env.AMQP_URI)
-.then((conn) => {
-  return conn.createChannel()
-})
-
-const chan = ok.then((ch) => {
-  return ch
-})
-
-export default () => {
-  return chan
+export default = () => {
+  return amqp.connect(process.env.AMQP_URI)
+  .then((conn) => {
+    return conn.createChannel()
+  })
+  .then((ch) => {
+    return ch
+  })
 }
 /*
 // Usage

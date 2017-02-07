@@ -1,6 +1,5 @@
 // endpoint.js
 // import noderequest from 'request'
-import Channel from '../common/amqp.js'
 
 const worker = {
   exchange: 'devicesvc',
@@ -10,7 +9,6 @@ const worker = {
     durable: false
   }
 }
-
 // Login Endpoints
 
 class Endpoints {
@@ -34,7 +32,7 @@ class Endpoints {
       })
 
       // Create a new channel
-      const chan = await Channel()
+      const chan = await ctx.channel()
       ctx.body = await publishDevice({ chan, message, user_id: user.id })
       ctx.status = 200
 
@@ -64,7 +62,7 @@ class Endpoints {
         user_id: user.id,
         user_agent: ctx.state.userAgent.source
       })
-      const chan = await Channel()
+      const chan = await ctx.channel()
       ctx.body = await publishDevice({ chan, message, user_id: user._id.toString() })
       ctx.status = 200
     } catch (err) {

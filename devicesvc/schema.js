@@ -1,6 +1,6 @@
 import Toolbox from '../common/toolbox.js'
 
-const parser = Toolbox.Parser({
+const parser = Parser({
   allErrors: true,
   schemas: [
     require('./schema/post-device-request.json'),

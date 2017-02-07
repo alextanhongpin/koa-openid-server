@@ -22,8 +22,10 @@ class Parser {
       }
       return params
     }
-
   }
 }
 
-export default { Parser }
+
+export default (options) => {
+  return new Parser(options)
+}

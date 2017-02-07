@@ -1,7 +1,7 @@
 
 import Toolbox from '../common/toolbox.js'
 
-const parser = Toolbox.Parser({
+const parser = Toolbox({
   allErrors: true,
   schemas: [
     require('./schema/login-request.json'),
