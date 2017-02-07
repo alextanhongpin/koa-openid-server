@@ -16,8 +16,6 @@ class AuthInterface {
 const ErrorUserNotFound = new Error('User not Found')
 const ErrorIncorrectPassword = new Error('The password is incorrect')
 const ErrorInvalidEmail = new Error('The email format is incorrect')
-// const ErrorUserIdNotProvided = new Error('User id is required')
-// const ErrorUserAgentNotProvided = new Error('User agent is required')
 
 class AuthService extends AuthInterface {
   constructor (props) {

@@ -11,6 +11,15 @@ const worker = {
     durable: false
   }
 }
+
+// class Endpoint {
+//   async getLogin (ctx, next) {
+
+//   }
+//   async postLogin (ctx, next) {
+
+//   }
+// }
 // Login Endpoints
 const getLogin = async(ctx, next) => {
   await ctx.render('login', {
