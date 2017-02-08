@@ -5,6 +5,7 @@ import Service from './service.js'
 import Client from './model.js'
 
 const route = new Router()
+const endpoint = Endpoint()
 // Default namespace is /clients
 
 route.use(async(ctx, next) => {
@@ -16,17 +17,17 @@ route.use(async(ctx, next) => {
 })
 
 // View endpoints
-route.get('/register/clients', Endpoint.postClientView)
-route.get('/clients', Endpoint.getClientsView)
-route.get('/clients/:id', Endpoint.getClientView)
-route.get('/clients/:id/edit', Endpoint.getClientUpdateView)
+route.get('/register/clients', endpoint.postClientView)
+route.get('/clients', endpoint.getClientsView)
+route.get('/clients/:id', endpoint.getClientView)
+route.get('/clients/:id/edit', endpoint.getClientUpdateView)
 // API Endpoints
 // Note that the versioning is independent from other services
 // This makes it easier to increase the versioning without affecting
 // other services
-route.get('/api/v1/clients', Endpoint.all)
-route.get('/api/v1/clients/:id', Endpoint.all)
-route.patch('/api/v1/clients/:id', Endpoint.update)
-route.post('/api/v1/clients', Endpoint.create)
+route.get('/api/v1/clients', endpoint.all)
+route.get('/api/v1/clients/:id', endpoint.one)
+route.patch('/api/v1/clients/:id', endpoint.update)
+route.post('/api/v1/clients', endpoint.create)
 
 export default route

@@ -2,26 +2,27 @@
 import Router from 'koa-router'
 import Endpoint from './endpoint.js'
 import Service from './service.js'
-import Device from './model.js'
+import Model from './model.js'
 import Channel from '../common/amqp.js'
+
 
 import schema from './schema.js'
 import CreateDeviceBroker from '../broker/create-device'
 // HTTP Transport
 const route = new Router()
+const endpoint = Endpoint()
+const service = Service({ db: Model })
 
 route.use(async(ctx, next) => {
   ctx.schema = schema
-  ctx.service = Service({
-    db: Device
-  })
+  ctx.service = service
   await next()
 })
 
 // router.url('device', 3)
-route.get('devices', '/devices', Endpoint.all)
-route.get('device', '/devices/:id', Endpoint.one)
-route.post('/devices', Endpoint.create)
+route.get('/devices', endpoint.all)
+route.get('/devices/:id', endpoint.one)
+route.post('/devices', endpoint.create)
 // Only admin can access
 // route.delete('/devices', Endpoint.destroy)
 
@@ -35,13 +36,7 @@ route.post('/devices', Endpoint.create)
 //   console.log(error)
 // })
 
-CreateDeviceBroker((request) => {
-  // Schema.createDeviceRequest()
-  return Service({ db: Device }).create(request).then((response) => {
-    // Schema.createDeviceResponse()
-    return response
-  })
-})
+CreateDeviceBroker.consumer(service.create.bind(service))
 // Channel().then((chan) => {
 
 //   const service = Service({

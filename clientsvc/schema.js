@@ -1,7 +1,7 @@
 
 import Toolbox from '../common/toolbox.js'
 
-const ajv = Toolbox({
+const parser = Toolbox({
   allErrors: true,
   removeAdditional: true,
   // coerceTypes: true,

@@ -1,6 +1,5 @@
-// endpoint.js
 
-export default class Endpoint {
+class Endpoint {
   // async getDevices (ctx, next) {
   //   const request = getDevicesRequest(ctx.request.body)
   //   if (request.select) {
@@ -11,16 +10,32 @@ export default class Endpoint {
 
   //   ctx.status = 200
   //   ctx.body = response
-  // } 
-  async postDevice (ctx, next) {
+  // }
+  async all (ctx, next) {
+    ctx.status = 200
+    ctx.body = {
+      ok: true
+    }
+  }
+  async one (ctx, next) {
+    ctx.status = 200
+    ctx.body = {
+      ok: true
+    }
+  }
+  async create (ctx, next) {
     const request = ctx.schema.postDeviceRequest({
       user_id: ctx.request.body.user_id,
       user_agent: ctx.state.userAgent.source
     })
-    const device = await ctx.service.postDevice(request)
+    const device = await ctx.service.create(request)
     const response = ctx.schema.postDeviceResponse(device)
 
     ctx.status = 200
     ctx.body = response
   }
+}
+
+export default () => {
+  return new Endpoint()
 }

@@ -1,8 +1,8 @@
 
-import package from '../package.json'
+import packageJSON from '../package.json'
 
 const JWT_SECRET = process.env.JWT_SECRET
-const ISSUER = package.name
+const ISSUER = packageJSON.name
 
 import jwt from 'jsonwebtoken'
 

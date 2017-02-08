@@ -10,11 +10,11 @@ import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
 import base64url from 'base64url'
 import db from '../common/database.js'
-import package from '../package.json'
+import packageJSON from '../package.json'
 
 // Constants
 const JWT_SECRET = process.env.JWT_SECRET
-const ISSUER = package.name
+const ISSUER = packageJSON.name
 
 const DeviceSchema = new Schema({
   access_token: {
@@ -41,7 +41,7 @@ const DeviceSchema = new Schema({
   } 
 })
 
-DeviceSchema.methods.createRefreshToken = (size=32) => {
+DeviceSchema.statics.createRefreshToken = (size=32) => {
   return new Promise((resolve, reject) => {
     crypto.randomBytes(size, (error, buffer) => {
       error ? reject(error) : resolve(base64url(buffer))
@@ -57,8 +57,8 @@ DeviceSchema.statics.createAccessToken = ({ user_id, user_agent, expires_in='2m'
     // Optionally, we include the user_agent (Device/Browser)
     // to enable multiple token/analytics on devices logged in.
     jwt.sign({
-      user_id: payload.user_id,
-      user_agent: payload.user_agent
+      user_id: user_id,
+      user_agent: user_agent
     }, JWT_SECRET, {
       algorithm: 'HS256',
       expiresIn: expires_in,

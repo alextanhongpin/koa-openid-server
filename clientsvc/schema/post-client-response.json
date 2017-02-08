@@ -58,7 +58,7 @@
     },
     "client_name": {
       "type": "string",
-      "description": "Human-readable name of the client to be presented to the user during authorization.  If omitted, the authorization server MAY display the raw "client_id" value to the user instead.  It is RECOMMENDED that clients always send this field.  The value of this field MAY be internationalized, as described in Section 2.2."
+      "description": "Human-readable name of the client to be presented to the user during authorization.  If omitted, the authorization server MAY display the raw \"client_id\" value to the user instead.  It is RECOMMENDED that clients always send this field.  The value of this field MAY be internationalized, as described in Section 2.2."
     },
     "contacts": {
       "type": "array",

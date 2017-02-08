@@ -6,17 +6,12 @@
   "endpoint": "/login",
   "method": "POST",
   "additionalProperties": false,
-  "required": [ "email" ],
   "properties": {
-    "email": {
-    	"type": "string",
-	"description": "The email that the user registered with.",
-	"format": "email"
+    "id": {
+      "type": "string"
     },
-    "password": {
-    	"type": "string",
-	"description": "The password that the user register with.",
-	"minLength": 6
+    "email": {
+      "type": "string"
     }
   }
 }

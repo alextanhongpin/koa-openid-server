@@ -49,7 +49,7 @@
     },
     "client_name": {
       "type": "string",
-      "description": "Human-readable name of the client to be presented to the user during authorization.  If omitted, the authorization server MAY display the raw "client_id" value to the user instead.  It is RECOMMENDED that clients always send this field.  The value of this field MAY be internationalized, as described in Section 2.2."
+      "description": "Human-readable name of the client to be presented to the user during authorization.  If omitted, the authorization server MAY display the raw \"client_id\" value to the user instead.  It is RECOMMENDED that clients always send this field.  The value of this field MAY be internationalized, as described in Section 2.2."
     },
     "logo_uri": {
       "type": "string",
@@ -152,8 +152,7 @@
     },
     "request_uris": {
       "type": "string",
-      "description": "Array of request_uri values that are pre-registered by the RP for use at the OP. Servers MAY cache the contents of the files referenced by these URIs and not retrieve them at the time they are used in a request. OPs can require that request_uri values used be pre-registered with the require_request_uri_registration discovery parameter.
-If the contents of the request file could ever change, these URI values SHOULD include the base64url encoded SHA-256 hash value of the file contents referenced by the URI as the value of the URI fragment. If the fragment value used for a URI changes, that signals the server that its cached value for that URI with the old fragment value is no longer valid."
+      "description": "Array of request_uri values that are pre-registered by the RP for use at the OP. Servers MAY cache the contents of the files referenced by these URIs and not retrieve them at the time they are used in a request. OPs can require that request_uri values used be pre-registered with the require_request_uri_registration discovery parameter. If the contents of the request file could ever change, these URI values SHOULD include the base64url encoded SHA-256 hash value of the file contents referenced by the URI as the value of the URI fragment. If the fragment value used for a URI changes, that signals the server that its cached value for that URI with the old fragment value is no longer valid."
     },
     "scope": {
       "type": "array",

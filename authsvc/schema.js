@@ -3,6 +3,8 @@ import Toolbox from '../common/toolbox.js'
 
 const parser = Toolbox({
   allErrors: true,
+  removeAdditional: true,
+  coerceTypes: true,
   schemas: [
     require('./schema/login-request.json'),
     require('./schema/login-response.json'),

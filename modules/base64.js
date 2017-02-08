@@ -10,6 +10,6 @@ class Base64 {
   }
 }
 
-export default = () => {
+export default () => {
   return new Base64()
 }

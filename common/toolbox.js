@@ -9,7 +9,7 @@ import Ajv from 'ajv'
 // })
 class Parser {
   constructor(props) { 
-    this.ajv = Ajv(props.options)
+    this.ajv = Ajv(props)
   }
   parse (schema) {
     return (params) => {

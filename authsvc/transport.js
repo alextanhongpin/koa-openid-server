@@ -9,9 +9,9 @@ import broker from '../broker/create-device.js'
 import channel from '../common/amqp.js'
 
 const route = new Router()
+const endpoint = Endpoint()
 
 route.use(async(ctx, next) => {
-
   ctx.schema = schema
   ctx.channel = channel
   ctx.broker = broker
@@ -19,9 +19,9 @@ route.use(async(ctx, next) => {
   await next()
 })
 
-route.get('login', '/login', Endpoint.getLogin)
-route.post('/login', Endpoint.postLogin)
-route.get('register', '/register', Endpoint.getRegister)
-route.post('/register', Endpoint.postRegister)
+route.get('login', '/login', endpoint.getLogin)
+route.post('/login', endpoint.postLogin)
+route.get('register', '/register', endpoint.getRegister)
+route.post('/register', endpoint.postRegister)
 
 export default route

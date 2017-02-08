@@ -16,7 +16,7 @@ class AuthService  {
       if (!isSamePassword) {
         throw ErrorIncorrectPassword
       } else {
-        return user
+        return user.toJSON()
       }
     }
   }
@@ -31,7 +31,7 @@ class AuthService  {
       user.email = email
       user.password = await User.hashPassword(password)
       await user.save()
-      return user
+      return user.toJSON()
     }
   }
   logout () {

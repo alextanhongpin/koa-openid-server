@@ -1,6 +1,6 @@
 import ServiceInterface from '../common/service.js'
 
-class DeviceService extends ServiceInterface{
+class DeviceService extends ServiceInterface {
   async create ({ user_id, user_agent }) {
     const Device = this.db
 
@@ -29,6 +29,8 @@ class DeviceService extends ServiceInterface{
       device.refresh_token = refreshToken
 
       await device.save()
+
+      console.log('device', device)
 
       return device.toJSON()
     }

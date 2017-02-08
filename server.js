@@ -13,7 +13,7 @@ import _ from './common/database.js'
 import oauthsvc from './oauthsvc/transport.js'
 import authsvc from './authsvc/transport.js'
 import devicesvc from './devicesvc/transport.js'
-import clientsvc from './clientsvc/transport.js'
+// import clientsvc from './clientsvc/transport.js'
 import client from './client/transport.js'
 
 import errors from './modules/errors.js'

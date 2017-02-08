@@ -1,7 +1,7 @@
 // endpoint.js
 // import noderequest from 'request'
 
-class Endpoints {
+class Endpoint {
   async getLogin (ctx, next) {
     await ctx.render('login', {
       title: 'Login'
@@ -14,20 +14,20 @@ class Endpoints {
   async postLogin (ctx, next) {
     try {
       // Parse the request
+
       const request = ctx.schema.loginRequest(ctx.request.body)
       // Call the sevice
       const user = await ctx.service.login(request)
+      user.id = user._id.toString()
       // Parse the response
       const response = ctx.schema.loginResponse(user)
-      // Payload
-      const message = JSON.stringify({
-        user_id: user.id,
-        user_agent: ctx.state.userAgent.source
-      })
-
+      // 
       // Publish to a message broker to create a new device
       const device = await ctx.broker.producer({
-        payload: message,
+        payload: {
+          user_id: user.id,
+          user_agent: ctx.state.userAgent.source
+        },
         id: user.id
       })
 
@@ -73,33 +73,6 @@ class Endpoints {
 }
 
 
-// const publishDevice = ({ chan, message, user_id }) => {
-//   return new Promise((resolve, reject) => {
-//     chan.assertExchange(worker.exchange, 'direct', { autoDelete: false })
-//     chan.assertQueue(worker.queue, { autoDelete: false })
-//     chan.bindQueue(worker.queue, worker.exchange, 'create')
-
-//     chan.assertQueue('', {
-//       autoDelete: false,
-//       exclusive: true
-//     }).then((q) => {
-//       chan.bindQueue(q.queue, worker.exchange)
-//       chan.consume(q.queue, (msg) => {
-//         console.log('chan consume at POST /login', msg)
-//         if (msg.properties.correlationId === user_id) {
-//           // Action completed
-//           const device = JSON.parse(msg.content.toString())
-//           resolve(device)
-//         }
-//       }, { noAck: true }, (err, ok) => {
-//         console.log(err, ok)
-//       })
-//       chan.sendToQueue(worker.queue, new Buffer(message), {
-//         correlationId: user_id,
-//         replyTo: q.queue
-//       })
-//     })
-//   })
-// }
-
-export default Endpoints
+export default () => {
+  return new Endpoint()
+}

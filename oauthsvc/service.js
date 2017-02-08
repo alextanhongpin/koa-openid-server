@@ -11,7 +11,6 @@ import Code from '../modules/code.js'
 
 class OAuthService {
   constructor (props) {
-    super(props)
     this.redis = props.redis
     this.Client = props.Client
     this.Device = props.Device
