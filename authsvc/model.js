@@ -61,7 +61,6 @@ const UserSchema = new Schema({
     enum: ['admin', 'user'],
     default: 'user'
   },
-  // // Standard Claims
   sub: {
     type: String
   },
@@ -142,12 +141,8 @@ UserSchema.static.hashPassword = (password) => {
   // bcrypt provides a method called .hashSync(),
   // but it's always better to handle operations asynchronously
   return new Promise((resolve, reject) => {
-    bcrypt.hash(password, null, null, (err, hash) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(hash)
-      }
+    bcrypt.hash(password, null, null, (error, hash) => {
+      error ? reject(error) : resolve(hash)
     })
   })
 }
@@ -158,9 +153,9 @@ UserSchema.methods.comparePassword = function (password) {
   // bcrypt provides a method called .compareSync(),
   // but it's always better to handle operations asynchronously
   return new Promise((resolve, reject) => {
-    bcrypt.compare(password, this.password, (err, isSamePassword) => {
-      if (err) {
-        reject(err)
+    bcrypt.compare(password, this.password, (error, isSamePassword) => {
+      if (error) {
+        reject(error)
       } else {
         isSamePassword ? resolve(true) : reject(ErrorIncorrectPassword)
       }
@@ -173,13 +168,8 @@ UserSchema.methods.comparePassword = function (password) {
 UserSchema.statics.createRefreshToken = (size) => {
   // Make it all async!
   return new Promise((resolve, reject) => {
-    crypto.randomBytes(size, (err, buffer) => {
-      if (err) {
-        reject(err)
-      } else {
-        // .toString('hex')
-        resolve(base64url(buffer))
-      }
+    crypto.randomBytes(size, (error, buffer) => {
+      error ? reject(error) : resolve(base64url(buffer))
     })
   })
 }
@@ -198,12 +188,8 @@ UserSchema.statics.createAccessToken = (payload, expiresIn = '2m') => {
       algorithm: 'HS256',
       expiresIn,
       issuer: process.env.APP_NAME
-    }, (err, token) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(token)
-      }
+    }, (error, token) => {
+      error ? reject(error) : resolve(token)
     })
   })
 }
@@ -214,12 +200,8 @@ UserSchema.statics.validateAccessToken = (token) => {
     jwt.verify(token, JWT_SECRET, {
       algorithms: ['HS256'],
       issuer: process.env.APP_NAME
-    }, (err, decoded) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(decoded)
-      }
+    }, (error, decoded) => {
+      error ? reject(error) : resolve(decoded)
     })
   })
 }
