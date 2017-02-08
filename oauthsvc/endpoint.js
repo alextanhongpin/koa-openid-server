@@ -1,7 +1,6 @@
 // endpoint.js
 import base64 from '../modules/base64.js'
 import requestService from 'request'
-import schema from './schema.js'
 import qs from 'querystring'
 import OpenIdSDK from '../modules/openidsdk.js'
 import jwt from '../modules/jwt'
@@ -30,7 +29,7 @@ const ErrorForbiddenAccess = new Error('Forbidden Access: Client does not have p
 
 const getAuthorize = async (ctx, next) => {
   try {
-    const request = schema.authorizeRequest(ctx.query)
+    const request = ctx.schema.authorizeRequest(ctx.query)
     const client = await ctx.service.getAuthorize(request)
 
     await ctx.render('consent', {
@@ -95,9 +94,9 @@ const cacheAuthorizationCode = async (ctx, next) => {
 // should return a valid code once the user has been
 // validated
 const postAuthorize = async (ctx, next) => {
-  const request = schema.authorizeRequest(ctx.request.body)
+  const request = ctx.schema.authorizeRequest(ctx.request.body)
   const output = await ctx.service.postAuthorize(request)
-  const response = schema.authorizeResponse({
+  const response = ctx.schema.authorizeResponse({
     code: output.code,
     state: output.state
   })
@@ -141,12 +140,12 @@ const introspect = async (ctx, next) => {
   // if (!client) {
   //   throw new Error('Forbidden Access: Client does not have permission to access this service')
   // }
-  const request = schema.introspectRequest({
+  const request = ctx.schema.introspectRequest({
     token: ctx.request.body.token,
     token_type_hint: ctx.request.body.token_type_hint
   })
   const output = await ctx.service.introspect(request)
-  const response = schema.introspectResponse({
+  const response = ctx.schema.introspectResponse({
     active: output.active,
     expires_in: output.expires_in,
     iat: output.iat,
@@ -187,14 +186,14 @@ const refresh = async(ctx, next) => {
   // if (!client) {
   //   throw new Error('Forbidden Access: Client does not have permission to access this service')
   // }
-  const request = schema.refreshTokenRequest({
+  const request = ctx.schema.refreshTokenRequest({
     grant_type: ctx.request.body.grant_type,
     refresh_token: ctx.request.body.refresh_token,
     scope: ctx.request.body.scope,
     redirect_uri: ctx.request.body.redirect_uri
   })
   const output = await ctx.service.refresh(request)
-  const response = schema.refreshTokenResponse({
+  const response = ctx.schema.refreshTokenResponse({
     access_token: output.access_token,
     refresh_token: output.refresh_token,
     expires_in: output.expires_in,
@@ -222,9 +221,9 @@ const getAuthorizeResponse = (res) => {
 }
 
 const token = async (ctx, next) => {
-  const request = schema.tokenRequest(ctx.request.body)
+  const request = ctx.schema.tokenRequest(ctx.request.body)
   const output = await ctx.service.token(request)
-  const response = schema.tokenResponse(output)
+  const response = ctx.schema.tokenResponse(output)
 
   ctx.body = response
   ctx.status = 200

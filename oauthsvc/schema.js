@@ -1,7 +1,6 @@
-import Ajv from 'ajv'
 import Toolbox from '../common/toolbox.js'
 
-const ajv = Ajv({
+const parser = Toolbox({
   allErrors: true,
   schemas: [
     require('./schema/token-introspect-request.json'),
@@ -14,17 +13,14 @@ const ajv = Ajv({
     require('./schema/authorize-code-response.json')
   ]
 })
-// Change the implementation slightly...
-const parser = Toolbox.Parser(ajv)
 
 export default {
-  introspectRequest: parser.request('http://localhost:3000/schemas/token-introspect-request.json#'),
-  introspectResponse: parser.response('http://localhost:3000/schemas/token-introspect-response.json#'),
-  refreshTokenRequest: parser.request('http://localhost:3000/schemas/refresh-token-request.json#'),
-  refreshTokenResponse: parser.response('http://localhost:3000/schemas/refresh-token-response.json#'),
-  authorizeRequest: parser.request('http://localhost:3000/schemas/authorize-request.json#'),
-  authorizeResponse: parser.response('http://localhost:3000/schemas/authorize-code-response.json#'),
-  tokenRequest: parser.request('http://localhost:3000/schemas/token-authorization-code-grant-request.json#'),
-  tokenResponse: parser.response('http://localhost:3000/schemas/token-response.json#')
-  // userinfo
+  introspectRequest: parser.parse('http://localhost:3000/schemas/token-introspect-request.json#'),
+  introspectResponse: parser.parse('http://localhost:3000/schemas/token-introspect-response.json#'),
+  refreshTokenRequest: parser.parse('http://localhost:3000/schemas/refresh-token-request.json#'),
+  refreshTokenResponse: parser.parse('http://localhost:3000/schemas/refresh-token-response.json#'),
+  authorizeRequest: parser.parse('http://localhost:3000/schemas/authorize-request.json#'),
+  authorizeResponse: parser.parse('http://localhost:3000/schemas/authorize-code-response.json#'),
+  tokenRequest: parser.parse('http://localhost:3000/schemas/token-authorization-code-grant-request.json#'),
+  tokenResponse: parser.parse('http://localhost:3000/schemas/token-response.json#')
 }

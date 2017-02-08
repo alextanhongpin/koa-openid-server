@@ -23,4 +23,4 @@ private createCodeChallenge(str: string): string {
   return sha.toString(CryptoJS.enc.Base64).replace(/=/g, '');
 }
 
-code_challenge_method: s256 for SHA256
+// code_challenge_method: s256 for SHA256

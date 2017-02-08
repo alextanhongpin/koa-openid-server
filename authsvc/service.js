@@ -1,4 +1,3 @@
-// authsvc/service.js
 
 const ErrorUserNotFound = new Error('User not Found')
 const ErrorIncorrectPassword = new Error('The password is incorrect')
@@ -22,11 +21,13 @@ class AuthService  {
     }
   }
   async register ({email, password}) {
-    const user = await this.db.findOne({ email })
+
+    const User = this.db
+    const user = await User.findOne({ email })
     if (user) {
       return user
     } else {
-      const user = new this.db()
+      const user = new User()
       user.email = email
       user.password = await User.hashPassword(password)
       await user.save()

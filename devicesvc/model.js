@@ -6,21 +6,15 @@
 
 // Dependencies
 import mongoose, { Schema } from 'mongoose'
-import validator from 'email-validator'
 import jwt from 'jsonwebtoken'
-import bcrypt from 'bcrypt-nodejs'
 import crypto from 'crypto'
-// TODO: Write your implementation of the base 64 encode/decode method
 import base64url from 'base64url'
 import db from '../common/database.js'
+import package from '../package.json'
+
 // Constants
 const JWT_SECRET = process.env.JWT_SECRET
-
-// Errors are grouped together to make it easier to find and modify
-// TODO: Add support for multilingual based on the Content-Language header
-
-// TODO: handle incorrect password scenario for more than 3 times
-// Send email to notify that his/her password has been compromised
+const ISSUER = package.name
 
 const DeviceSchema = new Schema({
   access_token: {
@@ -39,32 +33,23 @@ const DeviceSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
-  },
-  created_at: {
-    type: Date,
-    default: Date.now
-  },
-  modified_at: {
-    type: Date,
-    default: Date.now
   }
+}, {
+  timestamps: { 
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+  } 
 })
 
-DeviceSchema.methods.createRefreshToken = (size) => {
-  // Make it all async!
+DeviceSchema.methods.createRefreshToken = (size=32) => {
   return new Promise((resolve, reject) => {
-    crypto.randomBytes(size, (err, buffer) => {
-      if (err) {
-        reject(err)
-      } else {
-        // .toString('hex')
-        resolve(base64url(buffer))
-      }
+    crypto.randomBytes(size, (error, buffer) => {
+      error ? reject(error) : resolve(base64url(buffer))
     })
   })
 }
 
-DeviceSchema.methods.createAccessToken = (payload) => {
+DeviceSchema.statics.createAccessToken = ({ user_id, user_agent, expires_in='2m'}) => {
   return new Promise((resolve, reject) => {
     // The access token should have the user_id decoded
     // This will make it easier to use the JWT token as
@@ -76,34 +61,25 @@ DeviceSchema.methods.createAccessToken = (payload) => {
       user_agent: payload.user_agent
     }, JWT_SECRET, {
       algorithm: 'HS256',
-      expiresIn: '2m',
-      issuer: process.env.APP_NAME
-    }, (err, token) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(token)
-      }
+      expiresIn: expires_in,
+      issuer: ISSUER
+    }, (error, token) => {
+      error ? reject(error) : resolve(token)
     })
   })
 }
 
-DeviceSchema.methods.validateAccessToken = (token) => {
+DeviceSchema.statics.validateAccessToken = (token) => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, JWT_SECRET, {
       algorithms: ['HS256'],
-      issuer: process.env.APP_NAME
-    }, (err, decoded) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(decoded)
-      }
+      issuer: ISSUER
+    }, (error, decoded) => {
+      error ? reject(error) : resolve(decoded)
     })
   })
 }
-// For testing purposes, it will throw
-// MongooseError: Cannot overwrite `User` model once compiled.
+
 let Device
 try {
   Device = db.model('Device')
