@@ -40,12 +40,12 @@ app
 .use(authsvc.allowedMethods())
 .use(devicesvc.routes())
 .use(devicesvc.allowedMethods())
-.use(clientsvc.routes())
-.use(clientsvc.allowedMethods())
-.use(oauthsvc.routes())
-.use(oauthsvc.allowedMethods())
-.use(client.routes())
-.use(client.allowedMethods())
+// .use(clientsvc.routes())
+// .use(clientsvc.allowedMethods())
+// .use(oauthsvc.routes())
+// .use(oauthsvc.allowedMethods())
+// .use(client.routes())
+// .use(client.allowedMethods())
 
 // // Catch-All Route
 // app.use(async (ctx, next) => {

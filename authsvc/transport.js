@@ -9,7 +9,7 @@ const route = new Router()
 route.use(async(ctx, next) => {
   // Manually inject the service in the context
   ctx.service = Service({
-    User: User
+    db: User
   })
   await next()
 })
