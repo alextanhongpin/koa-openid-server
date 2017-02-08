@@ -24,11 +24,9 @@ route.get('/clients/:id/edit', Endpoint.getClientUpdateView)
 // Note that the versioning is independent from other services
 // This makes it easier to increase the versioning without affecting
 // other services
-route.get('/api/v1/clients', Endpoint.getClients)
-route.get('/api/v1/clients/:id', Endpoint.getClient)
-route.patch('/api/v1/clients/:id', Endpoint.updateClient)
-route.post('/api/v1/clients', Endpoint.postClient)
-// route.update('/api/v1/clients/:id', Endpoint.updateClient)
-// route.update('/api/v1/clients/:id', Endpoint.deleteClient)
+route.get('/api/v1/clients', Endpoint.all)
+route.get('/api/v1/clients/:id', Endpoint.all)
+route.patch('/api/v1/clients/:id', Endpoint.update)
+route.post('/api/v1/clients', Endpoint.create)
 
 export default route

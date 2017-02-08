@@ -6,7 +6,7 @@ import Device from './model.js'
 import Channel from '../common/amqp.js'
 
 import schema from './schema.js'
-import DeviceConsumer from '../broker/device-consumer'
+import CreateDeviceBroker from '../broker/create-device'
 // HTTP Transport
 const route = new Router()
 
@@ -15,24 +15,32 @@ route.use(async(ctx, next) => {
   ctx.service = Service({
     db: Device
   })
-
   await next()
 })
 
-route.get('/devices', Endpoint.all)
-route.get('/devices/:id', Endpoint.one)
+// router.url('device', 3)
+route.get('devices', '/devices', Endpoint.all)
+route.get('device', '/devices/:id', Endpoint.one)
 route.post('/devices', Endpoint.create)
 // Only admin can access
 // route.delete('/devices', Endpoint.destroy)
 
 // AMQP Transport
 
-DeviceConsumer({
-  service: Service({ db: Device })
-}).then((success) => {
-  console.log('[*] Device created successfully')
-}).catch((error) => {
-  console.log(error)
+// DeviceConsumer({
+//   service: Service({ db: Device })
+// }).then((success) => {
+//   console.log('[*] Device created successfully')
+// }).catch((error) => {
+//   console.log(error)
+// })
+
+CreateDeviceBroker((request) => {
+  // Schema.createDeviceRequest()
+  return Service({ db: Device }).create(request).then((response) => {
+    // Schema.createDeviceResponse()
+    return response
+  })
 })
 // Channel().then((chan) => {
 

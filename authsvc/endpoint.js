@@ -1,16 +1,5 @@
 // endpoint.js
 // import noderequest from 'request'
-
-import DeviceProducer from '../broker/device-producer.js'
-
-const worker = {
-  exchange: 'devicesvc',
-  route: 'create',
-  queue: 'device',
-  option: {
-    durable: false
-  }
-}
 // Login Endpoints
 
 class Endpoints {
@@ -38,7 +27,7 @@ class Endpoints {
       })
 
       // Publish to a message broker to create a new device
-      const device = await DeviceProducer({
+      const device = await ctx.broker.producer({
         payload: message,
         id: user.id
       })
@@ -71,7 +60,7 @@ class Endpoints {
         user_id: user.id,
         user_agent: ctx.state.userAgent.source
       })
-      const device = await DeviceProducer({
+      const device = await ctx.broker.producer({
         payload: message,
         id: user.id
       })

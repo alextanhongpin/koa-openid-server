@@ -13,7 +13,6 @@ class AuthService {
       throw ErrorUserNotFound
     } else {
       const isSamePassword = await user.comparePassword(password)
-
       if (!isSamePassword) {
         throw ErrorIncorrectPassword
       } else {
