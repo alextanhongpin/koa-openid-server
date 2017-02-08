@@ -1,48 +1,12 @@
 // Create an interface
+import ServiceInterface from '../common/service.js'
 
-// The Client interface
-class ClientInterface {
-  getClients () {
-    throw new Error('ClientInterfaceError: getClients() is not implemented')
-  }
-  getClient () {
-    throw new Error('ClientInterfaceError: getClient() is not implemented')
-  }
-  postClient () {
-    throw new Error('ClientInterfaceError: postClient() is not implemented')
-  }
-  updateClient () {
-    throw new Error('ClientInterfaceError: updateClient() is not implemented')
-  }
-  deleteClient () {
-    throw new Error('ClientInterfaceError: deleteClient() is not implemented')
-  }
-}
+class ClientService extends ServiceInterface {
 
-// const ErrorUserNotFound = new Error('User not Found')
-
-class ClientService extends ClientInterface {
-  constructor (props) {
-    super(props)
-    this.db = props.db
-  }
-  getClients ({ limit = 10, skip = 0}) {
-    return this.db.find({})
-    .skip(skip)
-    .limit(limit)
-  }
-
-  getClient ({ client_id }) {
-    return this.db.findOne({ client_id })
-  }
-
-  getClientById ({ _id }) {
-    return this.db.findOne({ _id })
-  }
-
-  async postClient ({ client_name, client_uri, logo_uri, policy_uri, redirect_uris }) {
+  async create ({ client_name, client_uri, logo_uri, policy_uri, redirect_uris }) {
     const Client = this.db
     const client = new Client()
+
     client.client_id = await Client.generateClientId(32)
     client.client_secret = await Client.generateClientSecret(32)
     client.grant_types = ['authorization_code', 'refresh_token']
@@ -56,13 +20,10 @@ class ClientService extends ClientInterface {
 
     await client.save()
 
-    // Create a new copy
-    return Object.assign({}, client)
+    return client.toJSON()
   }
-
   // Requires authentication
-  updateClient (_id, { client_name, client_uri, contacts, logo_uri, policy_uri, redirect_uris }) {
-    console.log(_id, 'iddddd')
+  update (_id, { client_name, client_uri, contacts, logo_uri, policy_uri, redirect_uris }) {
     return this.db.findOneAndUpdate({ _id }, {
       $set: {
         contacts,

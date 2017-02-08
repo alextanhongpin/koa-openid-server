@@ -4,6 +4,7 @@ import Endpoint from './endpoint.js'
 import Service from './service.js'
 // import CodeModel from './model.js'
 import redis from '../common/redis.js'
+import schema from './schema.js'
 
 // Import External Model
 // It's bad to have external dependencies,
@@ -16,6 +17,7 @@ const route = new Router()
 
 route.use(async(ctx, next) => {
   // Manually inject the service in the context
+  ctx.schema = schema
   ctx.service = Service({
     redis,
     Client: ClientModel,

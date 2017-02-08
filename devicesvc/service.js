@@ -1,17 +1,7 @@
-const ErrorUserIdNotProvided = new Error('Unable to identify user')
-const ErrorUserAgentNotProvided = new Error('Unable to identify the user agent')
+import ServiceInterface from '../common/service.js'
 
-
-class DeviceService {
-  constructor (props) {
-    this.db = props.db
-  }
-  // async getDevices (user_id = '', user_agent = '') {
-  //   const users = await this.db.find({
-  //   })
-  //   return users
-  // }
-  async postDevice ({ user_id, user_agent }) {
+class DeviceService extends ServiceInterface{
+  async create ({ user_id, user_agent }) {
     const Device = this.db
 
     const device = await Device.findOne({
@@ -32,7 +22,7 @@ class DeviceService {
 
       await newDevice.save()
 
-      return newDevice
+      return newDevice.toJSON()
     } else {
       // Device already exists, update params
       device.access_token = accessToken
@@ -40,7 +30,7 @@ class DeviceService {
 
       await device.save()
 
-      return device
+      return device.toJSON()
     }
   }
 }

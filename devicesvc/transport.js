@@ -19,9 +19,9 @@ route.use(async(ctx, next) => {
   await next()
 })
 
-route.get('/devices', Endpoint.getDevices)
-route.get('/devices/:id', Endpoint.getDevice)
-route.post('/devices', Endpoint.postDevice)
+route.get('/devices', Endpoint.all)
+route.get('/devices/:id', Endpoint.one)
+route.post('/devices', Endpoint.create)
 // Only admin can access
 // route.delete('/devices', Endpoint.destroy)
 

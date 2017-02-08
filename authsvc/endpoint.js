@@ -33,9 +33,6 @@ class Endpoints {
         user_agent: ctx.state.userAgent.source
       })
 
-      // Create a new channel
-      const chan = await ctx.channel()
-
       // Publish to a message broker to create a new device
       const device = await DeviceProducer({
         payload: message,

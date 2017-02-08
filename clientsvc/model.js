@@ -79,7 +79,6 @@ const ClientSchema = Schema({
   }]
 })
 
-
 ClientSchema.statics.generateClientId = function (size = 32) {
   return new Promise((resolve, reject) => {
     crypto.randomBytes(size || 32, (err, buffer) => {

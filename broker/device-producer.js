@@ -10,6 +10,7 @@ export default ({ payload, id }) => {
       channel.assertExchange(DEVICE_EXCHANGE, 'direct', { autoDelete: false })
       channel.assertQueue(DEVICE_QUEUE, { autoDelete: false })
       channel.bindQueue(DEVICE_QUEUE, DEVICE_EXCHANGE, TOPIC)
+
       channel.assertQueue('', {
         autoDelete: false,
         exclusive: true

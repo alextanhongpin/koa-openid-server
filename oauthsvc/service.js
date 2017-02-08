@@ -7,24 +7,13 @@
 import jwt from '../modules/jwt.js'
 import Code from '../modules/code.js'
 
-class OAuthInteface {
-  authorize () {
-    throw new Error('OAuthInterfaceError: authorize() is not implemented')
-  }
-  token () {
-    throw new Error('OAuthInterfaceError: token() is not implemented')
-  }
-  refresh () {
-    throw new Error('OAuthInterfaceError: refresh() is not implemented')
-  }
-}
 
-class OAuthService extends OAuthInteface {
+
+class OAuthService {
   constructor (props) {
     super(props)
     this.redis = props.redis
     this.Client = props.Client
-    // this.Code = props.Code
     this.Device = props.Device
   }
   getAuthorize ({ response_type, scope, client_id, state, redirect_uri }) {
