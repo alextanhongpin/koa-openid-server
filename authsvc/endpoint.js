@@ -19,6 +19,10 @@ class Endpoints {
       title: 'Login'
     })
   }
+  // The reason why we avoid form is that the implementation
+  // will be tied to web only,
+  // If we want to support mobile devices, then it should be able
+  // to post login/register to a http endpoint
   async postLogin (ctx, next) {
     try {
       // Parse the request
@@ -67,8 +71,12 @@ class Endpoints {
         user_id: user.id,
         user_agent: ctx.state.userAgent.source
       })
-      const chan = await ctx.channel()
-      ctx.body = await publishDevice({ chan, message, user_id: user._id.toString() })
+      const device = await DeviceProducer({
+        payload: message,
+        id: user.id
+      })
+      // const chan = await ctx.channel()
+      ctx.body = device// await publishDevice({ chan, message, user_id: user._id.toString() })
       ctx.status = 200
     } catch (err) {
       ctx.redirect('/login?error=' + err.message)
@@ -77,33 +85,33 @@ class Endpoints {
 }
 
 
-const publishDevice = ({ chan, message, user_id }) => {
-  return new Promise((resolve, reject) => {
-    chan.assertExchange(worker.exchange, 'direct', { autoDelete: false })
-    chan.assertQueue(worker.queue, { autoDelete: false })
-    chan.bindQueue(worker.queue, worker.exchange, 'create')
+// const publishDevice = ({ chan, message, user_id }) => {
+//   return new Promise((resolve, reject) => {
+//     chan.assertExchange(worker.exchange, 'direct', { autoDelete: false })
+//     chan.assertQueue(worker.queue, { autoDelete: false })
+//     chan.bindQueue(worker.queue, worker.exchange, 'create')
 
-    chan.assertQueue('', {
-      autoDelete: false,
-      exclusive: true
-    }).then((q) => {
-      chan.bindQueue(q.queue, worker.exchange)
-      chan.consume(q.queue, (msg) => {
-        console.log('chan consume at POST /login', msg)
-        if (msg.properties.correlationId === user_id) {
-          // Action completed
-          const device = JSON.parse(msg.content.toString())
-          resolve(device)
-        }
-      }, { noAck: true }, (err, ok) => {
-        console.log(err, ok)
-      })
-      chan.sendToQueue(worker.queue, new Buffer(message), {
-        correlationId: user_id,
-        replyTo: q.queue
-      })
-    })
-  })
-}
+//     chan.assertQueue('', {
+//       autoDelete: false,
+//       exclusive: true
+//     }).then((q) => {
+//       chan.bindQueue(q.queue, worker.exchange)
+//       chan.consume(q.queue, (msg) => {
+//         console.log('chan consume at POST /login', msg)
+//         if (msg.properties.correlationId === user_id) {
+//           // Action completed
+//           const device = JSON.parse(msg.content.toString())
+//           resolve(device)
+//         }
+//       }, { noAck: true }, (err, ok) => {
+//         console.log(err, ok)
+//       })
+//       chan.sendToQueue(worker.queue, new Buffer(message), {
+//         correlationId: user_id,
+//         replyTo: q.queue
+//       })
+//     })
+//   })
+// }
 
 export default Endpoints
