@@ -1,6 +1,8 @@
 // endpoint.js
 // import noderequest from 'request'
 
+import DeviceProducer from '../broker/device-producer.js'
+
 const worker = {
   exchange: 'devicesvc',
   route: 'create',
@@ -33,9 +35,15 @@ class Endpoints {
 
       // Create a new channel
       const chan = await ctx.channel()
-      ctx.body = await publishDevice({ chan, message, user_id: user.id })
-      ctx.status = 200
 
+      // Publish to a message broker to create a new device
+      const device = await DeviceProducer({
+        payload: message,
+        id: user.id
+      })
+
+      ctx.body = device
+      ctx.status = 200
     } catch (err) {
       ctx.status = 400
       ctx.body = {

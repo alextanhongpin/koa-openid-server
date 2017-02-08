@@ -2,11 +2,11 @@ import amqp from 'amqplib'
 
 export default = () => {
   return amqp.connect(process.env.AMQP_URI)
-  .then((conn) => {
-    return conn.createChannel()
+  .then((connection) => {
+    return connection.createChannel()
   })
-  .then((ch) => {
-    return ch
+  .then((channel) => {
+    return channel
   })
 }
 /*
