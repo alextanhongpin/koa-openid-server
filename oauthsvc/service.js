@@ -44,16 +44,9 @@ class OAuthService extends OAuthInteface {
           throw errorInvalidRedirectURI
         }
         if (client.scope !== scope) {
-          // throw error
+
         }
         return client
-        // return {
-        //   client_name: 'my example app',
-        //   logo_uri: 'http://client.example.org/logo.png',
-        //   client_uri: 'http://client.example.org',
-        //   policy_uri: 'http://client.example.org/privacy-policy.html',
-        //   tos_uri: 'http://client.example.org/terms-of-service.html'
-        // }
       }
     })
   }
@@ -141,25 +134,6 @@ class OAuthService extends OAuthInteface {
         expires_in: token.exp - Date.now() / 1000
       }
     })
-
-// HTTP/1.1 400 Bad Request
-
-// {
-//   "error"             : "invalid_request",
-//   "error_description" : "Invalid request: Missing required token parameter"
-// }
-// HTTP/1.1 401 Unauthorized
-
-// {
-//   "error"             : "invalid_client",
-//   "error_description" : "Client authentication failed: Missing client authentication / token"
-// }
-// HTTP/1.1 403 Forbidden
-
-// {
-//   "error"             : "access_denied",
-//   "error_description" : "Client not registered for https://c2id.com/token/introspect scope"
-// }
   }
   token ({ code, grant_type }) {
     const redis = this.redis
@@ -218,101 +192,14 @@ class OAuthService extends OAuthInteface {
       refresh_token
     }
   }
-  // .well-known/openid-configuration
+  // GET /.well-known/openid-configuration
   configuration () {
-// HTTP/1.1 200 OK
-// Content-Type: application/json
+    const request = ctx.schema.configurationRequest(ctx.query)
+    const user = ctx.user.configuration(request)
+    const response = ctx.schema.configurationResponse(user)
 
-// {
-//   "issuer"                                : "https://c2id.com",
-//   "token_endpoint"                        : "https://c2id.com/token",
-//   "introspection_endpoint"                : "https://c2id.com/token/introspect",
-//   "revocation_endpoint"                   : "https://c2id.com/token/revoke",
-//   "authorization_endpoint"                : "https://c2id.com/login",
-//   "userinfo_endpoint"                     : "https://c2id.com/userinfo",
-//   "registration_endpoint"                 : "https://demo.c2id.com/c2id/client-reg",
-//   "jwks_uri"                              : "https://demo.c2id.com/c2id/jwks.json",
-//   "scopes_supported"                      : [ "openid",
-//                                               "profile",
-//                                               "email",
-//                                               "address",
-//                                               "phone",
-//                                               "offline_access" ],
-//   "response_types_supported"              : [ "code",
-//                                               "id_token",
-//                                               "token id_token",
-//                                               "code id_token" ,
-//                                               "code token id_token" ],
-//   "response_modes_supported"              : [ "query",
-//                                               "fragment",
-//                                                "form_post" ],
-//   "grant_types_supported"                 : [ "implicit",
-//                                               "authorization_code",
-//                                               "refresh_token",
-//                                               "password",
-//                                               "client_credentials",
-//                                               "urn:ietf:params:oauth:grant-type:jwt-bearer",
-//                                               "urn:ietf:params:oauth:grant-type:saml2-bearer" ],
-//   "code_challenge_methods_supported"      : [ "S256",
-//                                               "plain" ],
-//   "acr_values_supported"                  : [ "urn:c2id:acr:bronze",
-//                                               "urn:c2id:acr:silver"
-//                                               "urn:c2id:acr:gold" ],
-//   "subject_types_supported"               : [ "public" ],
-//   "token_endpoint_auth_methods_supported" : [ "client_secret_basic",
-//                                               "client_secret_post",
-//                                               "client_secret_jwt",
-//                                               "private_key_jwt" ],
-//   "token_endpoint_auth_signing_alg_values_supported" :
-//                                             [ "HS256",
-//                                               "HS512",
-//                                               "HS384",
-//                                               "RS256",
-//                                               "RS384",
-//                                               "RS512",
-//                                               "PS256",
-//                                               "PS384",
-//                                               "PS512",
-//                                               "ES256",
-//                                               "ES384",
-//                                               "ES512" ],
-//   "id_token_signing_alg_values_supported" : [ "RS256",
-//                                               "RS384",
-//                                               "RS512",
-//                                               "PS256",
-//                                               "PS384",
-//                                               "PS512",
-//                                               "HS256",
-//                                               "HS384",
-//                                               "HS512" ],
-//   "userinfo_signing_alg_values_supported" : [ "RS256",
-//                                               "RS384",
-//                                               "RS512",
-//                                               "PS256",
-//                                               "PS384",
-//                                               "PS512",
-//                                               "HS256",
-//                                               "HS384",
-//                                               "HS512" ],
-//   "display_values_supported"              : [ "page",
-//                                               "popup" ],
-//   "claim_types_supported"                 : [ "normal" ],
-//   "claims_supported"                      : [ "sub",
-//                                               "iss",
-//                                               "auth_time",
-//                                               "acr",
-//                                               "name",
-//                                               "given_name",
-//                                               "family_name",
-//                                               "nickname",
-//                                               "email",
-//                                               "email_verified" ],
-//   "ui_locales_supported"                  : [ "en" ],
-//   "claims_parameter_supported"            : true,
-//   "request_parameter_supported"           : false,
-//   "request_uri_parameter_supported"       : false,
-//   "require_request_uri_registration"      : false
-// }
+    ctx.status = 200
+    ctx.body = response
   }
 }
 // GET /login
