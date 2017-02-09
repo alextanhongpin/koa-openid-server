@@ -1,6 +1,7 @@
 
 class Endpoint {
   // Implement JSON api
+  // Add pagination, meta
   async all (ctx, next) {
     const request = {}
     const devices = await ctx.service.all(request)
@@ -27,6 +28,12 @@ class Endpoint {
 
     ctx.status = 200
     ctx.body = response
+  }
+  async healthCheck (ctx, next) {
+    ctx.status = 200 
+    ctx.body = {
+      ok: true
+    }
   }
 }
 

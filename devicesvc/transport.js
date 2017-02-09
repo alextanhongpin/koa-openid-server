@@ -20,6 +20,7 @@ route.use(async(ctx, next) => {
 })
 
 // Devices Services v1
+route.get('/api/v1/devices/health-check', endpoint.healthCheck)
 route.get('/api/v1/devices', endpoint.all)
 route.get('/api/v1/devices/:id', endpoint.one)
 route.post('/api/v1/devices', endpoint.create)

@@ -1,10 +1,6 @@
 // Endpoints
-import schema from './schema.js'
-
+// Create an empty schema that allows everything to pass through
 class Endpoint {
-
-
-  // GET /register/clients
   async postClientView (ctx, next) {
     await ctx.render('client-register', {
       title: 'Client Registration'
@@ -14,12 +10,13 @@ class Endpoint {
   // GET /clients
   async getClientsView (ctx, next)  {
     try {
-      const request = getClientsRequest(ctx.query)
+      const request = {}
       const clients = await ctx.service.getClients(request)
-      const response = getClientsResponse(clients)
+      const response = clients
+
       await ctx.render('clients', {
         title: 'Client',
-        clients,
+        clients: response,
         error: null
       })
     } catch (err) {
@@ -33,14 +30,15 @@ class Endpoint {
   // GET /clients/:id
   async getClientView (ctx, next) {
     try {
-      const request = schema.getClientRequest({
+      const request = {
         _id: ctx.params.id
-      })
+      }
       const client = await ctx.service.getClientById(request)
+      const response = client
 
       await ctx.render('client', {
         title: 'Client',
-        client,
+        client: response,
         error: null
       })
     } catch (err) {
@@ -52,9 +50,9 @@ class Endpoint {
   }
   async getClientUpdateView (ctx, next) {
     try {
-      const request = schema.getClientRequest({
+      const request = {
         _id: ctx.params.id
-      })
+      }
       const client = await ctx.service.getClientById(request)
       const response = schema.getClientResponse(client)
 
@@ -82,34 +80,30 @@ class Endpoint {
     const request = getClientsRequest(ctx.query)
     const clients = await ctx.service.getClients(request)
     const response = getClientsResponse(clients)
-    successResponse(ctx, response, 200)
-    // } catch (err) {
-      // Throw the error so that it can be captured
-      // throw err
-    // }
+    ctx.status = 200
+    ctx.body = response
   }
 
   // GET /clients/:id
   // Description: Return a client by id
   async getClient (ctx, next) {
-    try {
-      const request = schema.getClientRequest({
-        _id: ctx.params.id
-      })
-      const client = await ctx.service.getClientById(request)
-      const response = schema.getClientResponse(client)
-      // this.set('Cache-Control', 'no-cache')
-      // this.set('Pragma', 'no-cache')
-      successResponse(ctx, response, 200)
-    } catch (err) {
-      throw err
-    }
+
+    const request = schema.getClientRequest({
+      _id: ctx.params.id
+    })
+    const client = await ctx.service.getClientById(request)
+    const response = client
+    // this.set('Cache-Control', 'no-cache')
+    // this.set('Pragma', 'no-cache')
+    ctx.status = 200
+    ctx.body = response
+
   }
   // POST /clients
   // Description: Create a new client
   async postClient (ctx, next) {
     try {
-      const request = schema.postClientRequest({
+      const request =  ctx.schema.postClientRequest({
         contacts: ctx.request.body.contacts,
         client_name: ctx.request.body.clientName,
         client_uri: ctx.request.body.clientURI,
@@ -121,8 +115,11 @@ class Endpoint {
       const client = await ctx.service.postClient(request)
       // NOTE: the client object returned is not pure JSON, causing
       // error for AJV to parse
-      const response = schema.postClientResponse(JSON.parse(JSON.stringify(client)))
-      successResponse(ctx, response, 200)
+      const response = ctx.schema.postClientResponse(JSON.parse(JSON.stringify(client)))
+      
+
+      ctx.status = 200
+      ctx.body = response
     } catch (err) {
       if (err.name === 'ValidationError') {
         // Handle Mongoose Schema errors
@@ -142,7 +139,7 @@ class Endpoint {
   async updateClient (ctx, next) {
     // Add a permission setting to allow only authorized user to update
     try {
-      const request = schema.updateClientRequest({
+      const request = ctx.schema.updateClientRequest({
         contacts: ctx.request.body.contacts,
         client_name: ctx.request.body.clientName,
         client_uri: ctx.request.body.clientURI,
@@ -153,7 +150,10 @@ class Endpoint {
       })
 
       const client = await ctx.service.updateClient(ctx.params.id, request)
-      successResponse(ctx, client, 200)
+      const response = client
+      
+      ctx.status = 200
+      ctx.body = client
     } catch (err) {
       if (err.name === 'ValidationError') {
         ctx.status = 400
@@ -164,20 +164,6 @@ class Endpoint {
       }
     }
   }
-
-  // // Request/Response handlers
-  //  getClientsRequest = (req) => {
-  //   return req
-  // }
-
-  // const getClientsResponse = (res) => {
-  //   return res
-  // }
-
-  // const successResponse = (ctx, response, status) => {
-  //   ctx.body = response
-  //   ctx.status = status
-  // }
 }
 export default () => {
   return new Endpoint()

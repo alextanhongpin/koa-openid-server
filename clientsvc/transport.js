@@ -4,12 +4,15 @@ import Endpoint from './endpoint.js'
 import Service from './service.js'
 import Client from './model.js'
 
+import schema from './schema.js'
+
 const route = new Router()
 const endpoint = Endpoint()
 // Default namespace is /clients
 
 route.use(async(ctx, next) => {
   // Manually inject the service in the context
+  ctx.schema = schema
   ctx.service = Service({
     db: Client
   })

@@ -1,0 +1,11 @@
+{
+  "_id": "589b539a395a7fbb1d30438d",
+  "updated_at": "2017-02-09T03:45:09.405Z",
+  "created_at": "2017-02-08T17:21:30.411Z",
+  "refresh_token": "fb7VUoBKlPZeHBWYg9yVIVetcGGMCKVpfDDrQ3Ji1H0",
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTg2YmFhNDliZDY0MTVjMDI3YmNlNDYxIiwidXNlcl9hZ2VudCI6Ik1vemlsbGEvNS4wIChNYWNpbnRvc2g7IEludGVsIE1hYyBPUyBYIDEwXzEyXzMpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS81NS4wLjI4ODMuOTUgU2FmYXJpLzUzNy4zNiIsImlhdCI6MTQ4NjYxMTkwOSwiZXhwIjoxNDg2NjEyMDI5LCJpc3MiOiJrb2EtYXV0aCJ9.OhgIdWYTsUPFzxp7J_i_5bP8e5l5LRcFtB_ZJRs366k",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36",
+  "user_id": "586baa49bd6415c027bce461",
+  "__v": 0,
+  "expires_in": 120
+}

@@ -3,16 +3,11 @@
 import request from 'request'
 
 class Endpoint {
-  async getLogin (ctx, next) {
-    await ctx.render('login', {
-      title: 'Login'
-    })
-  }
   // The reason why we avoid form is that the implementation
   // will be tied to web only,
   // If we want to support mobile devices, then it should be able
   // to post login/register to a http endpoint
-  async postLogin (ctx, next) {
+  async login (ctx, next) {
     try {
       // Parse the request
 
@@ -38,14 +33,9 @@ class Endpoint {
       }
     }
   }
-  // Register Endpoints
-  async getRegister (ctx, next) {
-    await ctx.render('register', {
-      title: 'Register'
-    })
-  }
 
-  async postRegister(ctx, next) {
+
+  async register (ctx, next) {
     try {
       const request = ctx.schema.registerRequest(ctx.request.body)
       const user = await ctx.service.register(request)

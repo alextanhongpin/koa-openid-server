@@ -1,17 +1,30 @@
 // Endpoints
 
 // GET /
-const homeView = async(ctx, next) => {
-  await ctx.render('home', {
-    title: 'Home'
-  })
-}
-const profileView = async(ctx, next) => {
-  await ctx.render('profile', {
-    title: 'Profile'
-  })
-}
-export default {
-  homeView,
-  profileView
+class Endpoint {
+	async home (ctx, next) {
+		await ctx.render('home', {
+			title: 'Home'
+		})
+	}
+	async profile (ctx, next) {
+		await ctx.render('profile', {
+			title: 'Profile'
+		})
+	}
+	async login (ctx, next) {
+		await ctx.render('login', {
+		  title: 'Login'
+		})
+	}
+	// Register Endpoints
+	async register (ctx, next) {
+		await ctx.render('register', {
+		  title: 'Register'
+		})
+	}
+} 
+
+export default () => {
+	return new Endpoint()
 }
