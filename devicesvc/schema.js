@@ -2,6 +2,7 @@ import Toolbox from '../common/toolbox.js'
 
 const parser = Toolbox({
   allErrors: true,
+  removeAdditional: true,
   schemas: [
     require('./schema/post-device-request.json'),
     require('./schema/post-device-response.json')

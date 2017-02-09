@@ -1,3 +1,6 @@
+// Another working example, but publishing to exchange
+// instead of to queue directly
+
 // import Channel from '../common/amqp.js'
 
 // const DEVICE_EXCHANGE = 'device-service'

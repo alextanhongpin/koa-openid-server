@@ -1,3 +1,8 @@
+// This is an example of RPC messaging with RabbitMQ
+// that works, but not implemented due to several complexity
+// 1. Error Handling - How to handle errors
+// 2. Business logic - How to separate business logic from the message bus
+// 3. Harder to implement compared to just calling the REST api
 
 const amqp = require('amqplib')
 
@@ -40,7 +45,7 @@ function producer ({id, payload}) {
   })
 }
 
-function consumer (service) {
+function consumer ({ service }) {
   connect()
   .then((connection) => {
     connection.createChannel().then((channel) => {
@@ -54,7 +59,9 @@ function consumer (service) {
           if (!request) {
             return
           } else {
+            // const parsedRequest = parseRequest(request)
             service(request).then((response) => {
+              // const parsedResponse = parseResponse(response)
               channel.sendToQueue(message.properties.replyTo, new Buffer(JSON.stringify(response)), {
                 correlationId: message.properties.correlationId
               })
@@ -69,11 +76,21 @@ function consumer (service) {
   })
 }
 
-// consumer((params) => {
-//   return this.db.findOne(params)
+// PRODUCER Example
+// const device = await ctx.broker.producer({
+//   payload: {
+//     user_id: user.id,
+//     user_agent: ctx.state.userAgent.source
+//   },
+//   id: user.id
 // })
-// const id = Math.floor(Math.random() * 10).toString()
-// const payload = 'Hello world'
-// producer(id, payload)
+
+// CONSUMER example
+// import CreateDeviceBroker from '../broker/create-device'
+// CreateDeviceBroker.consumer({
+//   service: service.create.bind(service),
+//   // parseRequest: schema.postDeviceRequest,
+//   // parseResponse: schema.postDeviceResponse
+// })
 
 module.exports = { producer, consumer }

@@ -11,11 +11,8 @@
     "refresh_token": { 
       "type": "string"
     },
-    "user_agent": {
-      "type": "string"
-    },
-    "user_id": {
-      "type": "string"
+    "expires_in": {
+      "type": "integer"
     }
   }
 }

@@ -1,27 +1,21 @@
 
 class Endpoint {
-  // async getDevices (ctx, next) {
-  //   const request = getDevicesRequest(ctx.request.body)
-  //   if (request.select) {
-  //     // select only devices that are tied to the user's id
-  //   }
-  //   const devices = await ctx.service.getDevices(request)
-  //   const response = getDevicesResponse(devices)
-
-  //   ctx.status = 200
-  //   ctx.body = response
-  // }
+  // Implement JSON api
   async all (ctx, next) {
+    const request = {}
+    const devices = await ctx.service.all(request)
+    const response = devices
+
     ctx.status = 200
-    ctx.body = {
-      ok: true
-    }
+    ctx.body = response
   }
   async one (ctx, next) {
+    const request = {}
+    const device = await ctx.service.one({ _id: ctx.params.id })
+    const response = device
+    
     ctx.status = 200
-    ctx.body = {
-      ok: true
-    }
+    ctx.body = device
   }
   async create (ctx, next) {
     const request = ctx.schema.postDeviceRequest({

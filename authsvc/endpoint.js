@@ -1,5 +1,6 @@
 // endpoint.js
-// import noderequest from 'request'
+// Request on the Fly lol
+import request from 'request'
 
 class Endpoint {
   async getLogin (ctx, next) {
@@ -21,14 +22,11 @@ class Endpoint {
       user.id = user._id.toString()
       // Parse the response
       const response = ctx.schema.loginResponse(user)
-      // 
-      // Publish to a message broker to create a new device
-      const device = await ctx.broker.producer({
-        payload: {
-          user_id: user.id,
-          user_agent: ctx.state.userAgent.source
-        },
-        id: user.id
+
+      // Don't forget to add authentication
+      const device = await createDevice({
+        user_id: user.id,
+        user_agent: ctx.state.userAgent.source
       })
 
       ctx.body = device
@@ -51,26 +49,51 @@ class Endpoint {
     try {
       const request = ctx.schema.registerRequest(ctx.request.body)
       const user = await ctx.service.register(request)
-      const response = ctx.schema.registerResponse({
-        email: user.email
-      })
-      // CLIENT
-      const message = JSON.stringify({
+      user.id = user._id.toString()
+      const response = ctx.schema.registerResponse(user)
+
+      const device = await createDevice({
         user_id: user.id,
         user_agent: ctx.state.userAgent.source
       })
-      const device = await ctx.broker.producer({
-        payload: message,
-        id: user.id
-      })
-      // const chan = await ctx.channel()
-      ctx.body = device// await publishDevice({ chan, message, user_id: user._id.toString() })
+
+      ctx.body = device
       ctx.status = 200
     } catch (err) {
-      ctx.redirect('/login?error=' + err.message)
+      ctx.status = 400
+      ctx.body = {
+        error: err.message
+      }
     }
   }
 }
+
+// TODO:
+// 1. add circuit breaker
+// 2. add authentication
+// class ExternalEndpoint {
+function createDevice ({ user_id, user_agent }) {
+  return new Promise((resolve, reject) => {
+    request({
+      method: 'POST',
+      url: 'http://localhost:3100/api/v1/devices',
+      headers: {
+        'User-Agent': user_agent,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id
+      })
+    }, (error, httpResponse, body) => {
+      if (!error && httpResponse.statusCode === 200) {
+        resolve(JSON.parse(body))
+      } else {
+        reject(error)
+      }
+    })
+  })
+}
+// }
 
 
 export default () => {

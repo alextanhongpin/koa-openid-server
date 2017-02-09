@@ -25,7 +25,7 @@ class AuthService  {
     const User = this.db
     const user = await User.findOne({ email })
     if (user) {
-      return user
+      return user.toJSON()
     } else {
       const user = new User()
       user.email = email

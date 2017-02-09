@@ -8,7 +8,7 @@ class DeviceService extends ServiceInterface {
       user_id, user_agent
     })
     const accessToken = await Device.createAccessToken({
-      user_id, user_agent
+      user_id, user_agent, expires_in:'2m'
     })
     const refreshToken = await Device.createRefreshToken(32)
     // No such device
@@ -19,6 +19,7 @@ class DeviceService extends ServiceInterface {
       newDevice.user_agent = user_agent
       newDevice.access_token = accessToken
       newDevice.refresh_token = refreshToken
+      newDevice.expires_in = parseInt('2m', 10) * 60
 
       await newDevice.save()
 
@@ -27,10 +28,9 @@ class DeviceService extends ServiceInterface {
       // Device already exists, update params
       device.access_token = accessToken
       device.refresh_token = refreshToken
+      device.expires_in = parseInt('2m', 10) * 60
 
       await device.save()
-
-      console.log('device', device)
 
       return device.toJSON()
     }

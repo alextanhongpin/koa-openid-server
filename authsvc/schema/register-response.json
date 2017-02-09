@@ -4,10 +4,12 @@
   "title": "Register response",
   "type": "object",
   "additionalProperties": false,
-  "required": [ "email" ],
   "properties": {
+    "id": {
+      "type": "string"
+    },
     "email": {
-    	"type": "string"
-	  }
+      "type": "string"
+    }
   }
 }

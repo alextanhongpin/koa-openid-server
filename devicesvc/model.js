@@ -33,6 +33,9 @@ const DeviceSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
+  },
+  expires_in: {
+    type: Number
   }
 }, {
   timestamps: { 
