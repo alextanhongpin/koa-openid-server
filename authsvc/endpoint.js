@@ -15,6 +15,7 @@ class Endpoint {
     // Check if the user is allowed to call the login (is not blocked)
     // If true: continue
     // Else: redirect to error page
+    // Bonus points if you return the HTTP 429 status code with the standard Retry-After header on rejected requests ;)
     try {
       // Parse the request
       const request = ctx.schema.loginRequest(ctx.request.body)
@@ -47,21 +48,22 @@ class Endpoint {
       const response = ctx.schema.loginResponse(user)
 
       ctx.redirect('/login/callback?user_id=' + response.id)
-    } catch (err) {
+    } catch (error) {
+      // Wrong login attempt?
       ctx.redirect('/login/error')
     }
   }
 
   async loginCallback (ctx, next) {
     const userId = ctx.query.user_id
-      const device = circuitBreaker(ctx.service.externalCreateDevice, CIRCUIT_BREAKER_OPTIONS, {
-        user_id: user.id,
-        user_agent: ctx.state.userAgent.source
-      })
-    // Set a redirect to the profile page
-    ctx.body = Object.assign({}, device, {
-      redirect_url: '/profile'
+    const device = circuitBreaker(ctx.service.externalCreateDevice, CIRCUIT_BREAKER_OPTIONS, {
+      user_id: userId,
+      user_agent: ctx.state.userAgent.source
     })
+    // Set a redirect to the profile page
+    await ctx.render('login-callback', Object.assign({}, device, {
+      redirect_url: '/profile'
+    }))
   }
 
   async registerApi (ctx, next) {
@@ -90,10 +92,6 @@ class Endpoint {
       const user = await ctx.service.register(request)
       user.id = user._id.toString()
       const response = ctx.schema.registerResponse(user)
-      const device = circuitBreaker(ctx.service.externalCreateDevice, CIRCUIT_BREAKER_OPTIONS, {
-        user_id: user.id,
-        user_agent: ctx.state.userAgent.source
-      })
 
       ctx.redirect('/register/callback?user_id=' + response.id)
     } catch (err) {
@@ -103,13 +101,13 @@ class Endpoint {
 
   async registerCallback (ctx, next) {
     const userId = ctx.query.user_id
-      const device = circuitBreaker(ctx.service.externalCreateDevice, CIRCUIT_BREAKER_OPTIONS, {
-        user_id: user.id,
-        user_agent: ctx.state.userAgent.source
-      })
-    ctx.body = Object.assign({}, device, {
-      redirect_url: '/profile'
+    const device = circuitBreaker(ctx.service.externalCreateDevice, CIRCUIT_BREAKER_OPTIONS, {
+      user_id: userId,
+      user_agent: ctx.state.userAgent.source
     })
+    await ctx.render('register-callback', Object.assign({}, device, {
+      redirect_url: '/profile'
+    }))
   }
 
   async loginView (ctx, next) {

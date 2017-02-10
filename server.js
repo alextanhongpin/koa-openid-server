@@ -6,12 +6,14 @@ import compress from 'koa-compress'
 import render from 'koa-ejs'
 import logger from 'koa-logger'
 import mount from 'koa-mount'
+import ratelimit from 'koa-ratelimit'
 import Router from 'koa-router'
 import session from 'koa-session'
 import serve from 'koa-static'
 import userAgent from 'koa-useragent'
 
 import path from 'path'
+import redis from 'redis'
 import co from 'co'
 import _ from './common/database.js'
 
@@ -28,6 +30,21 @@ const app = new Koa()
 
 app.keys = ['dbbc0cae-c0d0-422d-9a72-0b8e09d4fd55', '7b463fab-d854-4657-836b-31ff366a5c34']
 app.use(convert(session()))
+
+app.use(ratelimit({
+  db: redis.createClient(),
+  duration: 60000,
+  max: 100,
+  id: function (context) {
+    return context.ip
+  },
+  headers: {
+    remaining: 'Rate-Limit-Remaining',
+    reset: 'Rate-Limit-Reset',
+    total: 'Rate-Limit-Total'
+  },
+  errorMessage: 'Sometimes You Just Have to Slow Down.'
+}))
 
 app.use(compress({
   filter: function (content_type) {

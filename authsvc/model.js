@@ -207,11 +207,7 @@ UserSchema.statics.validateAccessToken = (token) => {
   })
 }
 
-// All errors are best stored in the model
-const ErrorUserNotFound = new Error('User not Found')
-const ErrorIncorrectPassword = new Error('The password is incorrect')
-const ErrorInvalidEmail = new Error('The email format is incorrect')
-
+// Return errors
 UserSchema.statics.errors = (error) => {
   switch (error) {
     case 'USER_NOT_FOUND': return ErrorUserNotFound
