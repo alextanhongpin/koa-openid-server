@@ -1,10 +1,9 @@
 // endpoint.js
-import base64 from '../modules/base64.js'
-import requestService from 'request'
 import qs from 'querystring'
-import OpenIdSDK from '../modules/openidsdk.js'
-import jwt from '../modules/jwt'
 import redis from '../common/redis.js'
+import jwt from '../modules/jwt'
+import base64 from '../modules/base64.js'
+import OpenIdSDK from '../modules/openidsdk.js'
 
 // The SDK is used on the client side to make requests to the openid endpoints
 const openIdSDK = OpenIdSDK({
@@ -18,36 +17,184 @@ const openIdSDK = OpenIdSDK({
   tokenEndpoint: 'http://localhost:3100/token'
 })
 
-// POST /token/introspect
-// Reference: http://connect2id.com/products/server/docs/api/token-introspection
-
-// Standardize the errors: either invalid (wrong, not supported, etc),
-// missing (required, but not provided), or forbidden (no permission)
 const ErrorInvalidContentType = new Error('Invalid Content Type: Content-Type must be application/json')
 const ErrorBasicAuthorizationMissing = new Error('Invalid Request: Basic authorization header is required')
 const ErrorForbiddenAccess = new Error('Forbidden Access: Client does not have permission to access this service')
 
-const getAuthorize = async (ctx, next) => {
-  try {
-    const request = ctx.schema.authorizeRequest(ctx.query)
-    const client = await ctx.service.getAuthorize(request)
+class Endpoint {
+  async getAuthorize (ctx, next) {
+    try {
+      const request = ctx.schema.authorizeRequest(ctx.query)
+      const client = await ctx.service.getAuthorize(request)
+      // Authorize response
 
-    await ctx.render('consent', {
-      title: 'Consent',
-      client: client,
-      // NOTE: can be masked with additional jwt for security
-      request: JSON.stringify(request)
+      await ctx.render('consent', {
+        title: 'Consent',
+        client: client,
+        // NOTE: can be masked with additional jwt for security
+        request: JSON.stringify(request)
+      })
+    } catch (error) {
+      const query = qs.stringify({
+        error: error.message,
+        error_description: error.description
+      })
+      return ctx.redirect(`${error.redirect_uri}?${query}`)
+    }
+  }
+  async postAuthorize (ctx, next) {
+    const request = ctx.schema.authorizeRequest(ctx.request.body)
+    const output = await ctx.service.postAuthorize(request)
+    const response = ctx.schema.authorizeResponse({
+      code: output.code,
+      state: output.state
     })
-  } catch (err) {
-    const error = qs.stringify({
-      error: err.message,
-      error_description: err.description
+    ctx.state.request = request
+    ctx.state.response = response
+
+    await next()
+
+    ctx.set('Cache-Control', 'no-cache')
+    ctx.set('Pragma', 'no-cache')
+    ctx.status = 200
+    ctx.body = {
+      redirect_uri: `${request.redirect_uri}?${qs.stringify(response)}`
+    }
+  }
+  async introspect(ctx, next) {
+    // Business-rule-validation
+    if (!ctx.is('application/x-www-form-urlencoded')) {
+      ctx.throw('Bad Request', 400, {
+        description: ErrorInvalidContentType.message
+      })
+    }
+    const authorizationHeader = ctx.headers.authorization
+    const [ authType, authToken ] = authorizationHeader.split(' ')
+    if (authType !== 'Basic') {
+      ctx.throw('Bad Request', 400, {
+        description: ErrorBasicAuthorizationMissing.message
+      })
+    }
+    const authTokenValidated = base64.decode(authToken)
+    const [ clientId, clientSecret ] = authTokenValidated.split(':')
+    if (!clientId || !clientSecret) {
+      // throw error
+      ctx.throw('Forbidden Access', 403, {
+        description: ErrorForbiddenAccess.message
+      })
+    }
+    // Fire external service
+    // const client = await this.service.getClient({ clientId, clientSecret })
+    // if (!client) {
+    //   throw new Error('Forbidden Access: Client does not have permission to access this service')
+    // }
+    const request = ctx.schema.introspectRequest({
+      token: ctx.request.body.token,
+      token_type_hint: ctx.request.body.token_type_hint
     })
-    // NOTE: Instead of returning a json error,
-    // return it as the query in the url
-    return ctx.redirect(`${err.redirect_uri}?${error}`)
+    const output = await ctx.service.introspect(request)
+    const response = ctx.schema.introspectResponse({
+      active: output.active,
+      expires_in: output.expires_in,
+      iat: output.iat,
+      iss: output.iss,
+      exp: output.exp
+    })
+
+    ctx.status = 200
+    ctx.body = response
+    ctx.set('Cache-Control', 'no-cache')
+    ctx.set('Pragma', 'no-cache')
+  }
+
+  async token(ctx, next) {
+    const request = ctx.schema.tokenRequest(ctx.request.body)
+    const output = await ctx.service.token(request)
+    const response = ctx.schema.tokenResponse(output)
+
+    ctx.body = response
+    ctx.status = 200
+  }
+
+  // The UserInfo Endpoint MUST support the use of the HTTP GET and HTTP POST methods defined in RFC 2616 [RFC2616].
+  async userinfo(ctx, next) {}
+
+  async refresh(ctx, next) {
+    // Business-rule-validation
+    if (!ctx.is('application/x-www-form-urlencoded')) {
+      ctx.throw('Bad Request', 400, {
+        description: ErrorInvalidContentType.message
+      })
+    }
+    const authorizationHeader = ctx.headers.authorization
+    const [ authType, authToken ] = authorizationHeader.split(' ')
+    if (authType !== 'Basic') {
+      ctx.throw('Bad Request', 400, {
+        description: ErrorBasicAuthorizationMissing.message
+      })
+    }
+    const authTokenValidated = base64.decode(authToken)
+    const [ clientId, clientSecret ] = authTokenValidated.split(':')
+    if (!clientId || !clientSecret) {
+      // throw error
+      ctx.throw('Forbidden Access', 403, {
+        description: ErrorForbiddenAccess.message
+      })
+    }
+    const request = ctx.schema.refreshTokenRequest({
+      grant_type: ctx.request.body.grant_type,
+      refresh_token: ctx.request.body.refresh_token,
+      scope: ctx.request.body.scope,
+      redirect_uri: ctx.request.body.redirect_uri
+    })
+    // Fire external service
+    // const client = await this.service.getClient({ clientId, clientSecret })
+    // if (!client) {
+    //   throw new Error('Forbidden Access: Client does not have permission to access this service')
+    // }
+    const device = await ctx.externalService.deviceByRefreshToken({
+      refresh_token
+    })
+    if (device) {
+      if (device.user_agent !== ctx.state.userAgent) {
+        // Error: Unrecognized device
+        const error = new Error('Error: Unrecognized device')
+        error.code = 400
+        error.description = 'No device registered with the refresh token'
+        throw error
+      } else {
+        // Create new access token
+        const accessToken = await ctx.service.refresh(device)
+
+        const output = await ctx.externalService.updateDevice({
+          _id: device._id,
+          params: {
+            access_token: accessToken
+          }
+        })
+        // const output = await ctx.service.refresh(request)
+        const response = ctx.schema.refreshTokenResponse({
+          access_token: output.access_token,
+          refresh_token: output.refresh_token,
+          expires_in: output.expires_in,
+          token_type: output.token_type
+        })
+
+        ctx.status = 200
+        ctx.body = response
+        ctx.set('Cache-Control', 'no-cache')
+        ctx.set('Pragma', 'no-cache')
+      }
+    } else {
+      // Error: No device found
+      const error = new Error('Error: Device not found')
+      error.code = 400
+      error.description = 'The device is not found'
+      throw error
+    }
   }
 }
+
 
 const checkUser = async (ctx, next) => {
   const authorizationHeader = ctx.headers.authorization
@@ -66,7 +213,12 @@ const checkUser = async (ctx, next) => {
   try {
     const token = await jwt.verify(authToken)
     ctx.state.user_id = token.user_id
-    await next()
+
+    const FIVE_MINUTES = 300
+    const value = `authcode:user:${ctx.state.response.code}`
+    redis.set(value, ctx.state.user_id)
+    redis.expire(value, FIVE_MINUTES)
+
   } catch (err) {
     const error = qs.stringify({
       error: err.name,
@@ -82,236 +234,17 @@ const checkUser = async (ctx, next) => {
   }
 }
 
-const cacheAuthorizationCode = async (ctx, next) => {
-  const FIVE_MINUTES = 300
-  const value = `authcode:user:${ctx.state.response.code}`
-  redis.set(value, ctx.state.user_id)
-  redis.expire(value, FIVE_MINUTES)
-}
 
-// POST /authorize
-// Description: Coming from the consent screen,
-// should return a valid code once the user has been
-// validated
-const postAuthorize = async (ctx, next) => {
-  const request = ctx.schema.authorizeRequest(ctx.request.body)
-  const output = await ctx.service.postAuthorize(request)
-  const response = ctx.schema.authorizeResponse({
-    code: output.code,
-    state: output.state
-  })
-  ctx.state.request = request
-  ctx.state.response = response
+// export default {
+//   introspect,
+//   refresh,
+//   getAuthorize,
+//   postAuthorize,
+//   token,
+//   checkUser,
+//   cacheAuthorizationCode
 
-  await next()
-
-  ctx.set('Cache-Control', 'no-cache')
-  ctx.set('Pragma', 'no-cache')
-  ctx.status = 200
-  ctx.body = {
-    redirect_uri: `${request.redirect_uri}?${qs.stringify(response)}`
-  }
-}
-
-const introspect = async (ctx, next) => {
-  // Business-rule-validation
-  if (!ctx.is('application/x-www-form-urlencoded')) {
-    ctx.throw('Bad Request', 400, {
-      description: ErrorInvalidContentType.message
-    })
-  }
-  const authorizationHeader = ctx.headers.authorization
-  const [ authType, authToken ] = authorizationHeader.split(' ')
-  if (authType !== 'Basic') {
-    ctx.throw('Bad Request', 400, {
-      description: ErrorBasicAuthorizationMissing.message
-    })
-  }
-  const authTokenValidated = base64.decode(authToken)
-  const [ clientId, clientSecret ] = authTokenValidated.split(':')
-  if (!clientId || !clientSecret) {
-    // throw error
-    ctx.throw('Forbidden Access', 403, {
-      description: ErrorForbiddenAccess.message
-    })
-  }
-  // Fire external service
-  // const client = await this.service.getClient({ clientId, clientSecret })
-  // if (!client) {
-  //   throw new Error('Forbidden Access: Client does not have permission to access this service')
-  // }
-  const request = ctx.schema.introspectRequest({
-    token: ctx.request.body.token,
-    token_type_hint: ctx.request.body.token_type_hint
-  })
-  const output = await ctx.service.introspect(request)
-  const response = ctx.schema.introspectResponse({
-    active: output.active,
-    expires_in: output.expires_in,
-    iat: output.iat,
-    iss: output.iss,
-    exp: output.exp
-  })
-
-  ctx.status = 200
-  ctx.body = response
-  ctx.set('Cache-Control', 'no-cache')
-  ctx.set('Pragma', 'no-cache')
-}
-
-const refresh = async(ctx, next) => {
-  // Business-rule-validation
-  if (!ctx.is('application/x-www-form-urlencoded')) {
-    ctx.throw('Bad Request', 400, {
-      description: ErrorInvalidContentType.message
-    })
-  }
-  const authorizationHeader = ctx.headers.authorization
-  const [ authType, authToken ] = authorizationHeader.split(' ')
-  if (authType !== 'Basic') {
-    ctx.throw('Bad Request', 400, {
-      description: ErrorBasicAuthorizationMissing.message
-    })
-  }
-  const authTokenValidated = base64.decode(authToken)
-  const [ clientId, clientSecret ] = authTokenValidated.split(':')
-  if (!clientId || !clientSecret) {
-    // throw error
-    ctx.throw('Forbidden Access', 403, {
-      description: ErrorForbiddenAccess.message
-    })
-  }
-  // Fire external service
-  // const client = await this.service.getClient({ clientId, clientSecret })
-  // if (!client) {
-  //   throw new Error('Forbidden Access: Client does not have permission to access this service')
-  // }
-  const request = ctx.schema.refreshTokenRequest({
-    grant_type: ctx.request.body.grant_type,
-    refresh_token: ctx.request.body.refresh_token,
-    scope: ctx.request.body.scope,
-    redirect_uri: ctx.request.body.redirect_uri
-  })
-  const output = await ctx.service.refresh(request)
-  const response = ctx.schema.refreshTokenResponse({
-    access_token: output.access_token,
-    refresh_token: output.refresh_token,
-    expires_in: output.expires_in,
-    token_type: output.token_type
-  })
-
-  ctx.status = 200
-  ctx.body = response
-  ctx.set('Cache-Control', 'no-cache')
-  ctx.set('Pragma', 'no-cache')
-}
-// Login Endpoints
-const getAuthorizeRequest = (req) => {
-  return {
-    response_type: req.response_type,
-    scope: req.scope,
-    client_id: req.client_id,
-    state: req.state,
-    redirect_uri: req.redirect_uri
-  }
-}
-
-const getAuthorizeResponse = (res) => {
-  return res
-}
-
-const token = async (ctx, next) => {
-  const request = ctx.schema.tokenRequest(ctx.request.body)
-  const output = await ctx.service.token(request)
-  const response = ctx.schema.tokenResponse(output)
-
-  ctx.body = response
-  ctx.status = 200
-}
-// The UserInfo Endpoint MUST support the use of the HTTP GET and HTTP POST methods defined in RFC 2616 [RFC2616].
-const userinfo = async (ctx, next) => {
-}
-
-export default {
-  async getClientConnect (ctx, next) {
-    await ctx.render('connect', {
-      title: 'Connect'
-    })
-  },
-  // POST /client-introspect
-  async postClientIntrospect (ctx, next) {
-    // Fires a middleware sdk to introspect the token
-    try {
-      const response = await openIdSDK.introspect({
-        token_type_hint: ctx.request.body.token_type_hint,
-        token: ctx.request.body.token
-      })
-      // Success Response
-      ctx.status = 200
-      ctx.body = response
-    } catch (err) {
-      // Error response
-      ctx.status = 200
-      ctx.body = {
-        active: false
-      }
-    }
-  },
-  async postClientRefreshToken (ctx, next) {
-    try {
-      const response = await openIdSDK.refresh({
-        refresh_token: ctx.request.body.refreshToken,
-        grant_type: 'refresh_token',
-        scope: [],
-        redirect_uri: 'something'
-      })
-      ctx.status = 200
-      ctx.body = response
-    } catch (err) {
-      throw err
-    }
-  },
-  // GET /client-authorize
-  // Description: When the client chooses to connect
-  // with the provided, the client will trigger an
-  // authorize() endpoint from their side which will
-  // call the authorizeSDK()
-  async getClientAuthorize (ctx, next) {
-    const response = await openIdSDK.authorize()
-    // The response will be a redirect url
-    // to the provider consent screen
-    ctx.redirect(response.authorize_uri)
-  },
-  // GET /client-authorize/callback
-  // Description: Once the client has accepted/rejected
-  // the connection with the Provider, the client
-  // will receive the success/error response
-  // at the callback url.
-  // The code received here will be traded with a valid access token
-  // and can only be used once
-  async getClientAuthorizeCallback (ctx, next) {
-    try {
-      const request = {
-        code: ctx.query.code
-      }
-      // Should have a code
-      // to be traded with an access token
-      const response = await openIdSDK.authorizeCallback(request)
-      // ctx.state.response = response
-      ctx.status = 200
-      ctx.body = response
-      await next()
-    } catch (err) {
-      // handle error
-      console.log(err)
-    }
-  },
-  introspect,
-  refresh,
-  getAuthorize,
-  postAuthorize,
-  token,
-  checkUser,
-  cacheAuthorizationCode
-
+// }
+export default (props) => {
+  return new Endpoint(props)
 }

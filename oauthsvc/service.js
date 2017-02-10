@@ -7,16 +7,13 @@
 import jwt from '../modules/jwt.js'
 import Code from '../modules/code.js'
 
-
-
 class OAuthService {
   constructor (props) {
     this.redis = props.redis
-    this.Client = props.Client
-    this.Device = props.Device
+    this.db = props.db
   }
   getAuthorize ({ response_type, scope, client_id, state, redirect_uri }) {
-    return this.Client.findOne({ client_id }).then((client) => {
+    return this.db.findOne({ client_id }).then((client) => {
       if (!client) {
         // Client does not exist error
         const errorClientDoNotExist = new Error('Forbidden')
@@ -39,7 +36,7 @@ class OAuthService {
     })
   }
   postAuthorize ({ response_type, scope, client_id, state, redirect_uri }) {
-    return this.Client.findOne({ client_id }).then((client) => {
+    return this.db.findOne({ client_id }).then((client) => {
       if (!client) {
         // Client does not exist error
         const errorClientDoNotExist = new Error('Forbidden')
@@ -152,33 +149,11 @@ class OAuthService {
       })
     })
   }
-  async refresh ({ refresh_token }) {
-    // Find the device that is tied to this refresh token
-    // If not available, then remove it
-    // Else update the device's access token
-    const device = await this.Device.findOne({ refresh_token })
-
-    if (!device) {
-      const error = new Error('Error: Device not found')
-      error.code = 400
-      error.description = 'The device is not found'
-      throw error
-    }
+  async refresh ({ user_id, user_agent }) {
     const access_token = await jwt.sign({
-      user_id: device.user_id,
-      user_agent: device.user_agent
+      user_id, user_agent
     })
-    device.access_token = access_token
-    device.modified_at = Date.now()
-
-    await device.save()
-
-    return {
-      access_token,
-      expires_in: 3600, // Update it later
-      token_type: 'bearer',
-      refresh_token
-    }
+    return Promise.resolve(access_token)
   }
   // GET /.well-known/openid-configuration
   configuration () {

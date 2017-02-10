@@ -3,7 +3,7 @@ import Router from 'koa-router'
 import Endpoint from './endpoint.js'
 import Service from './service.js'
 import Model from './model.js'
-import Channel from '../common/amqp.js'
+// import Channel from '../common/amqp.js'
 
 
 import schema from './schema.js'

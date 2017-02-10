@@ -1,6 +1,6 @@
 
 import Router from 'koa-router'
-import Endpoint from './endpoint.js'
+import endpoint from './endpoint.js'
 import Service from './service.js'
 // import CodeModel from './model.js'
 import redis from '../common/redis.js'
@@ -10,37 +10,32 @@ import schema from './schema.js'
 // It's bad to have external dependencies,
 // until there's a better solution, this is how we are
 // gonna use it
-import ClientModel from '../clientsvc/model.js'
-import DeviceModel from '../devicesvc/model.js'
+import Model from '../clientsvc/model.js'
 
-const route = new Router()
+const router = new Router()
+const endpoint = Endpoint()
 
-route.use(async(ctx, next) => {
+router.use(async(ctx, next) => {
   // Manually inject the service in the context
   ctx.schema = schema
   ctx.service = Service({
-    redis,
-    Client: ClientModel,
-    Device: DeviceModel
+    // Services datastore
+    redis: redis,
+    db: Model
   })
   await next()
 })
 
 // only authorized user can log in
-route.get('/authorize', Endpoint.getAuthorize)
-route.post('/authorize', Endpoint.postAuthorize, Endpoint.checkUser, Endpoint.cacheAuthorizationCode)
+router.get('/authorize', endpoint.getAuthorize)
+router.post('/authorize', endpoint.postAuthorize, endpoint.checkUser)
 // route.post('/token', Endpoint.postToken)
-route.get('/client-connect', Endpoint.getClientConnect)
-route.post('/token', Endpoint.token)
-route.post('/token/refresh', Endpoint.refresh)
-route.post('/token/introspect', Endpoint.introspect)
+router.get('/client-connect', endpoint.getClientConnect)
+router.post('/token', endpoint.token)
+router.post('/token/refresh', endpoint.refresh)
+router.post('/token/introspect', endpoint.introspect)
 
-// The routes that the client will integrate
-route.post('/client-introspect', Endpoint.postClientIntrospect)
-route.post('/client-refresh', Endpoint.postClientRefreshToken)
-route.get('/client-authorize', Endpoint.getClientAuthorize)
-route.get('/client-authorize/callback', Endpoint.getClientAuthorizeCallback)
 // route.get('/connect', Endpoint.getConnect)
 // route.get('/connect/callback', Endpoint.getConnectCallback)
 
-export default route
+export default router

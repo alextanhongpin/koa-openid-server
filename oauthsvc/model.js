@@ -32,7 +32,7 @@ const codeSchema = Schema({
   }
 })
 
-codeSchema.methods.generateCode = function (password) {
+codeSchema.statics.generateCode = function (password) {
   return crypto.randomBytes(16).toString('hex')
 }
 
