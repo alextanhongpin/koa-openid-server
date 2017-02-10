@@ -21,7 +21,7 @@ class Endpoint {
       const response = ctx.schema.loginResponse(user)
 
       // Don't forget to add authentication
-      const device = await ctx.externalService.createDevice({
+      const device = await ctx.externalService.createDevice().fire({
         user_id: user.id,
         user_agent: ctx.state.userAgent.source
       })
@@ -74,7 +74,7 @@ class Endpoint {
       user.id = user._id.toString()
       const response = ctx.schema.registerResponse(user)
 
-      const device = await ctx.externalService.createDevice({
+      const device = await ctx.externalService.createDevice().fire({
         user_id: user.id,
         user_agent: ctx.state.userAgent.source
       })
