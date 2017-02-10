@@ -8,7 +8,7 @@ class DeviceService extends ServiceInterface {
       user_id, user_agent
     })
     const accessToken = await Device.createAccessToken({
-      user_id, user_agent, expires_in:'2m'
+      user_id, user_agent, expires_in: '2m'
     })
     const refreshToken = await Device.createRefreshToken(32)
     // No such device

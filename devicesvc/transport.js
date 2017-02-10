@@ -9,26 +9,27 @@ import Channel from '../common/amqp.js'
 import schema from './schema.js'
 
 // HTTP Transport
-const route = new Router()
+const router = new Router()
 const endpoint = Endpoint()
 const service = Service({ db: Model })
 
-route.use(async(ctx, next) => {
+router.use(async(ctx, next) => {
   ctx.schema = schema
   ctx.service = service
   await next()
 })
 
 // Devices Services v1
-route
+router
 .get('/api/v1/devices/health-check', endpoint.healthCheck)
 
-route
+router
 .get('/api/v1/devices/:id', endpoint.one)
 
-route
+router
 .get('/api/v1/devices', endpoint.all)
 .post('/api/v1/devices', endpoint.create)
 
-
-export default route
+// List all routes
+console.log(router.stack.map(i => i.path))
+export default router
