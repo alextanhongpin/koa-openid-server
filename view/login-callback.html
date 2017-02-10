@@ -10,5 +10,8 @@
     window.location.href = '<%= redirect_url %>'
   }
 
-  storeTokens()
+  window.onload = () => {
+    storeTokens()
+    redirect()
+  }
 </script>
