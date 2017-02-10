@@ -4,13 +4,14 @@ import Endpoint from './endpoint.js'
 import Service from './service.js'
 import Client from './model.js'
 
+import route from '../common/route.js'
 import schema from './schema.js'
 
-const route = new Router()
+const router = new Router()
 const endpoint = Endpoint()
 // Default namespace is /clients
 
-route.use(async(ctx, next) => {
+router.use(async(ctx, next) => {
   // Manually inject the service in the context
   ctx.schema = schema
   ctx.service = Service({
@@ -19,22 +20,23 @@ route.use(async(ctx, next) => {
   await next()
 })
 
-// View endpoints
-route.get('/clients/register', endpoint.postClientView)
-route.get('/clients', endpoint.getClientsView)
-route.get('/clients/:id', endpoint.getClientView)
-route.get('/clients/:id/edit', endpoint.getClientUpdateView)
+// Internal API
+router.get(route.CLIENTS_REGISTER, endpoint.postClientView)
+router.get(route.CLIENTS, endpoint.getClientsView)
+router.get(route.CLIENTS_ID, endpoint.getClientView)
+router.get(route.CLIENTS_UPDATE, endpoint.getClientUpdateView)
 // API Endpoints
 // Note that the versioning is independent from other services
 // This makes it easier to increase the versioning without affecting
 // other services
-route
-.get('/api/v1/clients', endpoint.all)
-.post('/api/v1/clients', endpoint.create)
 
-route
-.get('/api/v1/clients/:id', endpoint.one)
-.patch('/api/v1/clients/:id', endpoint.update)
+// External API
+router
+.get(route.CLIENTS_API, endpoint.all)
+.post(route.CLIENTS_API, endpoint.create)
 
+router
+.get(route.CLIENTS_ID_API, endpoint.one)
+.patch(route.CLIENTS_ID_API, endpoint.update)
 
 export default route

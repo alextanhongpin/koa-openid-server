@@ -10,10 +10,10 @@ import channel from '../common/amqp.js'
 import route from '../common/route.js'
 import ExternalService from './external.js'
 
-const route = new Router()
+const router = new Router()
 const endpoint = Endpoint()
 
-route.use(async(ctx, next) => {
+router.use(async(ctx, next) => {
   ctx.schema = schema
   ctx.channel = channel
   // ctx.broker = broker
@@ -23,18 +23,18 @@ route.use(async(ctx, next) => {
 })
 
 // Internal API
-route
+router
 .get(route.LOGIN, endpoint.loginView)
 .post(route.LOGIN, endpoint.login)
 .get(route.LOGIN_CALLBACK, endpoint.loginCallback)
 
-route
+router
 .get(route.REGISTER, endpoint.registerView)
 .post(route.REGISTER, endpoint.register)
 .get(route.REGISTER_CALLBACK, endpoint.registerCallback)
 
 // External API
-route.post(route.LOGIN_API, endpoint.loginApi)
-route.post(route.REGISTER_API, endpoint.registerApi)
+router.post(route.LOGIN_API, endpoint.loginApi)
+router.post(route.REGISTER_API, endpoint.registerApi)
 
-export default route
+export default router
