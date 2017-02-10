@@ -25,7 +25,25 @@ class Endpoint {
   async getAuthorize (ctx, next) {
     try {
       const request = ctx.schema.authorizeRequest(ctx.query)
-      const client = await ctx.service.getAuthorize(request)
+      const client = await ctx.externalService.getOneClient({ client_id: request.client_id })
+
+      if (!client) {
+        const errorClientDoNotExist = new Error('Forbidden')
+        errorClientDoNotExist.description = 'The client is not found or have been deleted'
+        errorClientDoNotExist.redirect_uri = request.redirect_uri
+        throw errorClientDoNotExist
+      }
+
+      const uriSet = new Set(client.redirect_uris)
+      if (!uriSet.has(request.redirect_uri)) {
+        const errorInvalidRedirectURI = new Error('Invalid Request')
+        errorInvalidRedirectURI.description = 'The redirect uri provided does not match the client redirect uri'
+        errorInvalidRedirectURI.redirect_uri = request.redirect_uri
+        throw errorInvalidRedirectURI
+      }
+      if (client.scope !== scope) {
+        // Do checking for the scopes
+      }
       // Authorize response
 
       await ctx.render('consent', {
@@ -44,11 +62,30 @@ class Endpoint {
   }
   async postAuthorize (ctx, next) {
     const request = ctx.schema.authorizeRequest(ctx.request.body)
-    const output = await ctx.service.postAuthorize(request)
-    const response = ctx.schema.authorizeResponse({
-      code: output.code,
-      state: output.state
-    })
+    
+    const client = await ctx.externalService.getOneClient({ client_id: request.client_id })
+
+    if (!client) {
+      // Client does not exist error
+      const errorClientDoNotExist = new Error('Forbidden')
+      errorClientDoNotExist.description = 'The client is not found or have been deleted'
+      errorClientDoNotExist.redirect_uri = request.redirect_uri
+      throw errorClientDoNotExist
+    }
+    const uriSet = new Set(client.redirect_uris)
+    if (!uriSet.has(request.redirect_uri)) {
+      const errorInvalidRedirectURI = new Error('Invalid Request')
+      errorInvalidRedirectURI.description = 'The redirect uri provided does not match the client redirect uri'
+      errorInvalidRedirectURI.redirect_uri = request.redirect_uri
+      throw errorInvalidRedirectURI
+    }
+
+    if (client.scope !== scope) {
+
+    }
+
+    const output = await ctx.service.authorization(request)
+    const response = ctx.schema.authorizeResponse(output)
     ctx.state.request = request
     ctx.state.response = response
 

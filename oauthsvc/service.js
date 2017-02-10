@@ -12,56 +12,65 @@ class OAuthService {
     this.redis = props.redis
     this.db = props.db
   }
-  getAuthorize ({ response_type, scope, client_id, state, redirect_uri }) {
-    return this.db.findOne({ client_id }).then((client) => {
-      if (!client) {
-        // Client does not exist error
-        const errorClientDoNotExist = new Error('Forbidden')
-        errorClientDoNotExist.description = 'The client is not found or have been deleted'
-        errorClientDoNotExist.redirect_uri = redirect_uri
-        throw errorClientDoNotExist
-      } else {
-        const uriSet = new Set(client.redirect_uris)
-        if (!uriSet.has(redirect_uri)) {
-          const errorInvalidRedirectURI = new Error('Invalid Request')
-          errorInvalidRedirectURI.description = 'The redirect uri provided does not match the client redirect uri'
-          errorInvalidRedirectURI.redirect_uri = redirect_uri
-          throw errorInvalidRedirectURI
-        }
-        if (client.scope !== scope) {
+  // getAuthorize ({ response_type, scope, client_id, state, redirect_uri }) {
+  //   return this.db.findOne({ client_id }).then((client) => {
+  //     if (!client) {
+  //       // Client does not exist error
+  //       const errorClientDoNotExist = new Error('Forbidden')
+  //       errorClientDoNotExist.description = 'The client is not found or have been deleted'
+  //       errorClientDoNotExist.redirect_uri = redirect_uri
+  //       throw errorClientDoNotExist
+  //     } else {
+  //       const uriSet = new Set(client.redirect_uris)
+  //       if (!uriSet.has(redirect_uri)) {
+  //         const errorInvalidRedirectURI = new Error('Invalid Request')
+  //         errorInvalidRedirectURI.description = 'The redirect uri provided does not match the client redirect uri'
+  //         errorInvalidRedirectURI.redirect_uri = redirect_uri
+  //         throw errorInvalidRedirectURI
+  //       }
+  //       if (client.scope !== scope) {
 
-        }
-        return client
-      }
-    })
-  }
-  postAuthorize ({ response_type, scope, client_id, state, redirect_uri }) {
-    return this.db.findOne({ client_id }).then((client) => {
-      if (!client) {
-        // Client does not exist error
-        const errorClientDoNotExist = new Error('Forbidden')
-        errorClientDoNotExist.description = 'The client is not found or have been deleted'
-        errorClientDoNotExist.redirect_uri = redirect_uri
-        throw errorClientDoNotExist
-      } else {
-        const uriSet = new Set(client.redirect_uris)
-        if (!uriSet.has(redirect_uri)) {
-          const errorInvalidRedirectURI = new Error('Invalid Request')
-          errorInvalidRedirectURI.description = 'The redirect uri provided does not match the client redirect uri'
-          errorInvalidRedirectURI.redirect_uri = redirect_uri
-          throw errorInvalidRedirectURI
-        }
+  //       }
+  //       return client
+  //     }
+  //   })
+  // }
+  // postAuthorize ({ response_type, scope, client_id, state, redirect_uri }) {
+  //   return this.db.findOne({ client_id }).then((client) => {
+  //     if (!client) {
+  //       // Client does not exist error
+  //       const errorClientDoNotExist = new Error('Forbidden')
+  //       errorClientDoNotExist.description = 'The client is not found or have been deleted'
+  //       errorClientDoNotExist.redirect_uri = redirect_uri
+  //       throw errorClientDoNotExist
+  //     } else {
+  //       const uriSet = new Set(client.redirect_uris)
+  //       if (!uriSet.has(redirect_uri)) {
+  //         const errorInvalidRedirectURI = new Error('Invalid Request')
+  //         errorInvalidRedirectURI.description = 'The redirect uri provided does not match the client redirect uri'
+  //         errorInvalidRedirectURI.redirect_uri = redirect_uri
+  //         throw errorInvalidRedirectURI
+  //       }
 
-        if (client.scope !== scope) {
-          // throw error
-        }
-        // Generate a new code
-        return Code(32).then((code) => {
-          return {
-            code,
-            state
-          }
-        })
+  //       if (client.scope !== scope) {
+  //         // throw error
+  //       }
+  //       // Generate a new code
+  //       return Code(32).then((code) => {
+  //         return {
+  //           code,
+  //           state
+  //         }
+  //       })
+  //     }
+  //   })
+  // }
+
+  authorization ({ state }) {
+    return Code(32).then((code) => {
+      return {
+        code,
+        state
       }
     })
   }
