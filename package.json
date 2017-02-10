@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": { 
+  "scripts": {
     "test": "PORT=3000 MONGO_URI=mongodb://localhost/koa-auth JWT_SECRET=shhhhhh APP_NAME=XD31W90F-openidconnect REDIS_URI=redis://localhost AMQP_URI=amqp://localhost mocha test/**/**.js --compilers babel-core/register --watch",
     "start": "nodemon server.js --exec babel-node",
     "build": "babel . -d dist",
@@ -22,10 +22,14 @@
     "jsonwebtoken": "^7.2.1",
     "koa": "^2.0.0",
     "koa-bodyparser": "^3.2.0",
+    "koa-compress": "^2.0.0",
+    "koa-convert": "^1.2.0",
+    "koa-csrf": "^3.0.4",
     "koa-ejs": "^3.0.0",
     "koa-logger": "^1.3.0",
     "koa-mount": "^1.3.0",
     "koa-router": "^7.0.1",
+    "koa-session": "^3.4.0",
     "koa-static": "^2.0.0",
     "mongoose": "^4.7.5",
     "primus": "^6.0.7",

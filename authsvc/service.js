@@ -3,6 +3,10 @@ const ErrorUserNotFound = new Error('User not Found')
 const ErrorIncorrectPassword = new Error('The password is incorrect')
 const ErrorInvalidEmail = new Error('The email format is incorrect')
 
+
+// Service should do one thing, and do it well
+// Don't mix different logic in one service (orchestration), that 
+// will be done in the endpoint level
 class AuthService  {
   constructor (props) {
     this.db = props.db

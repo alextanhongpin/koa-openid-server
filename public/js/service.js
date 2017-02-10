@@ -1,6 +1,6 @@
 const Service = {
   login (email, password) {
-    const request = fetch('/login', {
+    const request = fetch('/api/v1/auth/login', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -17,15 +17,15 @@ const Service = {
         return
       }
       return body.json()
-    }).catch((err) => {
-      if (err) {
-        window.alert(err)
+    }).catch((error) => {
+      if (error) {
+        window.alert(error)
       }
     })
     return response
   },
   register (email, password) {
-    const request = fetch('/register', {
+    const request = fetch('/api/v1/auth/register', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -42,9 +42,9 @@ const Service = {
         return
       }
       return body.json()
-    }).catch((err) => {
-      if (err) {
-        window.alert(err)
+    }).catch((error) => {
+      if (error) {
+        window.alert(error)
       }
     })
 
@@ -78,8 +78,8 @@ const Service = {
           } else {
             return body.json()
           }
-        }).catch((err) => {
-          reject(err)
+        }).catch((error) => {
+          reject(error)
         }).then((json) => {
           resolve(json)
         })
@@ -111,8 +111,8 @@ const Service = {
           } else {
             return body.json()
           }
-        }).catch((err) => {
-          reject(err)
+        }).catch((error) => {
+          reject(error)
         }).then((json) => {
           resolve(json)
         })
@@ -137,9 +137,9 @@ const Service = {
         return
       }
       return body.json()
-    }).catch((err) => {
-      if (err) {
-        window.alert(err)
+    }).catch((error) => {
+      if (error) {
+        window.alert(error)
       }
     })
 
@@ -168,8 +168,8 @@ const Service = {
       } else {
         return body.json()
       }
-    }).catch((err) => {
-      console.log(err)
+    }).catch((error) => {
+      console.log(error)
     })
     return response
   }

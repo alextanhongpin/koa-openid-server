@@ -1,0 +1,14 @@
+<script type="text/javascript">
+  
+  // Cache the access and refresh token
+  function storeTokens () {
+    window.localStorage.accessToken = '<%= access_token %>'
+    window.localStorage.refreshToken = '<%= refresh_token %>'
+  }
+
+  function redirect () {
+    window.location.href = '<%= redirect_url %>'
+  }
+
+  storeTokens()
+</script>

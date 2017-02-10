@@ -1,0 +1,19 @@
+<a href="/">Back to Home</a>
+
+<h1><%- title%></h1>
+
+
+<form method="post" action="/register">
+  <input type="hidden" name="_csrf" value="<%= csrf %>" />
+  <p><label>Email</label></p>
+  <p><input type="email" name="email" required autofocus></p>
+
+  <br>
+
+  <p><label>Password</label></p>
+  <p><input type="password" name="password" required></p>
+
+  <br>
+
+  <button id="submit">Submit</button>
+</form>
