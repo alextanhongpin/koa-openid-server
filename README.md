@@ -324,3 +324,10 @@ The model test should cover the following:
 + response
 + static methods input/output
 + build in methods input/output
+
+## Reference
+1. http://connect2id.com/products/server/docs/api/authorization
+2. https://docops.ca.com/ca-api-management-oauth-toolkit/3-6/en/openid-connect-implementation/open-id-connect-implementation-details
+3. https://auth0.com/docs/api-auth/tutorials/authorization-code-grant-pkce
+4. https://tools.ietf.org/html/rfc7636
+5. http://connect2id.com/products/server/docs/api/token-introspection

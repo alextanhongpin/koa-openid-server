@@ -1,16 +1,13 @@
-// http://connect2id.com/products/server/docs/api/authorization
 
-// https://docops.ca.com/ca-api-management-oauth-toolkit/3-6/en/openid-connect-implementation/open-id-connect-implementation-details
-// https://auth0.com/docs/api-auth/tutorials/authorization-code-grant-pkce
-// https://tools.ietf.org/html/rfc7636
 
 import jwt from '../modules/jwt.js'
 import Code from '../modules/code.js'
 
+// TODO: change oauth to openidconnect
 class OAuthService {
   constructor (props) {
+    // Not a good idea to integrated different data store here...
     this.redis = props.redis
-    this.db = props.db
   }
   // getAuthorize ({ response_type, scope, client_id, state, redirect_uri }) {
   //   return this.db.findOne({ client_id }).then((client) => {
@@ -109,7 +106,7 @@ class OAuthService {
   }
 
   introspect ({ token, token_type_hint }) {
-    // http://connect2id.com/products/server/docs/api/token-introspection
+
     return jwt.verify(token)
     .catch((err) => {
       if (err) {
@@ -159,33 +156,15 @@ class OAuthService {
     })
   }
   async refresh ({ user_id, user_agent }) {
-    const access_token = await jwt.sign({
+    return jwt.sign({
       user_id, user_agent
     })
-    return Promise.resolve(access_token)
   }
   // GET /.well-known/openid-configuration
-  configuration () {
-    const request = ctx.schema.configurationRequest(ctx.query)
-    const user = ctx.user.configuration(request)
-    const response = ctx.schema.configurationResponse(user)
-
-    ctx.status = 200
-    ctx.body = response
+  async configuration () {
+    // Do something
   }
 }
-// GET /login
-
-// Authorisation Code Grant
-// Implicit Grant
-
-// response_type: code for oauthcode flow
-// response_type: token id_token for implicit flow
-// scope: openid mandatory
-// [ nonce ] Opaque value, e.g. a random string, used to associate a client session with an ID Token, and to mitigate replay attacks. Use of this parameter is required in the implicit flow.
-
-// [ code_challenge ] The code challenge, computed from the code verifier using a transform.
-// [ code_challenge_method ] The code transform, defaults to plain if not specified. The supported methods are S256 (recommended) and plain.
 
 // Export a new auth service
 export default (options) => {

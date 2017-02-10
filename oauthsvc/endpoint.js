@@ -230,6 +230,15 @@ class Endpoint {
       throw error
     }
   }
+
+  async configuration (ctx, next) {
+    const request = ctx.schema.configurationRequest(ctx.query)
+    const user = ctx.user.configuration(request)
+    const response = ctx.schema.configurationResponse(user)
+
+    ctx.status = 200
+    ctx.body = response
+  }
 }
 
 

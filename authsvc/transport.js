@@ -5,10 +5,9 @@ import Service from './service.js'
 import Model from './model.js'
 
 import schema from './schema.js'
-// import broker from '../broker/create-device.js'
 import channel from '../common/amqp.js'
 import route from '../common/route.js'
-import ExternalService from './external.js'
+
 
 const router = new Router()
 const endpoint = Endpoint()
@@ -16,8 +15,6 @@ const endpoint = Endpoint()
 router.use(async(ctx, next) => {
   ctx.schema = schema
   ctx.channel = channel
-  // ctx.broker = broker
-  ctx.externalService = ExternalService()
   ctx.service = Service({ db: Model })
   await next()
 })

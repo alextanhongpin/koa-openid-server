@@ -16,6 +16,7 @@ import base64url from 'base64url'
 import db from '../common/database.js'
 
 // Constants
+// Pull configs from environment variables
 const JWT_SECRET = process.env.JWT_SECRET
 
 // Errors are grouped together to make it easier to find and modify
@@ -25,6 +26,9 @@ const ErrorInvalidEmail = '{VALUE} is not a valid email address'
 const ErrorInvalidPassword = 'Password must be at least 6 characters'
 const ErrorIncorrectPassword = new Error('Password provided is incorrect')
 
+const ErrorUserNotFound = new Error('User not found')
+const ErrorWrongPasswordAttempt = new Error('The email or password is incorrect')
+const ErrorUnknown = new Error('An error has occured')
 // TODO: handle incorrect password scenario for more than 3 times
 // Send email to notify that his/her password has been compromised
 
@@ -47,14 +51,6 @@ const UserSchema = new Schema({
     type: String,
     required: true,
     minLength: [6, ErrorInvalidPassword]
-  },
-  created_at: {
-    type: Date,
-    default: Date.now
-  },
-  modified_at: {
-    type: Date,
-    default: Date.now
   },
   role: {
     type: String,
@@ -131,6 +127,11 @@ const UserSchema = new Schema({
       type: String
     }
   }
+}, {
+  timestamps: {
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+  }
 })
 
 // profile OPTIONAL. This scope value requests access to the End-User's default profile Claims, which are: name, family_name, given_name, middle_name, nickname, preferred_username, profile, picture, website, gender, birthdate, zoneinfo, locale, and updated_at.
@@ -204,6 +205,19 @@ UserSchema.statics.validateAccessToken = (token) => {
       error ? reject(error) : resolve(decoded)
     })
   })
+}
+
+// All errors are best stored in the model
+const ErrorUserNotFound = new Error('User not Found')
+const ErrorIncorrectPassword = new Error('The password is incorrect')
+const ErrorInvalidEmail = new Error('The email format is incorrect')
+
+UserSchema.statics.errors = (error) => {
+  switch (error) {
+    case 'USER_NOT_FOUND': return ErrorUserNotFound
+    case 'WRONG_PASSWORD': return ErrorWrongPasswordAttempt
+    default: return ErrorUnknown
+  }
 }
 
 let User

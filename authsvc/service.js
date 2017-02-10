@@ -1,8 +1,4 @@
-
-const ErrorUserNotFound = new Error('User not Found')
-const ErrorIncorrectPassword = new Error('The password is incorrect')
-const ErrorInvalidEmail = new Error('The email format is incorrect')
-
+import request from 'request'
 
 // Service should do one thing, and do it well
 // Don't mix different logic in one service (orchestration), that 
@@ -13,10 +9,10 @@ class AuthService  {
   }
   async login ({email, password}) {
     const user = await this.db.findOne({ email })
-    if (!user) throw ErrorUserNotFound
+    if (!user) throw this.db.errors('USER_NOT_FOUND')
 
     const isSamePassword = await user.comparePassword(password)
-    if (!isSamePassword) throw ErrorIncorrectPassword
+    if (!isSamePassword) this.db.errors('WRONG_PASSWORD')
 
     return user.toJSON()
   }
@@ -36,6 +32,29 @@ class AuthService  {
   }
   logout () {
     // TODO: Clears the user's token/device from the database
+  }
+  // External services are prefixed with `external`
+  externalCreateDevice ({ user_id, user_agent }) {
+    return new Promise((resolve, reject) => {
+      request({
+        method: 'POST',
+        url: 'http://localhost:3100/api/v1/devices',
+        headers: {
+          // 'Authorization': '',
+          'User-Agent': user_agent,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id
+        })
+      }, (error, response, body) => {
+        if (!error && response.statusCode === 200) {
+          resolve(JSON.parse(body))
+        } else {
+          reject(error)
+        }
+      })
+    })
   }
 }
 
