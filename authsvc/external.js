@@ -25,8 +25,8 @@ class ExternalService {
           body: JSON.stringify({
             user_id
           })
-        }, (error, httpResponse, body) => {
-          if (!error && httpResponse.statusCode === 200) {
+        }, (error, response, body) => {
+          if (!error && response.statusCode === 200) {
             resolve(JSON.parse(body))
           } else {
             reject(error)

@@ -20,7 +20,7 @@ route.use(async(ctx, next) => {
 })
 
 // View endpoints
-route.get('/register/clients', endpoint.postClientView)
+route.get('/clients/register', endpoint.postClientView)
 route.get('/clients', endpoint.getClientsView)
 route.get('/clients/:id', endpoint.getClientView)
 route.get('/clients/:id/edit', endpoint.getClientUpdateView)
@@ -28,9 +28,13 @@ route.get('/clients/:id/edit', endpoint.getClientUpdateView)
 // Note that the versioning is independent from other services
 // This makes it easier to increase the versioning without affecting
 // other services
-route.get('/api/v1/clients', endpoint.all)
-route.get('/api/v1/clients/:id', endpoint.one)
-route.patch('/api/v1/clients/:id', endpoint.update)
-route.post('/api/v1/clients', endpoint.create)
+route
+.get('/api/v1/clients', endpoint.all)
+.post('/api/v1/clients', endpoint.create)
+
+route
+.get('/api/v1/clients/:id', endpoint.one)
+.patch('/api/v1/clients/:id', endpoint.update)
+
 
 export default route

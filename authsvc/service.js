@@ -13,16 +13,12 @@ class AuthService  {
   }
   async login ({email, password}) {
     const user = await this.db.findOne({ email })
-    if (!user) {
-      throw ErrorUserNotFound
-    } else {
-      const isSamePassword = await user.comparePassword(password)
-      if (!isSamePassword) {
-        throw ErrorIncorrectPassword
-      } else {
-        return user.toJSON()
-      }
-    }
+    if (!user) throw ErrorUserNotFound
+
+    const isSamePassword = await user.comparePassword(password)
+    if (!isSamePassword) throw ErrorIncorrectPassword
+
+    return user.toJSON()
   }
   async register ({email, password}) {
 
