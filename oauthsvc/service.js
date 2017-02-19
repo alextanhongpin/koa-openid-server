@@ -220,6 +220,26 @@ class OAuthService {
       })
     })
   }
+
+  callUpdateDevice ({ id, data }) {
+    return new Promise((resolve, reject) => {
+      request({
+        method: 'POST',
+        url: `http://localhost:3100/api/v1/devices/${id}`,
+        headers: {
+          // 'Authorization': '',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      }, (error, response, body) => {
+        if (!error && response.statusCode === 200) {
+          resolve(JSON.parse(body))
+        } else {
+          reject(error)
+        }
+      })
+    })
+  }
 }
 
 // Export a new auth service
