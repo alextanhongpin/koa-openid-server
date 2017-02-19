@@ -1,9 +1,9 @@
 import request from 'request'
 
 // Service should do one thing, and do it well
-// Don't mix different logic in one service (orchestration), that 
+// Don't mix different logic in one service (orchestration), that
 // will be done in the endpoint level
-class AuthService  {
+class AuthService {
   constructor (props) {
     this.db = props.db
   }
@@ -17,7 +17,6 @@ class AuthService  {
     return user.toJSON()
   }
   async register ({email, password}) {
-
     const User = this.db
     const user = await User.findOne({ email })
     if (user) {
@@ -34,7 +33,7 @@ class AuthService  {
     // TODO: Clears the user's token/device from the database
   }
   // External services are prefixed with `external`
-  externalCreateDevice ({ user_id, user_agent }) {
+  callCreateDevice ({ user_id, user_agent }) {
     return new Promise((resolve, reject) => {
       request({
         method: 'POST',

@@ -17,10 +17,10 @@ import redis from 'redis'
 import co from 'co'
 import _ from './common/database.js'
 
-import oauthsvc from './oauthsvc/transport.js'
+// import oauthsvc from './oauthsvc/transport.js'
 import authsvc from './authsvc/transport.js'
 import devicesvc from './devicesvc/transport.js'
-// import clientsvc from './clientsvc/transport.js'
+import clientsvc from './clientsvc/transport.js'
 import client from './client/transport.js'
 
 import errors from './modules/errors.js'
@@ -29,7 +29,7 @@ const PORT = process.env.PORT
 const app = new Koa()
 
 app.keys = ['dbbc0cae-c0d0-422d-9a72-0b8e09d4fd55', '7b463fab-d854-4657-836b-31ff366a5c34']
-app.use(convert(session()))
+app.use(session(app))
 
 app.use(ratelimit({
   db: redis.createClient(),
@@ -54,24 +54,16 @@ app.use(compress({
   flush: require('zlib').Z_SYNC_FLUSH
 }))
 
-app.use(new CSRF({
-  invalidSessionSecretMessage: 'Invalid session secret',
-  invalidSessionSecretStatusCode: 403,
-  invalidTokenMessage: 'Invalid CSRF token',
-  invalidTokenStatusCode: 403,
-  excludedMethods: [ 'GET', 'HEAD', 'OPTIONS' ],
-  disableQuery: false
-}))
-
-app.use((ctx, next) => {
-  if (![ 'GET', 'POST' ].includes(ctx.method))
-    return next()
-  if (ctx.method === 'GET') {
-    ctx.body = ctx.csrf
-    return
-  }
-  ctx.body = 'OK'
-})
+// app.use((ctx, next) => {
+//   if (![ 'GET', 'POST' ].includes(ctx.method)) {
+//     return next()
+//   }
+//   if (ctx.method === 'GET') {
+//     ctx.body = ctx.csrf
+//     return
+//   }
+//   ctx.body = 'OK'
+// })
 
 render(app, {
   root: path.join(__dirname, 'view'),
@@ -94,8 +86,8 @@ app
 .use(devicesvc.allowedMethods())
 .use(client.routes())
 .use(client.allowedMethods())
-// .use(clientsvc.routes())
-// .use(clientsvc.allowedMethods())
+.use(clientsvc.routes())
+.use(clientsvc.allowedMethods())
 // .use(oauthsvc.routes())
 // .use(oauthsvc.allowedMethods())
 

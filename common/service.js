@@ -7,18 +7,18 @@ export default class ServiceInterface {
   create (props) {
     return this.db.create(props)
   }
-  all ({query={}, skip=0, limit=10}) {
+  all ({query = {}, skip = 0, limit = 10}) {
     return this.db.find(query)
     .skip(skip)
     .limit(limit)
   }
-  one ({ _id }) {
+  one ({ id: _id }) {
     return this.db.findOne({ _id })
   }
-  delete ({ _id }) {
+  delete ({ id: _id }) {
     return this.db.remove({ _id })
   }
-  update ({ _id, params }) {
+  update ({ id: _id, params }) {
     return this.db.update({ _id }, {
       $set: params
     }, {})

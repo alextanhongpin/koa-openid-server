@@ -3,7 +3,7 @@ class Endpoint {
   // Implement JSON api
   // Add pagination, meta
   async all (ctx, next) {
-    const request = {}
+    const request = ctx.schema.getDevicesRequest({})
     const devices = await ctx.service.all(request)
     const response = devices
 
@@ -11,10 +11,10 @@ class Endpoint {
     ctx.body = response
   }
   async one (ctx, next) {
-    const request = {}
-    const device = await ctx.service.one({ _id: ctx.params.id })
+    const request = ctx.schema.getDeviceRequest({ id: ctx.params.id })
+    const device = await ctx.service.one(request)
     const response = device
-    
+
     ctx.status = 200
     ctx.body = device
   }
@@ -30,7 +30,7 @@ class Endpoint {
     ctx.body = response
   }
   async healthCheck (ctx, next) {
-    ctx.status = 200 
+    ctx.status = 200
     ctx.body = {
       ok: true
     }

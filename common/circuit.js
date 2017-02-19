@@ -8,6 +8,6 @@ const CIRCUIT_BREAKER_OPTIONS = {
   resetTimeout: 30000
 }
 
-export default (service, options, params) => {
+export default (service, params, options = CIRCUIT_BREAKER_OPTIONS) => {
   return circuitBreaker(service, options).fire(params)
 }

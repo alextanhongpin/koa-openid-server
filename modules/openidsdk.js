@@ -2,37 +2,52 @@ import request from 'request'
 import base64 from './base64.js'
 import qs from 'querystring'
 
-class OpenIdSDK {
-  constructor (props) {
-    this._clientId = props.clientId
-    this._clientSecret = props.clientSecret
-    this._scope = props.scope
-    this._redirectURI = props.redirectURI
-    this._introspectEndpoint = props.introspectEndpoint
-    this._authorizeEndpoint = props.authorizeEndpoint
-    this._tokenEndpoint = props.tokenEndpoint
-    this._refreshTokenEndpoint = props.refreshTokenEndpoint
-    this._refreshTokenCallback = props.refreshTokenCallback
+// import OpenIdSDK from '../modules/openidsdk.js'
+
+// The SDK is used on the client side to make requests to the openid endpoints
+// var SDK = {
+//   clientID: 'jHS3sWTkO4u3sIAMWcj_0smNhndmmKrRZHfmt00D0Mg',
+//   clientSecret: 'jHS3sWTkO4u3sIAMWcj_0smNhndmmKrRZHfmt00D0Mg-kAavdMCWhLnvLXok',
+//   scope: ['openid', 'email'],
+//   redirectURL: 'http://localhost:3100/client-authorize/callback',
+//   authURL: 'http://localhost:3100/authorize',
+//   tokenURL: 'http://localhost:3100/token',
+//   requestURL: 'http://localhost:3100/token/refresh',
+//   introspectURL: 'http://localhost:3100/token/introspect',
+//   code: ''
+// }
+
+class SDK {
+  constructor ({ clientID, clientSecret, scope, redirectURL, authURL, tokenURL, requestURL, introspectURL, code}) {
+    this.clientID = clientID
+    this.clientSecret = clientSecret
+    this.scope = scope
+    this.redirectURL = redirectURL
+    this.authURL = authURL
+    this.tokenURL = tokenURL
+    this.requestURL = requestURL
+    this.introspectURL = introspectURL
+    this.code = code
 
     this.AUTHORIZATION_CODE = 'authorization_code'
   }
-  // Introspect a token's status to see if it's valid
-  introspect ({ token, token_type_hint }) {
+
+  introspect ({ token, token_type_hint = 'access_token' }) {
     return new Promise((resolve, reject) => {
       request(this._introspectEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${base64.encode([this._clientId, this._clientSecret].join(':'))}`
+          'Authorization': `Basic ${base64.encode([this.clientID, this.clientSecret].join(':'))}`
         },
         form: {
           token_type_hint,
           token
         }
-      }, (err, res, body) => {
-        if (err) {
-          reject(err)
-        } else if (res.statusCode === 400) {
+      }, (error, response, body) => {
+        if (error) {
+          reject(error)
+        } else if (response.statusCode === 400) {
           reject(JSON.parse(body))
         } else {
           resolve(JSON.parse(body))
@@ -40,25 +55,26 @@ class OpenIdSDK {
       })
     })
   }
-  // Issue a new access token based on the refresh token
-  refresh ({ grant_type='refresh_token', refresh_token, scope, redirect_uri }) {
+
+    // Issue a new access token based on the refresh token
+  refresh ({ grant_type = 'refresh_token', refresh_token }) {
     return new Promise((resolve, reject) => {
-      request(this._refreshTokenEndpoint, {
+      request(this.requestURL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${base64.encode([this._clientId, this._clientSecret].join(':'))}`
+          'Authorization': `Basic ${base64.encode([this.clientID, this.clientSecret].join(':'))}`
         },
         form: {
           grant_type,
           refresh_token,
-          scope,
-          redirect_uri
+          scope: this.scope,
+          redirect_uri: this.redirectURL
         }
-      }, (err, res, body) => {
-        if (err) {
-          reject(err)
-        } else if (res.statusCode === 400) {
+      }, (error, response, body) => {
+        if (error) {
+          reject(error)
+        } else if (response.statusCode === 400) {
           reject(JSON.parse(body))
         } else {
           resolve(JSON.parse(body))
@@ -67,15 +83,13 @@ class OpenIdSDK {
     })
   }
   authorize () {
-    const baseUri = this._authorizeEndpoint
+    const baseUri = this.authURL
     const query = qs.stringify({
       response_type: ['code'],
-      scope: this._scope,
-      client_id: this._clientId,
-      redirect_uri: this._redirectURI
+      scope: this.scope,
+      client_id: this.clientID,
+      redirect_uri: this.redirectURL
     })
-    console.log('baseUri', baseUri)
-    console.log('query', query)
     return Promise.resolve({
       authorize_uri: `${baseUri}?${query}`
     })
@@ -83,27 +97,26 @@ class OpenIdSDK {
   // Module specific for Koa
   authorizeCallback ({ code }) {
     return new Promise((resolve, reject) => {
-      request(this._tokenEndpoint, {
+      request(this.tokenURL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${base64.encode([this._clientId, this._clientSecret].join(':'))}`
+          'Authorization': `Basic ${base64.encode([this.clientID, this.clientSecret].join(':'))}`
         },
         form: {
           code,
           grant_type: this.AUTHORIZATION_CODE
         }
-      }, (err, res, body) => {
-        console.log(err, body)
-        if (err) {
-          reject(err)
-        } else if (res.statusCode === 400) {
+      }, (error, response, body) => {
+        if (error) {
+          reject(error)
+        } else if (response.statusCode === 400) {
           reject(JSON.parse(body))
         } else {
           try {
             const res = JSON.parse(body)
             resolve(res)
-          } catch (err) {
+          } catch (error) {
             reject(body)
           }
         }

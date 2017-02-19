@@ -52,7 +52,7 @@ const Service = {
   },
   // Description: Calls the authenticate api when the page loads
   // to check if the user is authenticated or not
-  // 
+  //
   //    const accessToken = window.localStorage.accessToken
   //    const refreshToken = window.localStorage.refreshToken
   authenticate (accessToken, refreshToken) {

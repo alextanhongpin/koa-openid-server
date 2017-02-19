@@ -5,33 +5,29 @@ import Service from './service.js'
 import Model from './model.js'
 
 import schema from './schema.js'
-import channel from '../common/amqp.js'
-import route from '../common/route.js'
-
 
 const router = new Router()
 const endpoint = Endpoint()
 
 router.use(async(ctx, next) => {
   ctx.schema = schema
-  ctx.channel = channel
   ctx.service = Service({ db: Model })
   await next()
 })
 
 // Internal API
 router
-.get(route.LOGIN, endpoint.loginView)
-.post(route.LOGIN, endpoint.login)
-.get(route.LOGIN_CALLBACK, endpoint.loginCallback)
+.get('/login', endpoint.loginView)
+.post('/login', endpoint.login)
+.get('/login/callback', endpoint.loginCallback)
 
 router
-.get(route.REGISTER, endpoint.registerView)
-.post(route.REGISTER, endpoint.register)
-.get(route.REGISTER_CALLBACK, endpoint.registerCallback)
+.get('/register', endpoint.registerView)
+.post('/register', endpoint.register)
+.get('/register/callback', endpoint.registerCallback)
 
 // External API
-router.post(route.LOGIN_API, endpoint.loginApi)
-router.post(route.REGISTER_API, endpoint.registerApi)
+router.post('/api/v1/auth/login', endpoint.loginApi)
+router.post('/api/v1/auth/register', endpoint.registerApi)
 
 export default router

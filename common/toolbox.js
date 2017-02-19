@@ -8,7 +8,7 @@ import Ajv from 'ajv'
 //   ]
 // })
 class Parser {
-  constructor(props) { 
+  constructor (props) {
     this.ajv = Ajv(props)
   }
   parse (schema) {
@@ -17,6 +17,7 @@ class Parser {
       const isValid = validator(params)
       if (!isValid) {
         const error = new Error('Invalid Schema')
+        console.log(validator.errors)
         error.description = validator.errors[0].message
         throw error
       }
@@ -24,7 +25,6 @@ class Parser {
     }
   }
 }
-
 
 export default (options) => {
   return new Parser(options)

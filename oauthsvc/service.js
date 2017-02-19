@@ -1,5 +1,4 @@
 
-
 import jwt from '../modules/jwt.js'
 import Code from '../modules/code.js'
 
@@ -106,7 +105,6 @@ class OAuthService {
   }
 
   introspect ({ token, token_type_hint }) {
-
     return jwt.verify(token)
     .catch((err) => {
       if (err) {
@@ -163,6 +161,64 @@ class OAuthService {
   // GET /.well-known/openid-configuration
   async configuration () {
     // Do something
+  }
+
+  // When firing external services, add `call` in front of the method name
+  callClient ({ id }) {
+    return new Promise((resolve, reject) => {
+      request({
+        method: 'GET',
+        url: `http://localhost:3100/api/v1/clients/${id}`,
+        headers: {
+          // 'Authorization': '',
+          'Content-Type': 'application/json'
+        }
+      }, (error, response, body) => {
+        if (!error && response.statusCode === 200) {
+          resolve(JSON.parse(body))
+        } else {
+          reject(error)
+        }
+      })
+    })
+  }
+
+  callClients ({ client_id, client_secret }) {
+    return new Promise((resolve, reject) => {
+      request({
+        method: 'GET',
+        url: `http://localhost:3100/api/v1/clients?client_id=${client_id}&client_secret=${client_secret}`,
+        headers: {
+          // 'Authorization': '',
+          'Content-Type': 'application/json'
+        }
+      }, (error, response, body) => {
+        if (!error && response.statusCode === 200) {
+          resolve(JSON.parse(body))
+        } else {
+          reject(error)
+        }
+      })
+    })
+  }
+
+  callDevice ({ refresh_token }) {
+    return new Promise((resolve, reject) => {
+      request({
+        method: 'GET',
+        url: `http://localhost:3100/api/v1/devices?refresh_token=${refresh_token}`,
+        headers: {
+          // 'Authorization': '',
+          'Content-Type': 'application/json'
+        }
+      }, (error, response, body) => {
+        if (!error && response.statusCode === 200) {
+          resolve(JSON.parse(body))
+        } else {
+          reject(error)
+        }
+      })
+    })
   }
 }
 

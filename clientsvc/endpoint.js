@@ -1,17 +1,13 @@
 // Endpoints
 // Create an empty schema that allows everything to pass through
-class Endpoint {
-  async postClientView (ctx, next) {
-    await ctx.render('client-register', {
-      title: 'Client Registration'
-    })
-  }
 
+class Endpoint {
   // GET /clients
-  async getClientsView (ctx, next)  {
+  // Description: Returns a view displaying all clients
+  async allView (ctx, next) {
     try {
-      const request = {}
-      const clients = await ctx.service.getClients(request)
+      const request = ctx.schema.getClientsRequest({})
+      const clients = await ctx.service.all(request)
       const response = clients
 
       await ctx.render('clients', {
@@ -19,21 +15,23 @@ class Endpoint {
         clients: response,
         error: null
       })
-    } catch (err) {
+    } catch (error) {
       await ctx.render('clients', {
         title: 'Clients',
+        clients: null,
         error: 'The client does not exist or have been deleted'
       })
     }
   }
 
   // GET /clients/:id
-  async getClientView (ctx, next) {
+  // Description: Returns a view displaying a specific client
+  async oneView (ctx, next) {
     try {
-      const request = {
-        _id: ctx.params.id
-      }
-      const client = await ctx.service.getClientById(request)
+      const request = ctx.schema.getClientRequest({
+        id: ctx.params.id
+      })
+      const client = await ctx.service.one(request)
       const response = client
 
       await ctx.render('client', {
@@ -41,53 +39,58 @@ class Endpoint {
         client: response,
         error: null
       })
-    } catch (err) {
+    } catch (error) {
       await ctx.render('client', {
         title: 'Client',
         error: 'The client does not exist or have been deleted'
       })
     }
   }
-  async getClientUpdateView (ctx, next) {
+
+  // GET /clients/edit
+  // Description: Returns an edit form for client
+  async createView (ctx, next) {
+    await ctx.render('client-register', {
+      title: 'Client Registration'
+    })
+  }
+
+  // GET /clients/edit
+  // Description: Return a view displaying the edit client form
+  async updateView (ctx, next) {
     try {
-      const request = {
-        _id: ctx.params.id
-      }
-      const client = await ctx.service.getClientById(request)
-      const response = schema.getClientResponse(client)
+      const request = ctx.schema.getClientRequest({
+        id: ctx.params.id
+      })
+      const client = await ctx.service.one(request)
+      // const response = schema.getClientResponse(client)
 
       await ctx.render('client-edit', {
         title: 'Client Edit',
-        client,
+        client: client,
         error: null
       })
-    } catch (err) {
+    } catch (error) {
       await ctx.render('client', {
         title: 'Client',
         error: 'The client does not exist or have been deleted'
       })
     }
   }
-  // GET /clients
+
+  // GET /api/v1/clients
   // Description: Returns a list of clients
   async all (ctx, next) {
-    // NOTE:
-    // try-catch is redundant here since the global error
-    // handler will capture the error
-    // only use try-catch if you want to throw custom response
-    // errors (like redirection)
-    // try {
-    const request = getClientsRequest(ctx.query)
+    const request = ctx.schema.getClientsRequest(ctx.query)
     const clients = await ctx.service.all(request)
-    const response = getClientsResponse(clients)
+    // const response = getClientsResponse(clients)
     ctx.status = 200
-    ctx.body = response
+    ctx.body = clients
   }
 
   // GET /clients/:id
-  // Description: Return a client by id
+  // Description: Returns a client by id
   async one (ctx, next) {
-
     const request = schema.getClientRequest({
       _id: ctx.params.id
     })
@@ -97,13 +100,13 @@ class Endpoint {
     // this.set('Pragma', 'no-cache')
     ctx.status = 200
     ctx.body = response
-
   }
+
   // POST /clients
   // Description: Create a new client
   async create (ctx, next) {
     try {
-      const request =  ctx.schema.postClientRequest({
+      const request = ctx.schema.postClientRequest({
         contacts: ctx.request.body.contacts,
         client_name: ctx.request.body.clientName,
         client_uri: ctx.request.body.clientURI,
@@ -116,22 +119,21 @@ class Endpoint {
       // NOTE: the client object returned is not pure JSON, causing
       // error for AJV to parse
       const response = ctx.schema.postClientResponse(JSON.parse(JSON.stringify(client)))
-      
 
       ctx.status = 200
       ctx.body = response
-    } catch (err) {
-      if (err.name === 'ValidationError') {
+    } catch (error) {
+      if (error.name === 'ValidationError') {
         // Handle Mongoose Schema errors
         ctx.status = 400
-        ctx.message = err.message
-      } else if (err.name === 'Invalid Request') {
+        ctx.message = error.message
+      } else if (error.name === 'Invalid Request') {
         // Handle AJV errors
         ctx.status = 400
-        ctx.message = err.description
+        ctx.message = error.description
       } else {
         // Handle other errors
-        throw err
+        throw error
       }
     }
   }
@@ -154,13 +156,13 @@ class Endpoint {
 
       ctx.status = 200
       ctx.body = client
-    } catch (err) {
-      if (err.name === 'ValidationError') {
+    } catch (error) {
+      if (error.name === 'ValidationError') {
         ctx.status = 400
-        ctx.message = err.message
+        ctx.message = error.message
       } else {
         // Handle other errors
-        throw err
+        throw error
       }
     }
   }

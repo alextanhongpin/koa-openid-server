@@ -4,12 +4,12 @@
   "title": "Get client request",
   "type": "object",
   "additionalProperties": false,
-  "required": [ "_id" ],
+  "required": [ "id" ],
   "properties": {
-    "_id": {
-    	"type": "string",
+    "id": {
+      "type": "string",
       "minLength": 1,
       "description": "Cannot be an empty string"
-	  }
+    }
   }
 }

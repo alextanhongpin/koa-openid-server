@@ -1,19 +1,24 @@
+/*
+ * client/transport.js
+ *
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ *
+ * Created by Alex Tan Hong Pin 19/2/2017
+ * Copyright (c) 2017 alextanhongpin. All rights reserved.
+**/
 
 import Router from 'koa-router'
 import Endpoint from './endpoint.js'
+
 const endpoint = Endpoint()
 const route = new Router()
-// View endpoints
+
 route.get('/', endpoint.home)
 route.get('/profile', endpoint.profile)
-route.get('login', '/login', endpoint.login)
-route.get('register', '/register', endpoint.register)
-
-
 
 // The routes that the client will integrate
-// route.post('/client-introspect', Endpoint.postClientIntrospect)
-// route.post('/client-refresh', Endpoint.postClientRefreshToken)
-// route.get('/client-authorize', Endpoint.getClientAuthorize)
-// route.get('/client-authorize/callback', Endpoint.getClientAuthorizeCallback)
+
+route.get('/external/authorize', Endpoint.clientAuthorize)
+route.get('/external/authorize/callback', Endpoint.clientAuthorizeCallback)
 export default route

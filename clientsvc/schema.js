@@ -6,6 +6,7 @@ const parser = Toolbox({
   removeAdditional: true,
   // coerceTypes: true,
   schemas: [
+    require('./schema/get-clients-request.json'),
     require('./schema/get-client-request.json'),
     require('./schema/get-client-response.json'),
     require('./schema/update-client-request.json'),
@@ -16,9 +17,10 @@ const parser = Toolbox({
 })
 
 export default {
+  getClientsRequest: parser.parse('http://localhost:3000/schemas/get-clients-request.json#'),
+  getClientRequest: parser.parse('http://localhost:3000/schemas/get-client-request.json#'),
+  getClientResponse: parser.parse('http://localhost:3000/schemas/get-client-response.json#'),
   updateClientRequest: parser.parse('http://localhost:3000/schemas/update-client-request.json#'),
   postClientRequest: parser.parse('http://localhost:3000/schemas/post-client-request.json#'),
-  postClientResponse: parser.parse('http://localhost:3000/schemas/post-client-response.json#'),
-  getClientRequest: parser.parse('http://localhost:3000/schemas/get-client-request.json#'),
-  getClientResponse: parser.parse('http://localhost:3000/schemas/get-client-response.json#')
+  postClientResponse: parser.parse('http://localhost:3000/schemas/post-client-response.json#')
 }

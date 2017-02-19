@@ -3,49 +3,45 @@ import qs from 'querystring'
 import redis from '../common/redis.js'
 import jwt from '../modules/jwt'
 import base64 from '../modules/base64.js'
-import OpenIdSDK from '../modules/openidsdk.js'
 
-// The SDK is used on the client side to make requests to the openid endpoints
-const openIdSDK = OpenIdSDK({
-  authorizeEndpoint: 'http://localhost:3100/authorize',
-  redirectURI: 'http://localhost:3100/client-authorize/callback',
-  clientId: 'jHS3sWTkO4u3sIAMWcj_0smNhndmmKrRZHfmt00D0Mg',
-  clientSecret: 'jHS3sWTkO4u3sIAMWcj_0smNhndmmKrRZHfmt00D0Mg-kAavdMCWhLnvLXok',
-  scope: ['openid', 'email'],
-  introspectEndpoint: 'http://localhost:3100/token/introspect',
-  refreshTokenEndpoint: 'http://localhost:3100/token/refresh',
-  tokenEndpoint: 'http://localhost:3100/token'
-})
-
-const ErrorInvalidContentType = new Error('Invalid Content Type: Content-Type must be application/json')
+const ErrorInvalidContentType = new Error('Invalid Content-Type: Content-Type must be application/json')
 const ErrorBasicAuthorizationMissing = new Error('Invalid Request: Basic authorization header is required')
 const ErrorForbiddenAccess = new Error('Forbidden Access: Client does not have permission to access this service')
+const ErrorInvalidRedirectURL = new Error('Error: Invalid redirect url')
+const ErrorClientDoNotExist = new Error('Error: Client does not exist')
+const ErrorInvalidScope = new Error('Bad Request: Invalid scope')
 
 class Endpoint {
   async getAuthorize (ctx, next) {
     try {
       const request = ctx.schema.authorizeRequest(ctx.query)
-      const client = await ctx.externalService.getOneClient({ client_id: request.client_id })
+      const client = await ctx.service.callClient({ client_id: request.client_id })
 
       if (!client) {
-        const errorClientDoNotExist = new Error('Forbidden')
-        errorClientDoNotExist.description = 'The client is not found or have been deleted'
-        errorClientDoNotExist.redirect_uri = request.redirect_uri
-        throw errorClientDoNotExist
+        const error = ErrorClientDoNotExist
+        error.description = 'The client is not found or have been deleted'
+        error.redirect_uri = request.redirect_uri
+        throw error
       }
 
       const uriSet = new Set(client.redirect_uris)
       if (!uriSet.has(request.redirect_uri)) {
-        const errorInvalidRedirectURI = new Error('Invalid Request')
-        errorInvalidRedirectURI.description = 'The redirect uri provided does not match the client redirect uri'
-        errorInvalidRedirectURI.redirect_uri = request.redirect_uri
-        throw errorInvalidRedirectURI
+        const error = ErrorInvalidRedirectURL
+        error.description = 'The redirect uri provided does not match the client redirect uri'
+        error.redirect_uri = request.redirect_uri
+        throw error
       }
-      if (client.scope !== scope) {
-        // Do checking for the scopes
-      }
-      // Authorize response
 
+      request.scope.forEach((scope) => {
+        if (!client.scope.contains(scope)) {
+          const error = ErrorInvalidScope
+          error.description = `The scope ${scope} is not allowed`
+          error.redirect_uri = request.redirect_uri
+          throw error
+        }
+      })
+
+      // Authorize response
       await ctx.render('consent', {
         title: 'Consent',
         client: client,
@@ -62,27 +58,32 @@ class Endpoint {
   }
   async postAuthorize (ctx, next) {
     const request = ctx.schema.authorizeRequest(ctx.request.body)
-    
-    const client = await ctx.externalService.getOneClient({ client_id: request.client_id })
+
+    const client = await ctx.externalService.callClient({ client_id: request.client_id })
 
     if (!client) {
-      // Client does not exist error
-      const errorClientDoNotExist = new Error('Forbidden')
-      errorClientDoNotExist.description = 'The client is not found or have been deleted'
-      errorClientDoNotExist.redirect_uri = request.redirect_uri
-      throw errorClientDoNotExist
+      const error = ErrorClientDoNotExist
+      error.description = 'The client is not found or have been deleted'
+      error.redirect_uri = request.redirect_uri
+      throw error
     }
+
     const uriSet = new Set(client.redirect_uris)
     if (!uriSet.has(request.redirect_uri)) {
-      const errorInvalidRedirectURI = new Error('Invalid Request')
-      errorInvalidRedirectURI.description = 'The redirect uri provided does not match the client redirect uri'
-      errorInvalidRedirectURI.redirect_uri = request.redirect_uri
-      throw errorInvalidRedirectURI
+      const error = ErrorInvalidRedirectURL
+      error.description = 'The redirect uri provided does not match the client redirect uri'
+      error.redirect_uri = request.redirect_uri
+      throw error
     }
 
-    if (client.scope !== scope) {
-
-    }
+    request.scope.forEach((scope) => {
+      if (!client.scope.contains(scope)) {
+        const error = ErrorInvalidScope
+        error.description = `The scope ${scope} is not allowed`
+        error.redirect_uri = request.redirect_uri
+        throw error
+      }
+    })
 
     const output = await ctx.service.authorization(request)
     const response = ctx.schema.authorizeResponse(output)
@@ -98,7 +99,7 @@ class Endpoint {
       redirect_uri: `${request.redirect_uri}?${qs.stringify(response)}`
     }
   }
-  async introspect(ctx, next) {
+  async introspect (ctx, next) {
     // Business-rule-validation
     if (!ctx.is('application/x-www-form-urlencoded')) {
       ctx.throw('Bad Request', 400, {
@@ -144,7 +145,7 @@ class Endpoint {
     ctx.set('Pragma', 'no-cache')
   }
 
-  async token(ctx, next) {
+  async token (ctx, next) {
     const request = ctx.schema.tokenRequest(ctx.request.body)
     const output = await ctx.service.token(request)
     const response = ctx.schema.tokenResponse(output)
@@ -154,9 +155,9 @@ class Endpoint {
   }
 
   // The UserInfo Endpoint MUST support the use of the HTTP GET and HTTP POST methods defined in RFC 2616 [RFC2616].
-  async userinfo(ctx, next) {}
+  async userinfo (ctx, next) {}
 
-  async refresh(ctx, next) {
+  async refresh (ctx, next) {
     // Business-rule-validation
     if (!ctx.is('application/x-www-form-urlencoded')) {
       ctx.throw('Bad Request', 400, {
@@ -185,11 +186,12 @@ class Endpoint {
       redirect_uri: ctx.request.body.redirect_uri
     })
     // Fire external service
-    // const client = await this.service.getClient({ clientId, clientSecret })
-    // if (!client) {
-    //   throw new Error('Forbidden Access: Client does not have permission to access this service')
-    // }
-    const device = await ctx.externalService.deviceByRefreshToken({
+    const client = await this.service.callClients({ client_id: clientId, client_secret: clientSecret })
+    if (!client) {
+      throw new Error('Forbidden Access: Client does not have permission to access this service')
+    }
+
+    const device = await ctx.service.callDeviceByRefreshToken({
       refresh_token
     })
     if (device) {
@@ -203,7 +205,7 @@ class Endpoint {
         // Create new access token
         const accessToken = await ctx.service.refresh(device)
 
-        const output = await ctx.externalService.updateDevice({
+        const output = await ctx.service.callUpdateDevice({
           _id: device._id,
           params: {
             access_token: accessToken
@@ -241,7 +243,6 @@ class Endpoint {
   }
 }
 
-
 const checkUser = async (ctx, next) => {
   const authorizationHeader = ctx.headers.authorization
   const [ authType, authToken ] = authorizationHeader.split(' ')
@@ -264,7 +265,6 @@ const checkUser = async (ctx, next) => {
     const value = `authcode:user:${ctx.state.response.code}`
     redis.set(value, ctx.state.user_id)
     redis.expire(value, FIVE_MINUTES)
-
   } catch (err) {
     const error = qs.stringify({
       error: err.name,
@@ -279,7 +279,6 @@ const checkUser = async (ctx, next) => {
     }
   }
 }
-
 
 // export default {
 //   introspect,

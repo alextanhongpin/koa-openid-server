@@ -16,28 +16,19 @@ class Endpoint {
     // If true: continue
     // Else: redirect to error page
     // Bonus points if you return the HTTP 429 status code with the standard Retry-After header on rejected requests ;)
-    try {
       // Parse the request
-      const request = ctx.schema.loginRequest(ctx.request.body)
-      const user = await ctx.service.login(request)
-      user.id = user._id.toString()
-      const response = ctx.schema.loginResponse(user)
+    const request = ctx.schema.loginRequest(ctx.request.body)
+    const user = await ctx.service.login(request)
+    user.id = user._id.toString()
 
-      const device = circuitBreaker(ctx.service.externalCreateDevice, CIRCUIT_BREAKER_OPTIONS, {
-        user_id: user.id,
-        user_agent: ctx.state.userAgent.source
-      })
+    const response = ctx.schema.loginResponse(user)
 
-      ctx.body = device
-      ctx.status = 200
-    } catch (error) {
-      // Trace Wrong Password attempt and add to redis
-      // Wrong 3 times, pause 15 minutes
-      ctx.status = 400
-      ctx.body = {
-        error: error.message
-      }
-    }
+    const device = await circuitBreaker(ctx.service.callCreateDevice, {
+      user_id: user.id,
+      user_agent: ctx.state.userAgent.source
+    })
+    ctx.body = device
+    ctx.status = 200
   }
   // Login with form (POST)
   async login (ctx, next) {
@@ -56,7 +47,7 @@ class Endpoint {
 
   async loginCallback (ctx, next) {
     const userId = ctx.query.user_id
-    const device = circuitBreaker(ctx.service.externalCreateDevice, CIRCUIT_BREAKER_OPTIONS, {
+    const device = circuitBreaker(ctx.service.callCreateDevice, {
       user_id: userId,
       user_agent: ctx.state.userAgent.source
     })
@@ -67,23 +58,17 @@ class Endpoint {
   }
 
   async registerApi (ctx, next) {
-    try {
-      const request = ctx.schema.registerRequest(ctx.request.body)
-      const user = await ctx.service.register(request)
-      user.id = user._id.toString()
-      const response = ctx.schema.registerResponse(user)
-      const device = circuitBreaker(ctx.service.externalCreateDevice, CIRCUIT_BREAKER_OPTIONS, {
-        user_id: user.id,
-        user_agent: ctx.state.userAgent.source
-      })
-      ctx.body = device
-      ctx.status = 200
-    } catch (err) {
-      ctx.status = 400
-      ctx.body = {
-        error: err.message
-      }
-    }
+    const request = ctx.schema.registerRequest(ctx.request.body)
+    const user = await ctx.service.register(request)
+    user.id = user._id.toString()
+
+    const response = ctx.schema.registerResponse(user)
+    const device = await circuitBreaker(ctx.service.externalCreateDevice, {
+      user_id: user.id,
+      user_agent: ctx.state.userAgent.source
+    })
+    ctx.body = device
+    ctx.status = 200
   }
 
   async register (ctx, next) {
@@ -101,7 +86,7 @@ class Endpoint {
 
   async registerCallback (ctx, next) {
     const userId = ctx.query.user_id
-    const device = circuitBreaker(ctx.service.externalCreateDevice, CIRCUIT_BREAKER_OPTIONS, {
+    const device = circuitBreaker(ctx.service.externalCreateDevice, {
       user_id: userId,
       user_agent: ctx.state.userAgent.source
     })

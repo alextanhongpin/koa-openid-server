@@ -4,7 +4,6 @@ import Endpoint from './endpoint.js'
 import Service from './service.js'
 import Client from './model.js'
 
-import route from '../common/route.js'
 import schema from './schema.js'
 
 const router = new Router()
@@ -21,10 +20,10 @@ router.use(async(ctx, next) => {
 })
 
 // Internal API
-router.get(route.CLIENTS_REGISTER, endpoint.postClientView)
-router.get(route.CLIENTS, endpoint.getClientsView)
-router.get(route.CLIENTS_ID, endpoint.getClientView)
-router.get(route.CLIENTS_UPDATE, endpoint.getClientUpdateView)
+router.get('/register/clients', endpoint.createView)
+router.get('/clients', endpoint.allView)
+router.get('/clients/:id', endpoint.oneView)
+router.get('/clients/:id/edit', endpoint.updateView)
 // API Endpoints
 // Note that the versioning is independent from other services
 // This makes it easier to increase the versioning without affecting
@@ -32,11 +31,9 @@ router.get(route.CLIENTS_UPDATE, endpoint.getClientUpdateView)
 
 // External API
 router
-.get(route.CLIENTS_API, endpoint.all)
-.post(route.CLIENTS_API, endpoint.create)
+.get('/api/v1/clients', endpoint.all)
+.get('/api/v1/clients/:id', endpoint.one)
+.post('/api/v1/clients', endpoint.create)
+.patch('/api/v1/clients/:id', endpoint.update)
 
-router
-.get(route.CLIENTS_ID_API, endpoint.one)
-.patch(route.CLIENTS_ID_API, endpoint.update)
-
-export default route
+export default router
