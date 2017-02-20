@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+
+  <link rel="stylesheet" type="text/css" href="reset.css">
+  <style type="text/css">
+    
+    *, *:before, *:after {
+      padding: 0;
+      margin: 0;
+    }
+    body {
+      font-family: Helvetica;
+      background: #F0F0F0;
+    }
+
+    .title {
+      font-size: 36px;
+      font-weight: bold;
+    }
+    .subtitle {
+      font-size: 18px;
+      color: #999;
+      font-weight: 300;
+      line-height: 36px;
+    }
+    .font-primary {
+      color: #285AE1;
+    }
+
+    .header {
+      background: #285AE1;
+      color: white;
+      height: 50px;
+      line-height: 50px;
+      padding: 0 20px;
+      font-size: 20px;
+    }
+    
+    .login-form {
+      background: white;
+      padding: 30px;
+      max-width: 400px;
+      margin: 50px auto;
+    }
+
+    .label {
+      font-size: 14px;
+      height: 24px;
+      line-height: 24px;
+    }
+    .label--primary {
+      font-weight: bold;
+    }
+    .label--highlight {
+      color: #285AE1;
+    }
+
+    .input {
+      appearance: none;
+      -webkit-appearance: none;
+      font-family: Helvetica;
+      border: none;
+      width: 100%;
+    }
+    .input--primary {
+      font-size: 18px;
+      font-weight: 300;
+      border-bottom: 1px solid #dcdcdc;
+      height: 36px;
+      margin: 4px 0;
+      outline: none;
+      transition: .174s border-color ease-out;
+    }
+    .input--primary:focus {
+      border-bottom: 2px solid #285AE1;
+      margin: 4px 0;
+    }
+
+    .small {
+      color: #999;
+      font-size: 14px;
+      line-height: 18px;
+    }
+    .link {
+      color: #285AE1;
+      text-decoration: none;
+    }
+
+
+    .button {
+      border: none;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .button--primary {
+      background: #285AE1;
+      height: 40px;
+      width: 120px;
+      color: white;
+      font-size: 18px;
+      text-align: center;
+    }
+    .button--primary:hover {
+      box-shadow: 0 0 20px rgba(40, 90, 225, .5);
+    }
+    .align-right {
+      text-align: right;
+    }
+  </style>
+
+</head>
+<body>
+
+<header class='header'>App</header>
+
+<form class='login-form'>
+  <h1 class='title'>Sign In</h1>
+  <span class='subtitle'>Please sign in to proceed.</span>
+  
+  <br>
+  <br>
+  <br>
+
+  <div>
+    <div>
+      <label class='label label--primary' for='email'>Email</label>
+    </div>
+    <div>
+      <input class='input input--primary' id='email' type="email" name="email" placeholder='e.g. john.doe@mail.com'>
+    </div>
+  </div>
+
+  <br>
+
+  <div>
+    <div>
+      <label class='label label--primary' for='password'>Password</label>
+    </div>
+    <div>
+      <input class='input input--primary' id='password' type="password" name="password" placeholder='min 6 characters'>
+    </div>
+  </div>
+
+
+  <div>
+    <input id='remember_me' type="checkbox" name="remember_me">
+    <label for='remember_me' class='font-primary label label--highlight'>Remember me</label>
+  </div>
+
+  <br>
+  <br>
+  <br>
+
+  <div class='small'>
+    By proceeding, you agree to our <a class='link'>Privacy Policy</a> and <a href="" class='link'>Terms and Condition</a>.
+  </div>
+
+  <br>
+
+  <div class='align-right'>
+    <button class='button button--primary'>Continue</button>
+  </div>
+
+</form>
+
+</body>
+</html>
