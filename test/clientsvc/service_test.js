@@ -9,8 +9,6 @@ import getClientResponse from '../../clientsvc/sample/get-client-response.json'
 // Import models
 const expect = chai.expect
 
-
-
 describe('ClientService', () => {
   context('constructor()', () => {
     it ('shall create a new client service', (done) => {

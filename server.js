@@ -1,13 +1,13 @@
 import Koa from 'koa'
 
 import parser from 'koa-bodyparser'
-import convert from 'koa-convert'
+// import convert from 'koa-convert'
 import compress from 'koa-compress'
 import render from 'koa-ejs'
-import logger from 'koa-logger'
-import mount from 'koa-mount'
+// import logger from 'koa-logger'
+// import mount from 'koa-mount'
 import ratelimit from 'koa-ratelimit'
-import Router from 'koa-router'
+// import Router from 'koa-router'
 import session from 'koa-session'
 import serve from 'koa-static'
 import userAgent from 'koa-useragent'
@@ -15,27 +15,42 @@ import userAgent from 'koa-useragent'
 import path from 'path'
 import redis from 'redis'
 import co from 'co'
-import _ from './common/database.js'
+
+// Initialize Database
+import './common/database.js'
+import FeatureToggle from './common/feature-toggle.js'
 
 // import oauthsvc from './oauthsvc/transport.js'
 import authsvc from './authsvc/transport.js'
 import devicesvc from './devicesvc/transport.js'
 import clientsvc from './clientsvc/transport.js'
 import client from './client/transport.js'
-
 import errors from './modules/errors.js'
 
 const PORT = process.env.PORT
+
+// Feature Toggle
+const AUTHSVC = process.env.AUTHSVC
+const DEVICESVC = process.env.DEVICESVC
+const CLIENT = process.env.CLIENT
+const CLIENTSVC = process.env.CLIENTSVC
+
 const app = new Koa()
 
-app.keys = ['dbbc0cae-c0d0-422d-9a72-0b8e09d4fd55', '7b463fab-d854-4657-836b-31ff366a5c34']
+const featureToggle = FeatureToggle(app)
+
+app.keys = [
+  'dbbc0cae-c0d0-422d-9a72-0b8e09d4fd55',
+  '7b463fab-d854-4657-836b-31ff366a5c34'
+]
+
 app.use(session(app))
 
 app.use(ratelimit({
   db: redis.createClient(),
   duration: 60000,
   max: 100,
-  id: function (context) {
+  id (context) {
     return context.ip
   },
   headers: {
@@ -47,23 +62,12 @@ app.use(ratelimit({
 }))
 
 app.use(compress({
-  filter: function (content_type) {
-    return /text/i.test(content_type)
+  filter (contentType) {
+    return /text/i.test(contentType)
   },
   threshold: 2048,
   flush: require('zlib').Z_SYNC_FLUSH
 }))
-
-// app.use((ctx, next) => {
-//   if (![ 'GET', 'POST' ].includes(ctx.method)) {
-//     return next()
-//   }
-//   if (ctx.method === 'GET') {
-//     ctx.body = ctx.csrf
-//     return
-//   }
-//   ctx.body = 'OK'
-// })
 
 render(app, {
   root: path.join(__dirname, 'view'),
@@ -80,23 +84,33 @@ app
 .use(userAgent())
 // .use(logger())
 .use(parser())
-.use(authsvc.routes())
-.use(authsvc.allowedMethods())
-.use(devicesvc.routes())
-.use(devicesvc.allowedMethods())
-.use(client.routes())
-.use(client.allowedMethods())
-.use(clientsvc.routes())
-.use(clientsvc.allowedMethods())
+
+featureToggle.register({
+  service: authsvc,
+  name: 'authsvc',
+  enabled: AUTHSVC
+})
+
+featureToggle.register({
+  service: devicesvc,
+  name: 'devicesvc',
+  enabled: DEVICESVC
+})
+
+featureToggle.register({
+  service: client,
+  name: 'client',
+  enabled: CLIENT
+})
+
+featureToggle.register({
+  service: clientsvc,
+  name: 'clientsvc',
+  enabled: CLIENTSVC
+})
+
 // .use(oauthsvc.routes())
 // .use(oauthsvc.allowedMethods())
-
-// // Catch-All Route
-// app.use(async (ctx, next) => {
-//   await ctx.render('home', {
-//     title: 'Hello'
-//   })
-// })
 
 if (!module.parent) {
   app.listen(PORT, () => {
