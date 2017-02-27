@@ -19,6 +19,7 @@ import co from 'co'
 // Initialize Database
 import './common/database.js'
 import FeatureToggle from './common/feature-toggle.js'
+import config from './common/config.js'
 
 // import oauthsvc from './oauthsvc/transport.js'
 import authsvc from './authsvc/transport.js'
@@ -27,13 +28,14 @@ import clientsvc from './clientsvc/transport.js'
 import client from './client/transport.js'
 import errors from './modules/errors.js'
 
-const PORT = process.env.PORT
+// Constant
+const PORT = config.get('port')
 
 // Feature Toggle
-const AUTHSVC = process.env.AUTHSVC
-const DEVICESVC = process.env.DEVICESVC
-const CLIENT = process.env.CLIENT
-const CLIENTSVC = process.env.CLIENTSVC
+const AUTHSVC = config.get('service.auth')
+const DEVICESVC = config.get('service.device')
+const CLIENTSVC = config.get('service.client')
+const CLIENT = config.get('route.client')
 
 const app = new Koa()
 
