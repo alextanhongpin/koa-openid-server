@@ -7,8 +7,16 @@ export default class ServiceInterface {
   create (props) {
     return this.db.create(props)
   }
-  all ({query = {}, skip = 0, limit = 10}) {
-    return this.db.find(query)
+  all ({skip = 0, limit = 10}) {
+    const args = [...arguments]
+    const validKeys = Object.keys(args).filter((d) => {
+      return d !== 'skip' && d !== 'limit'
+    })
+    const validParams = validKeys.reduce((o, k) => {
+      o[k] = arguments[k]
+      return o
+    }, {})
+    return this.db.find(validParams)
     .skip(skip)
     .limit(limit)
   }

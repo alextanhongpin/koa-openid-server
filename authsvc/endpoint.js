@@ -1,11 +1,25 @@
-// authsvc/endpoint.js
+/*
+ * authsvc/endpoint.js
+ *
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ *
+ * Created by Alex Tan Hong Pin 19/2/2017
+ * Copyright (c) 2017 alextanhongpin. All rights reserved.
+**/
 
+// endpoint.js cont
 // 1. Orchestration of business logic is done here
 // 2. External services are prefixed with `external`
 // 3. Circuit breaker will be applied to external services
 import circuitBreaker from '../common/circuit.js'
 
 class Endpoint {
+  // NOTE: This doesn't work because the `this` does not bind to the context
+  // constructor ({ service, schema }) {
+  //   this.service = service
+  //   this.schema = schema
+  // }
   // The reason why we avoid form is that the implementation
   // will be tied to web only,
   // If we want to support mobile devices, then it should be able
@@ -77,7 +91,6 @@ class Endpoint {
       const user = await ctx.service.register(request)
       user.id = user._id.toString()
       const response = ctx.schema.registerResponse(user)
-
       ctx.redirect('/register/callback?user_id=' + response.id)
     } catch (err) {
       ctx.redirect('/register/error')
@@ -111,6 +124,7 @@ class Endpoint {
   }
 }
 
+// We do this to avoid the new keyword
 export default () => {
   return new Endpoint()
 }

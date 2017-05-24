@@ -21,6 +21,7 @@ const sdk = SDK({
   introspectURL: 'http://localhost:3100/token/introspect',
   code: ''
 })
+
 // GET /
 class Endpoint {
   async home (ctx, next) {
@@ -46,7 +47,6 @@ class Endpoint {
   }
 
   async authorizeCallback (ctx, next) {
-
     const request = {
       code: ctx.query.code
     }
@@ -57,7 +57,6 @@ class Endpoint {
     ctx.status = 200
     ctx.body = response
     await next()
-
   }
   // POST /client-introspect
   async introspect (ctx, next) {
@@ -77,16 +76,14 @@ class Endpoint {
         active: false
       }
     }
-  },
+  }
   async refreshToken (ctx, next) {
-
     const response = await openIdSDK.refresh({
-      refresh_token: ctx.request.body.refreshToken,
+      refresh_token: ctx.request.body.refreshToken
     })
     ctx.status = 200
     ctx.body = response
-
-  } 
+  }
 }
 
 export default () => {

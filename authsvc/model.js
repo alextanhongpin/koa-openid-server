@@ -18,6 +18,7 @@ import db from '../common/database.js'
 // Constants
 // Pull configs from environment variables
 const JWT_SECRET = process.env.JWT_SECRET
+const APP_NAME = process.env.APP_NAME
 
 // Errors are grouped together to make it easier to find and modify
 // TODO: Add support for multilingual based on the Content-Language header
@@ -61,7 +62,7 @@ const UserSchema = new Schema({
     type: String
   },
   name: {
-    type: String                            
+    type: String
   },
   given_name: {
     type: String
@@ -89,7 +90,7 @@ const UserSchema = new Schema({
   },
   gender: {
     type: String,
-    enum: ['male', 'female'] 
+    enum: ['male', 'female']
   },
   birthdate: {
     // Format: ISO 8601:2004 [ISO8601‑2004] YYYY-MM-DD
@@ -188,7 +189,7 @@ UserSchema.statics.createAccessToken = (payload, expiresIn = '2m') => {
     }, JWT_SECRET, {
       algorithm: 'HS256',
       expiresIn,
-      issuer: process.env.APP_NAME
+      issuer: APP_NAME
     }, (error, token) => {
       error ? reject(error) : resolve(token)
     })
@@ -200,7 +201,7 @@ UserSchema.statics.validateAccessToken = (token) => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, JWT_SECRET, {
       algorithms: ['HS256'],
-      issuer: process.env.APP_NAME
+      issuer: APP_NAME
     }, (error, decoded) => {
       error ? reject(error) : resolve(decoded)
     })

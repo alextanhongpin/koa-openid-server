@@ -4,8 +4,8 @@ import request from 'request'
 // Don't mix different logic in one service (orchestration), that
 // will be done in the endpoint level
 class AuthService {
-  constructor (props) {
-    this.db = props.db
+  constructor ({ db }) {
+    this.db = db
   }
   async login ({email, password}) {
     const user = await this.db.findOne({ email })

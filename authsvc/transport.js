@@ -1,4 +1,4 @@
-
+// transport.js exposes the api routes through the endpoints
 import Router from 'koa-router'
 import Endpoint from './endpoint.js'
 import Service from './service.js'
@@ -10,6 +10,8 @@ const router = new Router()
 const endpoint = Endpoint()
 
 router.use(async(ctx, next) => {
+	// This is an anti-pattern
+	// Better to pass it through dependency injection
   ctx.schema = schema
   ctx.service = Service({ db: Model })
   await next()
@@ -17,14 +19,14 @@ router.use(async(ctx, next) => {
 
 // Internal API
 router
-.get('/login', endpoint.loginView)
-.post('/login', endpoint.login)
-.get('/login/callback', endpoint.loginCallback)
+	.get('/login', endpoint.loginView)
+	.post('/login', endpoint.login)
+	.get('/login/callback', endpoint.loginCallback)
 
 router
-.get('/register', endpoint.registerView)
-.post('/register', endpoint.register)
-.get('/register/callback', endpoint.registerCallback)
+	.get('/register', endpoint.registerView)
+	.post('/register', endpoint.register)
+	.get('/register/callback', endpoint.registerCallback)
 
 // External API
 router.post('/api/v1/auth/login', endpoint.loginApi)

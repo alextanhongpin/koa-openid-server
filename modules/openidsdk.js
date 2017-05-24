@@ -126,5 +126,5 @@ class SDK {
 }
 
 export default (options) => {
-  return new OpenIdSDK(options)
+  return new SDK(options)
 }

@@ -39,6 +39,6 @@ const conf = convict({
   }
 })
 
-conf.validate({ strict: true })
+conf.validate({ allowed: 'strict' })
 
 export default conf

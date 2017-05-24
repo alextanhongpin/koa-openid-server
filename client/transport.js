@@ -19,6 +19,6 @@ route.get('/profile', endpoint.profile)
 
 // The routes that the client will integrate
 
-route.get('/external/authorize', Endpoint.clientAuthorize)
-route.get('/external/authorize/callback', Endpoint.clientAuthorizeCallback)
+// route.get('/external/authorize', endpoint.clientAuthorize)
+// route.get('/external/authorize/callback', endpoint.clientAuthorizeCallback)
 export default route
