@@ -18,7 +18,17 @@ import qs from 'querystring'
 // }
 
 class SDK {
-  constructor ({ clientID, clientSecret, scope, redirectURL, authURL, tokenURL, requestURL, introspectURL, code}) {
+  constructor ({
+      clientID,
+      clientSecret,
+      scope,
+      redirectURL,
+      authURL,
+      tokenURL,
+      requestURL,
+      introspectURL,
+      code
+    }) {
     this.clientID = clientID
     this.clientSecret = clientSecret
     this.scope = scope
@@ -32,17 +42,18 @@ class SDK {
     this.AUTHORIZATION_CODE = 'authorization_code'
   }
 
+  // introspect validates if the token is still valid for a particular user
   introspect ({ token, token_type_hint = 'access_token' }) {
     return new Promise((resolve, reject) => {
-      request(this._introspectEndpoint, {
+      request(this.introspectURL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Authorization': `Basic ${base64.encode([this.clientID, this.clientSecret].join(':'))}`
         },
         form: {
-          token_type_hint,
-          token
+          token,
+          token_type_hint
         }
       }, (error, response, body) => {
         if (error) {
@@ -56,7 +67,7 @@ class SDK {
     })
   }
 
-    // Issue a new access token based on the refresh token
+    // refresh will issue a new access token based on the refresh token
   refresh ({ grant_type = 'refresh_token', refresh_token }) {
     return new Promise((resolve, reject) => {
       request(this.requestURL, {
@@ -82,6 +93,8 @@ class SDK {
       })
     })
   }
+
+  // authorize will redirect the user to the authorization page
   authorize () {
     const baseUri = this.authURL
     const query = qs.stringify({
@@ -94,6 +107,7 @@ class SDK {
       authorize_uri: `${baseUri}?${query}`
     })
   }
+
   // Module specific for Koa
   authorizeCallback ({ code }) {
     return new Promise((resolve, reject) => {

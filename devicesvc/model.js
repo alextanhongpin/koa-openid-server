@@ -10,11 +10,11 @@ import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
 import base64url from 'base64url'
 import db from '../common/database.js'
-import packageJSON from '../package.json'
+import package from '../package.json'
 
 // Constants
 const JWT_SECRET = process.env.JWT_SECRET
-const ISSUER = packageJSON.name
+const ISSUER = package.name
 
 const DeviceSchema = new Schema({
   access_token: {
@@ -38,13 +38,13 @@ const DeviceSchema = new Schema({
     type: Number
   }
 }, {
-  timestamps: { 
+  timestamps: {
     createdAt: 'created_at',
     updatedAt: 'updated_at'
-  } 
+  }
 })
 
-DeviceSchema.statics.createRefreshToken = (size=32) => {
+DeviceSchema.statics.createRefreshToken = (size = 32) => {
   return new Promise((resolve, reject) => {
     crypto.randomBytes(size, (error, buffer) => {
       error ? reject(error) : resolve(base64url(buffer))
@@ -52,7 +52,7 @@ DeviceSchema.statics.createRefreshToken = (size=32) => {
   })
 }
 
-DeviceSchema.statics.createAccessToken = ({ user_id, user_agent, expires_in='2m'}) => {
+DeviceSchema.statics.createAccessToken = ({ user_id, user_agent, expires_in = '2m'}) => {
   return new Promise((resolve, reject) => {
     // The access token should have the user_id decoded
     // This will make it easier to use the JWT token as
@@ -89,4 +89,5 @@ try {
 } catch (error) {
   Device = db.model('Device', DeviceSchema)
 }
+
 export default Device

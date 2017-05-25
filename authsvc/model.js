@@ -176,6 +176,7 @@ UserSchema.statics.createRefreshToken = (size) => {
   })
 }
 
+// Create the access token for the user
 UserSchema.statics.createAccessToken = (payload, expiresIn = '2m') => {
   return new Promise((resolve, reject) => {
     // The access token should have the user_id decoded
