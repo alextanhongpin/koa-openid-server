@@ -20,12 +20,13 @@ router.use(async(ctx, next) => {
 // only authorized user can log in
 router
 	.get('/authorize', endpoint.getAuthorize)
-	.post('/authorize', endpoint.postAuthorize, endpoint.checkUser)
-	.get('/client-connect', endpoint.getClientConnect)
+	.post('/authorize', endpoint.postAuthorize, endpoint.checkUser) // Check if the user provides the correct access token
+	// .get('/client-connect', endpoint.getClientConnect)
 	.post('/token', endpoint.token)
 	.post('/token/refresh', endpoint.refresh)
 	.post('/token/introspect', endpoint.introspect)
 
+// TODO: Delete unused routes
 // route.get('/connect', Endpoint.getConnect)
 // route.get('/connect/callback', Endpoint.getConnectCallback)
 // route.post('/client-introspect', Endpoint.postClientIntrospect)

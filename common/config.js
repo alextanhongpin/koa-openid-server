@@ -28,6 +28,11 @@ const conf = convict({
       doc: 'Feature toggle for client service',
       format: Boolean,
       default: true
+    },
+    oauth: {
+      doc: 'Feature toggle for oauth service',
+      format: Boolean,
+      default: true
     }
   },
   route: {

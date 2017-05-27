@@ -1,17 +1,17 @@
 
-import { name:ISSUER } from '../package.json'
+import packageJson from '../package.json'
+const ISSUER = packageJson.name
 import jwt from 'jsonwebtoken'
 
 const JWT_SECRET = process.env.JWT_SECRET
-
 
 class JWT {
   constructor ({ secret, algorithm, issuer }) {
     this.secret = secret
     this.algorithm = algorithm
-    this.issuer = issuer 
+    this.issuer = issuer
   }
-  sign ({ user_id, user_agent, expires_in='2m' }) {
+  sign ({ user_id, user_agent, expires_in = '2m' }) {
     return new Promise((resolve, reject) => {
       jwt.sign({ user_id, user_agent }, this.secret, {
         algorithm: this.algorithm,
@@ -22,7 +22,7 @@ class JWT {
       })
     })
   }
-  verify ({ token }) {
+  verify (token) {
     return new Promise((resolve, reject) => {
       jwt.verify(token, this.secret, {
         algorithms: [this.algorithm],

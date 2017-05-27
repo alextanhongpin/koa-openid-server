@@ -86,6 +86,8 @@ const Service = {
       }
     })
   },
+
+  // Request for a new access token by providing a refresh token
   refresh ({accessToken, refreshToken}) {
     return new Promise((resolve, reject) => {
       console.log('Service.refresh:accessToken => ', accessToken)

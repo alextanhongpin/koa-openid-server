@@ -6,7 +6,7 @@ class Base64 {
   }
   // Converts base64 string to ascii string back
   decode (string) {
-    return Buffer.from(base64, 'base64').toString('ascii')
+    return Buffer.from(string, 'base64').toString('ascii')
   }
 }
 

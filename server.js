@@ -25,6 +25,7 @@ import config from './common/config.js'
 import authsvc from './authsvc/transport.js'
 import devicesvc from './devicesvc/transport.js'
 import clientsvc from './clientsvc/transport.js'
+import oauthsvc from './oauthsvc/transport.js'
 import client from './client/transport.js'
 import errors from './modules/errors.js'
 
@@ -33,6 +34,7 @@ const PORT = config.get('port')
 
 // Feature Toggle
 const AUTHSVC = config.get('service.auth')
+const OAUTHSVC = config.get('service.oauth')
 const DEVICESVC = config.get('service.device')
 const CLIENTSVC = config.get('service.client')
 const CLIENT = config.get('route.client')
@@ -91,6 +93,12 @@ featureToggle.register({
   service: authsvc,
   name: 'authsvc',
   enabled: AUTHSVC
+})
+
+featureToggle.register({
+  service: oauthsvc,
+  name: 'oauthsvc',
+  enabled: OAUTHSVC
 })
 
 featureToggle.register({

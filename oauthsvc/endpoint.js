@@ -1,8 +1,13 @@
 // endpoint.js
 import qs from 'querystring'
 import redis from '../common/redis.js'
-import jwt from '../modules/jwt'
-import base64 from '../modules/base64.js'
+import JWT from '../modules/jwt'
+import Base64 from '../modules/base64.js'
+import Log from '../modules/log.js'
+
+const base64 = Base64()
+const jwt = JWT()
+const log = Log('oauthsvc')
 
 const ErrorInvalidContentType = new Error('Invalid Content-Type: Content-Type must be application/json')
 const ErrorBasicAuthorizationMissing = new Error('Invalid Request: Basic authorization header is required')
@@ -56,6 +61,8 @@ class Endpoint {
       return ctx.redirect(`${error.redirect_uri}?${query}`)
     }
   }
+
+  // postAuthorize
   async postAuthorize (ctx, next) {
     const request = ctx.schema.authorizeRequest(ctx.request.body)
 
@@ -160,31 +167,39 @@ class Endpoint {
   // Refresh the access token by providing a new access token if the provided refresh token is valid
   async refresh (ctx, next) {
     // Business-rule-validation
-    console.log('oauthsvc:endpoint:refresh:is form url encoded => ', ctx.is('application/x-www-form-urlencoded'))
-
-    if (!ctx.is('application/x-www-form-urlencoded')) {
+    if (!(ctx.headers['content-type'] === 'application/x-www-form-urlencoded')) {
       ctx.throw('Bad Request', 400, {
         description: ErrorInvalidContentType.message
       })
     }
     const authorizationHeader = ctx.headers.authorization
-    console.log('oauthsvc:endpoint:refresh:authorizationHeader => ', authorizationHeader)
     const [ authType, authToken ] = authorizationHeader.split(' ')
-    if (authType !== 'Basic') {
+
+    // Should it be `bearer` or `basic`?
+    if (authType !== 'Bearer') {
       ctx.throw('Bad Request', 400, {
         description: ErrorBasicAuthorizationMissing.message
       })
     }
-    const authTokenValidated = base64.decode(authToken)
-    const [ clientId, clientSecret ] = authTokenValidated.split(':')
-    console.log('oauthsvc:endpoint:refresh:clientId => ', clientId)
-    console.log('oauthsvc:endpoint:refresh:clientSecret => ', clientSecret)
 
+    log.debug('refresh', 'authToken', authToken)
+
+    // const token = await jwt.verify(authToken)
+    // log.debug('refresh', 'token', token)
+
+    const authTokenValidated = base64.decode(authToken)
+
+    log.debug('refresh', 'authTokenValidated', authTokenValidated)
+
+    const [ clientId, clientSecret ] = authTokenValidated.split(':')
     if (!clientId || !clientSecret) {
       ctx.throw('Forbidden Access', 403, {
         description: ErrorForbiddenAccess.message
       })
     }
+
+    log.debug('refresh', 'clientId', clientId)
+    log.debug('refresh', 'clientSecret', clientSecret)
     const request = ctx.schema.refreshTokenRequest({
       grant_type: ctx.request.body.grant_type,
       refresh_token: ctx.request.body.refresh_token,
@@ -249,55 +264,46 @@ class Endpoint {
     ctx.status = 200
     ctx.body = response
   }
-}
 
-const checkUser = async (ctx, next) => {
-  const authorizationHeader = ctx.headers.authorization
-  const [ authType, authToken ] = authorizationHeader.split(' ')
-  if (authType !== 'Bearer') {
-    const error = qs.stringify({
-      error: 'Bad Request',
-      description: ErrorBasicAuthorizationMissing.message
-    })
-    ctx.status = 400
-    ctx.body = {
-      redirect_uri: `${ctx.state.request.redirect_uri}?${error}`
+  // carry out validation to see if the user has authorization for the api
+  async checkUser (ctx, next) {
+    const authorizationHeader = ctx.headers.authorization
+    const [ authType, authToken ] = authorizationHeader.split(' ')
+    if (authType !== 'Bearer') {
+      const error = qs.stringify({
+        error: 'Bad Request',
+        description: ErrorBasicAuthorizationMissing.message
+      })
+      ctx.status = 400
+      ctx.body = {
+        redirect_uri: `${ctx.state.request.redirect_uri}?${error}`
+      }
+    }
+
+    try {
+      const token = await jwt.verify(authToken)
+      ctx.state.user_id = token.user_id
+
+      const FIVE_MINUTES = 300
+      const value = `authcode:user:${ctx.state.response.code}`
+      redis.set(value, ctx.state.user_id)
+      redis.expire(value, FIVE_MINUTES)
+    } catch (err) {
+      const error = qs.stringify({
+        error: err.name,
+        error_description: err.message
+      })
+
+      ctx.set('Cache-Control', 'no-cache')
+      ctx.set('Pragma', 'no-cache')
+      ctx.status = 400
+      ctx.body = {
+        redirect_uri: `${ctx.state.request.redirect_uri}?${error}`
+      }
     }
   }
-
-  try {
-    const token = await jwt.verify(authToken)
-    ctx.state.user_id = token.user_id
-
-    const FIVE_MINUTES = 300
-    const value = `authcode:user:${ctx.state.response.code}`
-    redis.set(value, ctx.state.user_id)
-    redis.expire(value, FIVE_MINUTES)
-  } catch (err) {
-    const error = qs.stringify({
-      error: err.name,
-      error_description: err.message
-    })
-
-    ctx.set('Cache-Control', 'no-cache')
-    ctx.set('Pragma', 'no-cache')
-    ctx.status = 400
-    ctx.body = {
-      redirect_uri: `${ctx.state.request.redirect_uri}?${error}`
-    }
-  }
 }
 
-// export default {
-//   introspect,
-//   refresh,
-//   getAuthorize,
-//   postAuthorize,
-//   token,
-//   checkUser,
-//   cacheAuthorizationCode
-
-// }
 export default (props) => {
   return new Endpoint(props)
 }
