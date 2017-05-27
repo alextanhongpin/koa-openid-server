@@ -10,11 +10,11 @@ import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
 import base64url from 'base64url'
 import db from '../common/database.js'
-import package from '../package.json'
+import packageJson from '../package.json'
 
 // Constants
 const JWT_SECRET = process.env.JWT_SECRET
-const ISSUER = package.name
+const ISSUER = packageJson.name
 
 const DeviceSchema = new Schema({
   access_token: {

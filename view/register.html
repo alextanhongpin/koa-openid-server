@@ -25,14 +25,12 @@
 		const email = document.querySelector('input[name=email]').value
 		const password = document.querySelector('input[name=password]').value
 
-
-		Service.register(email, password).then((data) => {
-			const { access_token, refresh_token } = data
-			console.log(data)
+		Service.register(email, password).then(({ access_token, refresh_token }) => {
+			console.log('Successfully registered:', access_token, refresh_token)
 			if (access_token && refresh_token) {
 				window.localStorage.accessToken = access_token
 				window.localStorage.refreshToken = refresh_token
-				// window.location.href = '/profile'
+				window.location.href = '/profile'
 			}
 		})
 		return false

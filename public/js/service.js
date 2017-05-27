@@ -39,7 +39,7 @@ const Service = {
     const response = request.then((body) => {
       if (!body) {
         window.alert('Error parsing body')
-        return
+        return {}
       }
       return body.json()
     }).catch((error) => {
@@ -88,16 +88,19 @@ const Service = {
   },
   refresh ({accessToken, refreshToken}) {
     return new Promise((resolve, reject) => {
+      console.log('Service.refresh:accessToken => ', accessToken)
+      console.log('Service.refresh:refreshToken => ', refreshToken)
+
       if (!accessToken || !refreshToken) {
         // Redirect the user to the login page
         // window.location.replace('/login')
         reject(new Error('User is not authenticated'))
       } else {
-        const request = fetch('/client-refresh', {
+        const request = fetch('/token/refresh', {
           method: 'POST',
           headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json;charset=utf-8',
+            'Accept': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': `Bearer ${accessToken}`
           },
           body: JSON.stringify({

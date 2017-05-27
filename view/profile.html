@@ -50,7 +50,8 @@ refresh.addEventListener('click', (evt) => {
 		accessToken: window.localStorage.accessToken,
 		refreshToken: window.localStorage.refreshToken
 	}).then((data) => {
-		if (!data.error) {
+		console.log(data)
+		if (data && !data.error) {
 			active.innerHTML = 'Your access token is updated'
 			window.localStorage.accessToken = data.access_token
 			window.localStorage.refreshToken = data.refresh_token
@@ -58,6 +59,6 @@ refresh.addEventListener('click', (evt) => {
 		} else {
 			active.innerHTML = 'Fail to update access token. ' + data.error_description
 		}
-	})
+	}).catch(console.error)
 })
 </script>

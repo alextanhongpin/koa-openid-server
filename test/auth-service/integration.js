@@ -15,9 +15,12 @@
 // * Login and Register route
 //
 
+// TODO: Docker-compose everything
+
 import 'babel-polyfill'
 
 import chai from 'chai'
+import fixtures from './fixtures/index.js'
 
 // Import models
 const expect = chai.expect
@@ -29,13 +32,10 @@ const UserDAO = {
   },
   create (user) {
     this.users.push(user)
-    return {
-    	access_token: '',
-    	expires_in: 36000
-    }
+    return fixtures.loginResponse
   },
   get (email, password) {
-  	return this.users.filter(row => row.email === email && row.password === password)
+    return this.users.filter(row => row.email === email && row.password === password)
   }
 }
 
@@ -46,27 +46,32 @@ describe('Authentication Services', () => {
       expect(statusCode).to.be.eq(200)
       done()
     })
+
     it('shall register a new user', (done) => {
-      const username = 'john'
-      const password = '123456'
+      const { username, password } = fixtures.loginRequest
       const count = UserDAO.count()
 
       const existingUser = UserDAO.get(email, password)
       expect(existingUser.length).to.be.eq(0)
 
-	  UserDAO.create({ username, password })
-	  expect(UserDAO.length).to.be.eq(count + 1)
-	  done()
+      UserDAO.create({ username, password })
+      expect(UserDAO.length).to.be.eq(count + 1)
+      done()
     })
-    it('shall login an existing user', (done) => {
-      const username = 'john'
-      const password = '123456'
+
+    it('shall log in an existing user', (done) => {
+      const { username, password } = fixtures.loginRequest
       const existingUser = UserDAO.get(email, password)
       expect(existingUser.length).to.be.eq(1)
       done()
     })
-    it('shall return the correct payload', (done) => {
 
+    it('shall return the correct payload', (done) => {
+      const response = UserDAO.create({ username: 'john', password: 'doe' })
+      expect(response).to.have.property('access_token').eq('abc123')
+      expect(response).to.have.property('refresh_token').eq('123abc')
+      expect(response).to.have.property('expires_in').eq(3600)
+      done()
     })
   })
 })

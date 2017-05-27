@@ -1,5 +1,5 @@
 web: npm start
-# db: sudo mongod
+db: sudo mongod
 # redis: redis-server
 amqp: rabbitmq-server
 # test: npm test

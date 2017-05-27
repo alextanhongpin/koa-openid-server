@@ -7,6 +7,8 @@ class AuthService {
   constructor ({ db }) {
     this.db = db
   }
+
+  // login allows existing user to access their account
   async login ({email, password}) {
     const user = await this.db.findOne({ email })
     if (!user) throw this.db.errors('USER_NOT_FOUND')
@@ -16,10 +18,15 @@ class AuthService {
 
     return user.toJSON()
   }
+
+  // register allows a user to create a new account
   async register ({email, password}) {
+    console.log('authsvc:service:register:params => ', email, password)
     const User = this.db
     const user = await User.findOne({ email })
+    console.log('authsvc:service:register:user => ', user)
     if (user) {
+      console.log('authsvc:service:register:parsing user to json => ', user.toJSON())
       return user.toJSON()
     } else {
       const user = new User()
@@ -29,11 +36,14 @@ class AuthService {
       return user.toJSON()
     }
   }
+
+  // logout allows user to log out of their account
   logout () {
     // TODO: Clears the user's token/device from the database
   }
+
   // External services are prefixed with `external`
-  callCreateDevice ({ user_id, user_agent }) {
+  externalCreateDevice ({ user_id, user_agent }) {
     return new Promise((resolve, reject) => {
       request({
         method: 'POST',

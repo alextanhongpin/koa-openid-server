@@ -82,6 +82,8 @@ class Endpoint {
     const request = ctx.schema.registerRequest(ctx.request.body)
 
     const user = await ctx.service.register(request)
+
+    console.log('authsvc:endpoint:registerApi:user => ', user)
     user.id = user._id.toString()
 
     const response = ctx.schema.registerResponse(user)
@@ -89,6 +91,7 @@ class Endpoint {
       user_id: user.id,
       user_agent: ctx.state.userAgent.source
     })
+    console.log('authsvc:endpoint:registerApi:device => ', device)
 
     ctx.body = device
     ctx.status = 200

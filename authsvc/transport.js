@@ -23,23 +23,15 @@ router.use(async(ctx, next) => {
 //
 // ============================================================================
 
-// Render the login page
-router.get('/login', endpoint.loginView)
+router
+	.get('/login', endpoint.loginView) // Render the login page
+	.post('/login', endpoint.login) // Post the login form
+	.get('/login/callback', endpoint.loginCallback) // Handle the login callback
 
-// Post the login form
-router.post('/login', endpoint.login)
-
-// Handle the login callback
-router.get('/login/callback', endpoint.loginCallback)
-
-// Render the register page
-router.get('/register', endpoint.registerView)
-
-// Post the register form
-router.post('/register', endpoint.register)
-
-// Handle the register callback
-router.get('/register/callback', endpoint.registerCallback)
+router
+	.get('/register', endpoint.registerView) // Render the register page
+	.post('/register', endpoint.register)// Post the register form
+	.get('/register/callback', endpoint.registerCallback) // Handle the register callback
 
 // ============================================================================
 //

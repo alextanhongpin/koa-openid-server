@@ -157,14 +157,18 @@ class Endpoint {
   // The UserInfo Endpoint MUST support the use of the HTTP GET and HTTP POST methods defined in RFC 2616 [RFC2616].
   async userinfo (ctx, next) {}
 
+  // Refresh the access token by providing a new access token if the provided refresh token is valid
   async refresh (ctx, next) {
     // Business-rule-validation
+    console.log('oauthsvc:endpoint:refresh:is form url encoded => ', ctx.is('application/x-www-form-urlencoded'))
+
     if (!ctx.is('application/x-www-form-urlencoded')) {
       ctx.throw('Bad Request', 400, {
         description: ErrorInvalidContentType.message
       })
     }
     const authorizationHeader = ctx.headers.authorization
+    console.log('oauthsvc:endpoint:refresh:authorizationHeader => ', authorizationHeader)
     const [ authType, authToken ] = authorizationHeader.split(' ')
     if (authType !== 'Basic') {
       ctx.throw('Bad Request', 400, {
@@ -173,8 +177,10 @@ class Endpoint {
     }
     const authTokenValidated = base64.decode(authToken)
     const [ clientId, clientSecret ] = authTokenValidated.split(':')
+    console.log('oauthsvc:endpoint:refresh:clientId => ', clientId)
+    console.log('oauthsvc:endpoint:refresh:clientSecret => ', clientSecret)
+
     if (!clientId || !clientSecret) {
-      // throw error
       ctx.throw('Forbidden Access', 403, {
         description: ErrorForbiddenAccess.message
       })
@@ -185,6 +191,8 @@ class Endpoint {
       scope: ctx.request.body.scope,
       redirect_uri: ctx.request.body.redirect_uri
     })
+
+    console.log('oauthsvc:endpoint:refresh: request => ', request)
     // Fire external service
     const client = await this.service.callClients({ client_id: clientId, client_secret: clientSecret })
     if (!client) {
